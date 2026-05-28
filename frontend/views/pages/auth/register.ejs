@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Account | ScholarsGate</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Playfair+Display:wght@400;700;900&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+<div class="auth-page">
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="auth-card" style="max-width:540px;">
+    <div class="auth-logo-section">
+      <a href="/"><div class="auth-logo-mark">S</div></a>
+      <h1 class="auth-title">Create Account</h1>
+      <p class="auth-subtitle">Start your journey to elite USA education</p>
+    </div>
+
+    <% if (typeof flash !== 'undefined' && flash.error) { %>
+      <div class="alert alert-danger"><i class="fa-solid fa-circle-xmark"></i><span><%= flash.error %></span></div>
+    <% } %>
+
+    <form action="/auth/register" method="POST" data-validate class="form-dark">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div class="form-group">
+          <label class="form-label">First Name <span class="required">*</span></label>
+          <input type="text" name="firstName" class="form-control" placeholder="Jane" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Name <span class="required">*</span></label>
+          <input type="text" name="lastName" class="form-control" placeholder="Smith" required />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Email Address <span class="required">*</span></label>
+        <input type="email" name="email" class="form-control" placeholder="parent@example.com" required />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Phone Number</label>
+        <input type="tel" name="phone" class="form-control" placeholder="+1 (555) 000-0000" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Country <span class="required">*</span></label>
+        <select name="country" class="form-control form-select" required>
+          <option value="">Select your country</option>
+          <option>Nigeria</option><option>Ghana</option><option>Kenya</option><option>South Africa</option>
+          <option>India</option><option>China</option><option>Singapore</option><option>South Korea</option>
+          <option>Japan</option><option>UAE</option><option>Saudi Arabia</option><option>Pakistan</option>
+          <option>Bangladesh</option><option>Indonesia</option><option>Malaysia</option>
+          <option>United Kingdom</option><option>Canada</option><option>Australia</option>
+          <option>Germany</option><option>France</option><option>Brazil</option>
+          <option>Mexico</option><option>Other</option>
+        </select>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div class="form-group">
+          <label class="form-label">Password <span class="required">*</span></label>
+          <div style="position:relative;">
+            <input type="password" name="password" id="password" class="form-control" placeholder="Min. 8 characters" required style="padding-right:3rem;" />
+            <button type="button" onclick="togglePassword('password','eye1')" style="position:absolute;right:1rem;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,0.3);cursor:pointer;"><i id="eye1" class="fa-solid fa-eye"></i></button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirm Password <span class="required">*</span></label>
+          <input type="password" name="confirmPassword" class="form-control" placeholder="Repeat password" required />
+        </div>
+      </div>
+
+      <div style="margin-bottom:1.5rem;">
+        <label style="display:flex;align-items:flex-start;gap:0.75rem;cursor:pointer;">
+          <input type="checkbox" name="terms" required style="margin-top:3px;accent-color:var(--color-gold);" />
+          <span style="font-size:0.8rem;color:rgba(255,255,255,0.4);line-height:1.6;">
+            I agree to the <a href="#" style="color:var(--color-gold);">Terms of Service</a> and <a href="#" style="color:var(--color-gold);">Privacy Policy</a>
+          </span>
+        </label>
+      </div>
+
+      <button type="submit" class="btn btn-gold w-full btn-lg">
+        Create Account <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </form>
+
+    <p class="auth-footer-text">
+      Already have an account? <a href="/auth/login">Sign in</a>
+    </p>
+  </div>
+</div>
+<script src="/js/main.js"></script>
+<script>
+function togglePassword(id, iconId) {
+  const el = document.getElementById(id), icon = document.getElementById(iconId);
+  el.type = el.type === 'password' ? 'text' : 'password';
+  icon.className = el.type === 'password' ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
+}
+</script>
+</body>
+</html>

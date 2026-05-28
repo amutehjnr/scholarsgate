@@ -1,0 +1,103 @@
+/* ═══════════════════════════════════════════════════════════
+   SCHOLARSGATE — TYPOGRAPHY
+════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Jost:wght@300;400;500;600;700&display=swap');
+
+.font-serif    { font-family: var(--font-serif); }
+.font-display  { font-family: var(--font-display); }
+.font-sans     { font-family: var(--font-sans); }
+
+.text-xs    { font-size: var(--text-xs); }
+.text-sm    { font-size: var(--text-sm); }
+.text-base  { font-size: var(--text-base); }
+.text-md    { font-size: var(--text-md); }
+.text-lg    { font-size: var(--text-lg); }
+.text-xl    { font-size: var(--text-xl); }
+.text-2xl   { font-size: var(--text-2xl); }
+.text-3xl   { font-size: var(--text-3xl); }
+.text-4xl   { font-size: var(--text-4xl); }
+
+.font-light    { font-weight: 300; }
+.font-normal   { font-weight: 400; }
+.font-medium   { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.font-bold     { font-weight: 700; }
+.font-black    { font-weight: 900; }
+
+.leading-tight    { line-height: var(--leading-tight); }
+.leading-snug     { line-height: var(--leading-snug); }
+.leading-normal   { line-height: var(--leading-normal); }
+.leading-relaxed  { line-height: var(--leading-relaxed); }
+
+.tracking-widest  { letter-spacing: var(--tracking-widest); }
+.tracking-wider   { letter-spacing: var(--tracking-wider); }
+.tracking-wide    { letter-spacing: var(--tracking-wide); }
+.tracking-tight   { letter-spacing: var(--tracking-tight); }
+
+.text-uppercase   { text-transform: uppercase; }
+.text-capitalize  { text-transform: capitalize; }
+.text-italic      { font-style: italic; }
+
+.text-center  { text-align: center; }
+.text-left    { text-align: left; }
+.text-right   { text-align: right; }
+
+/* Color utilities */
+.text-gold       { color: var(--color-gold); }
+.text-ivory      { color: var(--color-ivory); }
+.text-white      { color: #fff; }
+.text-muted      { color: var(--color-text-muted); }
+.text-secondary  { color: var(--color-text-secondary); }
+.text-primary    { color: var(--color-text-primary); }
+.text-success    { color: var(--color-success-light); }
+.text-danger     { color: var(--color-danger-light); }
+.text-warning    { color: var(--color-warning-light); }
+
+/* ─── Special Headings ──────────────────────────────────── */
+.section-label {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--color-gold);
+  display: inline-block;
+  margin-bottom: var(--space-4);
+}
+
+.section-label::before {
+  content: '';
+  display: inline-block;
+  width: 24px;
+  height: 1px;
+  background: var(--color-gold);
+  vertical-align: middle;
+  margin-right: var(--space-3);
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-text-primary);
+}
+
+.section-title.light {
+  color: var(--color-ivory);
+}
+
+.gold-text {
+  background: var(--gradient-gold);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.display-serif {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  letter-spacing: var(--tracking-tight);
+  font-style: italic;
+}

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Applications | Admin | ScholarsGate</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body data-authenticated>
+<div class="dashboard-layout">
+  <div class="sidebar-overlay"></div>
+  <%- include('../../partials/sidebar') %>
+  <div class="dashboard-main">
+    <div class="dashboard-topbar">
+      <div class="topbar-left">
+        <button class="sidebar-toggle" style="width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.04);border:none;cursor:pointer;color:#4a4a6a;"><i class="fa-solid fa-bars"></i></button>
+        <div>
+          <div class="page-title-bar">Applications</div>
+          <div class="breadcrumb"><span>Admin</span><span class="breadcrumb-sep">/</span><span>Applications</span></div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <span style="font-size:0.875rem;font-weight:500;color:var(--color-text-muted);"><%= total %> total</span>
+      </div>
+    </div>
+    <%- include('../../partials/flash') %>
+    <div class="dashboard-content">
+
+      <!-- Filters -->
+      <div style="background:#fff;border-radius:12px;padding:1.25rem 1.5rem;box-shadow:var(--shadow-sm);border:var(--border-dark);margin-bottom:1.5rem;">
+        <form method="GET" action="/admin/applications" style="display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end;">
+          <div style="flex:1;min-width:200px;">
+            <label style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-text-muted);display:block;margin-bottom:6px;">Status</label>
+            <select name="status" class="form-control form-select" style="padding:0.6rem 2rem 0.6rem 0.875rem;">
+              <option value="">All Statuses</option>
+              <% ['draft','submitted','under_review','shortlisted','interview_scheduled','accepted','rejected','waitlisted'].forEach(s => { %>
+              <option value="<%= s %>" <%= filters.status === s ? 'selected' : '' %>><%= s.replace(/_/g,' ').replace(/\b\w/g,l=>l.toUpperCase()) %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div style="flex:1;min-width:200px;">
+            <label style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-text-muted);display:block;margin-bottom:6px;">School</label>
+            <select name="school" class="form-control form-select" style="padding:0.6rem 2rem 0.6rem 0.875rem;">
+              <option value="">All Schools</option>
+              <% schools.forEach(sc => { %>
+              <option value="<%= sc._id %>" <%= filters.school === String(sc._id) ? 'selected' : '' %>><%= sc.name %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div style="display:flex;gap:0.75rem;">
+            <button type="submit" class="btn btn-gold btn-sm"><i class="fa-solid fa-filter"></i> Filter</button>
+            <a href="/admin/applications" class="btn btn-ghost btn-sm">Clear</a>
+          </div>
+        </form>
+      </div>
+
+      <!-- Table -->
+      <div class="data-table-wrap">
+        <div class="data-table-header">
+          <h3>All Applications <span style="font-size:0.875rem;font-weight:500;color:var(--color-text-muted);margin-left:0.5rem;">(<%= total %>)</span></h3>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Ref #</th>
+                <th>Student</th>
+                <th>Guardian</th>
+                <th>School</th>
+                <th>Scholarship</th>
+                <th>Status</th>
+                <th>Submitted</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% applications.forEach(app => { %>
+              <tr>
+                <td style="font-family:'Courier Prime',monospace;font-size:0.75rem;color:var(--color-text-muted);">#<%= app.applicationNumber %></td>
+                <td>
+                  <div class="user-cell">
+                    <div class="table-avatar"><%= (app.student?.firstName||'?')[0] %></div>
+                    <div>
+                      <div class="table-name"><%= app.student?.firstName %> <%= app.student?.lastName %></div>
+                      <div class="table-sub"><%= app.student?.nationality %></div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="table-name"><%= app.guardian?.firstName %> <%= app.guardian?.lastName %></div>
+                  <div class="table-sub"><%= app.guardian?.email %></div>
+                </td>
+                <td style="font-size:0.8rem;max-width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><%= app.school?.name %></td>
+                <td style="font-size:0.75rem;color:var(--color-text-muted);max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                  <%= app.scholarship?.name || '—' %>
+                </td>
+                <td><span class="badge status-<%= app.status %>" style="font-size:10px;"><%= app.status.replace(/_/g,' ') %></span></td>
+                <td style="font-size:0.75rem;color:var(--color-text-muted);white-space:nowrap;">
+                  <%= app.submittedAt ? new Date(app.submittedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—' %>
+                </td>
+                <td>
+                  <div class="table-actions">
+                    <a href="/admin/applications/<%= app._id %>" class="btn btn-ghost btn-sm" style="font-size:0.7rem;padding:0.25rem 0.75rem;">
+                      <i class="fa-solid fa-eye"></i> Review
+                    </a>
+                  </div>
+                </td>
+              </tr>
+              <% }) %>
+              <% if (applications.length === 0) { %>
+              <tr><td colspan="8" style="text-align:center;padding:3rem;color:var(--color-text-muted);">No applications found.</td></tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+        <!-- Pagination -->
+        <div class="table-footer">
+          <span class="table-total">Showing <%= applications.length %> of <%= total %> applications</span>
+          <% if (pages > 1) { %>
+          <div class="pagination">
+            <% for (let i = 1; i <= pages; i++) { %>
+            <a href="?page=<%= i %>&status=<%= filters.status||'' %>&school=<%= filters.school||'' %>" class="page-btn <%= page === i ? 'active' : '' %>"><%= i %></a>
+            <% } %>
+          </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="toast-container"></div>
+<style>#toast-container{position:fixed;bottom:2rem;right:2rem;z-index:9999;display:flex;flex-direction:column;gap:.75rem;}.toast{display:flex;align-items:center;gap:.75rem;padding:.875rem 1.25rem;border-radius:10px;background:#fff;box-shadow:0 8px 32px rgba(0,0,0,.2);font-size:.875rem;font-weight:500;min-width:280px;max-width:400px;transform:translateX(120%);transition:transform .4s cubic-bezier(.34,1.56,.64,1),opacity .4s ease;opacity:0;color:#1a1a2e;}.toast.show{transform:translateX(0);opacity:1;}</style>
+<script src="/js/main.js"></script>
+</body></html>

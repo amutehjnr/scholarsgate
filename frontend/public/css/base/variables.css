@@ -1,0 +1,151 @@
+/* ═══════════════════════════════════════════════════════════
+   SCHOLARSGATE — CSS DESIGN TOKENS
+   Premium EdTech Design System
+════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ─── Brand Colors ─────────────────────────────────────── */
+  --color-obsidian:      #0a0e1a;
+  --color-midnight:      #0f1524;
+  --color-navy-deep:     #141c35;
+  --color-navy:          #1a2448;
+  --color-navy-light:    #1e2d58;
+
+  --color-gold:          #c9a84c;
+  --color-gold-light:    #e8c96a;
+  --color-gold-pale:     #f5e6b5;
+  --color-gold-dim:      #8a6b2a;
+
+  --color-ivory:         #f7f4ed;
+  --color-parchment:     #ede8d8;
+  --color-cream:         #faf8f3;
+
+  --color-white:         #ffffff;
+  --color-text-primary:  #1a1a2e;
+  --color-text-secondary:#4a4a6a;
+  --color-text-muted:    #8a8aaa;
+  --color-text-light:    #c8c8d8;
+
+  /* ─── Status Colors ────────────────────────────────────── */
+  --color-success:       #1a6b2a;
+  --color-success-bg:    #e8f5ea;
+  --color-success-light: #2a8a3a;
+  --color-warning:       #8a6000;
+  --color-warning-bg:    #fff8e0;
+  --color-warning-light: #c9a84c;
+  --color-danger:        #7a1a1a;
+  --color-danger-bg:     #ffeaea;
+  --color-danger-light:  #c0392b;
+  --color-info:          #1a3a6a;
+  --color-info-bg:       #e8f0ff;
+
+  /* ─── Gradients ─────────────────────────────────────────── */
+  --gradient-gold:       linear-gradient(135deg, #c9a84c 0%, #e8c96a 50%, #c9a84c 100%);
+  --gradient-navy:       linear-gradient(135deg, #0a0e1a 0%, #141c35 50%, #1a2448 100%);
+  --gradient-navy-gold:  linear-gradient(135deg, #0f1524 0%, #1a2448 60%, #1e2a50 100%);
+  --gradient-hero:       linear-gradient(160deg, #0a0e1a 0%, #0f1828 40%, #1a2448 100%);
+  --gradient-card:       linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+  --gradient-glass:      linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
+  --gradient-ivory:      linear-gradient(160deg, #faf8f3 0%, #f0ecd8 100%);
+
+  /* ─── Shadows ───────────────────────────────────────────── */
+  --shadow-xs:           0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-sm:           0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-md:           0 8px 24px rgba(0,0,0,0.12), 0 4px 8px rgba(0,0,0,0.06);
+  --shadow-lg:           0 16px 48px rgba(0,0,0,0.18), 0 8px 16px rgba(0,0,0,0.08);
+  --shadow-xl:           0 24px 72px rgba(0,0,0,0.24), 0 12px 24px rgba(0,0,0,0.12);
+  --shadow-gold:         0 8px 32px rgba(201,168,76,0.25), 0 4px 12px rgba(201,168,76,0.12);
+  --shadow-gold-sm:      0 4px 16px rgba(201,168,76,0.2);
+  --shadow-navy:         0 16px 48px rgba(10,14,26,0.4);
+  --shadow-dark:         0 8px 32px rgba(0,0,0,0.5);
+  --shadow-inset:        inset 0 2px 8px rgba(0,0,0,0.08);
+
+  /* ─── Typography ────────────────────────────────────────── */
+  --font-serif:          'Cormorant Garamond', 'Garamond', 'Georgia', serif;
+  --font-display:        'Playfair Display', 'Georgia', serif;
+  --font-sans:           'Jost', 'Gill Sans', 'Optima', sans-serif;
+  --font-mono:           'Courier Prime', 'Courier New', monospace;
+
+  --text-xs:             0.75rem;
+  --text-sm:             0.875rem;
+  --text-base:           1rem;
+  --text-md:             1.125rem;
+  --text-lg:             1.25rem;
+  --text-xl:             1.5rem;
+  --text-2xl:            1.875rem;
+  --text-3xl:            2.25rem;
+  --text-4xl:            3rem;
+  --text-5xl:            3.75rem;
+  --text-6xl:            4.5rem;
+
+  --leading-tight:       1.2;
+  --leading-snug:        1.4;
+  --leading-normal:      1.6;
+  --leading-relaxed:     1.8;
+  --leading-loose:       2;
+
+  --tracking-tighter:    -0.04em;
+  --tracking-tight:      -0.02em;
+  --tracking-normal:     0;
+  --tracking-wide:       0.05em;
+  --tracking-wider:      0.1em;
+  --tracking-widest:     0.2em;
+
+  /* ─── Spacing ───────────────────────────────────────────── */
+  --space-1:   0.25rem;
+  --space-2:   0.5rem;
+  --space-3:   0.75rem;
+  --space-4:   1rem;
+  --space-5:   1.25rem;
+  --space-6:   1.5rem;
+  --space-8:   2rem;
+  --space-10:  2.5rem;
+  --space-12:  3rem;
+  --space-16:  4rem;
+  --space-20:  5rem;
+  --space-24:  6rem;
+  --space-32:  8rem;
+
+  /* ─── Border Radius ─────────────────────────────────────── */
+  --radius-sm:   4px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-2xl:  24px;
+  --radius-3xl:  32px;
+  --radius-full: 9999px;
+
+  /* ─── Borders ───────────────────────────────────────────── */
+  --border-thin:    1px solid rgba(201,168,76,0.15);
+  --border-gold:    1px solid rgba(201,168,76,0.4);
+  --border-gold-2:  2px solid rgba(201,168,76,0.6);
+  --border-light:   1px solid rgba(255,255,255,0.08);
+  --border-dark:    1px solid rgba(0,0,0,0.1);
+
+  /* ─── Transitions ───────────────────────────────────────── */
+  --transition-fast:    0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base:    0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow:    0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-spring:  0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ─── Layout ────────────────────────────────────────────── */
+  --container-xs:   480px;
+  --container-sm:   640px;
+  --container-md:   768px;
+  --container-lg:   1024px;
+  --container-xl:   1200px;
+  --container-2xl:  1400px;
+
+  --header-height:  80px;
+  --sidebar-width:  260px;
+
+  /* ─── Z-index ───────────────────────────────────────────── */
+  --z-behind:   -1;
+  --z-base:     0;
+  --z-raised:   10;
+  --z-dropdown: 100;
+  --z-sticky:   200;
+  --z-overlay:  300;
+  --z-modal:    400;
+  --z-toast:    500;
+}

@@ -1,0 +1,53 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>My Applications | ScholarsGate</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="/css/style.css"/></head>
+<body data-authenticated>
+<div class="dashboard-layout">
+  <div class="sidebar-overlay"></div><%- include('../../partials/sidebar') %>
+  <div class="dashboard-main">
+    <div class="dashboard-topbar">
+      <div class="topbar-left">
+        <button class="sidebar-toggle" style="width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.04);border:none;cursor:pointer;"><i class="fa-solid fa-bars"></i></button>
+        <div><div class="page-title-bar">My Applications</div></div>
+      </div>
+      <div class="topbar-right">
+        <a href="/scholarships" class="btn btn-gold btn-sm"><i class="fa-solid fa-star"></i> Browse Scholarships</a>
+      </div>
+    </div>
+    <%- include('../../partials/flash') %>
+    <div class="dashboard-content">
+      <% if(applications.length===0){ %>
+      <div style="text-align:center;padding:5rem 0;">
+        <div style="font-size:4rem;opacity:0.15;margin-bottom:1.5rem;"><i class="fa-solid fa-file-lines"></i></div>
+        <h2 style="font-family:'Playfair Display',serif;font-size:1.75rem;margin-bottom:0.5rem;">No Applications Yet</h2>
+        <p style="color:var(--color-text-muted);margin-bottom:2rem;max-width:380px;margin-left:auto;margin-right:auto;">Browse available scholarships and start applying for your child's future.</p>
+        <a href="/scholarships" class="btn btn-gold btn-lg"><i class="fa-solid fa-star"></i> Browse Scholarships</a>
+      </div>
+      <% } else { %>
+      <div class="data-table-wrap">
+        <div class="data-table-header"><h3>All Applications <span style="font-size:0.875rem;font-weight:500;color:var(--color-text-muted);">(<%= applications.length %>)</span></h3></div>
+        <% applications.forEach(function(app){ %>
+        <a href="/parent/applications/<%= app._id %>" class="application-row">
+          <div class="app-school-logo">
+            <% if(app.school && app.school.images && app.school.images.logo){ %><img src="<%= app.school.images.logo %>" alt=""/>
+            <% } else { %><%= (app.school && app.school.name ? app.school.name[0] : '?') %><% } %>
+          </div>
+          <div class="app-info">
+            <div class="app-school-name"><%= app.school ? app.school.name : 'Unknown School' %></div>
+            <div class="app-scholarship-name"><%= app.scholarship ? app.scholarship.name : 'General Application' %></div>
+          </div>
+          <div class="app-meta">
+            <span class="badge status-<%= app.status %>"><%= app.status.replace(/_/g,' ') %></span>
+            <div class="app-date"><%= app.submittedAt ? new Date(app.submittedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : 'Draft' %></div>
+          </div>
+        </a>
+        <% }) %>
+      </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+<script src="/js/main.js"></script>
+</body></html>

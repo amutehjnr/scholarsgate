@@ -1,0 +1,212 @@
+<%
+// Use the dashboard layout
+const layout = 'dashboard';
+%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Dashboard | ScholarsGate</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=Playfair+Display:wght@400;700;900&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body data-authenticated>
+<div class="dashboard-layout">
+  <div class="sidebar-overlay"></div>
+  <%- include('../../partials/sidebar') %>
+  <div class="dashboard-main">
+    <div class="dashboard-topbar">
+      <div class="topbar-left">
+        <button class="sidebar-toggle" style="width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.04);border:none;cursor:pointer;color:#4a4a6a;">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <div>
+          <div class="page-title-bar">Parent Dashboard</div>
+          <div class="breadcrumb"><span>Home</span></div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <a href="/parent/notifications" class="notif-btn">
+          <i class="fa-solid fa-bell"></i>
+          <% if (unreadNotifs > 0) { %><span class="notif-dot"></span><% } %>
+        </a>
+        <div style="display:flex;align-items:center;gap:0.5rem;">
+          <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#c9a84c,#e8c96a);display:flex;align-items:center;justify-content:center;font-weight:700;color:#0a0e1a;font-size:0.875rem;overflow:hidden;">
+            <% if (user.avatar) { %><img src="<%= user.avatar %>" style="width:100%;height:100%;object-fit:cover;"/>
+            <% } else { %><%= (user.firstName||'U')[0].toUpperCase() %><% } %>
+          </div>
+          <span style="font-size:0.875rem;font-weight:600;color:#1a1a2e;"><%= user.firstName %></span>
+        </div>
+      </div>
+    </div>
+
+    <%- include('../../partials/flash') %>
+
+    <div class="dashboard-content">
+
+      <!-- Welcome Banner -->
+      <div class="welcome-banner">
+        <div>
+          <div class="welcome-title">Welcome back, <%= user.firstName %>! 👋</div>
+          <div class="welcome-subtitle">
+            <% if (stats.offers > 0) { %>You have <%= stats.offers %> active offer<%= stats.offers > 1 ? 's' : '' %> awaiting your response.
+            <% } else if (stats.pending > 0) { %><%= stats.pending %> application<%= stats.pending > 1 ? 's are' : ' is' %> currently under review.
+            <% } else { %>Start by exploring available scholarships and creating student profiles.<% } %>
+          </div>
+        </div>
+        <a href="/scholarships" class="btn btn-gold" style="flex-shrink:0;">
+          <i class="fa-solid fa-star"></i> Browse Scholarships
+        </a>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon gold"><i class="fa-solid fa-user-graduate" style="font-size:1.3rem;color:var(--color-gold-dim);"></i></div>
+          <div>
+            <div class="stat-value"><%= stats.students %></div>
+            <div class="stat-label">Student Profiles</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon info"><i class="fa-solid fa-file-lines" style="font-size:1.3rem;color:#1a3a6a;"></i></div>
+          <div>
+            <div class="stat-value"><%= stats.applications %></div>
+            <div class="stat-label">Applications</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon navy"><i class="fa-solid fa-hourglass-half" style="font-size:1.3rem;color:#1a2448;"></i></div>
+          <div>
+            <div class="stat-value"><%= stats.pending %></div>
+            <div class="stat-label">Under Review</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon success"><i class="fa-solid fa-envelope-open-text" style="font-size:1.3rem;color:var(--color-success-light);"></i></div>
+          <div>
+            <div class="stat-value"><%= stats.offers %></div>
+            <div class="stat-label">Active Offers</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+
+        <!-- Recent Applications -->
+        <div class="data-table-wrap">
+          <div class="data-table-header">
+            <h3>Recent Applications</h3>
+            <a href="/parent/applications" class="btn btn-ghost btn-sm">View All</a>
+          </div>
+          <% if (recentApplications.length === 0) { %>
+            <div style="padding:3rem;text-align:center;">
+              <div style="font-size:2.5rem;opacity:0.2;margin-bottom:1rem;"><i class="fa-solid fa-file-lines"></i></div>
+              <p style="color:var(--color-text-muted);font-size:0.875rem;">No applications yet.</p>
+              <a href="/scholarships" class="btn btn-gold btn-sm" style="margin-top:1rem;">Browse Scholarships</a>
+            </div>
+          <% } else { %>
+            <% recentApplications.forEach(app => { %>
+            <a href="/parent/applications/<%= app._id %>" class="application-row">
+              <div class="app-school-logo">
+                <% if (app.school?.images?.logo) { %><img src="<%= app.school.images.logo %>" alt=""/>
+                <% } else { %><%= (app.school?.name||'?')[0] %><% } %>
+              </div>
+              <div class="app-info">
+                <div class="app-school-name"><%= app.school?.name || 'Unknown School' %></div>
+                <div class="app-scholarship-name"><%= app.scholarship?.name || 'General Application' %></div>
+              </div>
+              <div class="app-meta">
+                <span class="badge status-<%= app.status %>"><%= app.status.replace('_',' ') %></span>
+              </div>
+            </a>
+            <% }) %>
+          <% } %>
+        </div>
+
+        <!-- Students -->
+        <div class="data-table-wrap">
+          <div class="data-table-header">
+            <h3>Student Profiles</h3>
+            <a href="/parent/students/add" class="btn btn-gold btn-sm"><i class="fa-solid fa-plus"></i> Add Student</a>
+          </div>
+          <% if (students.length === 0) { %>
+            <div style="padding:3rem;text-align:center;">
+              <div style="font-size:2.5rem;opacity:0.2;margin-bottom:1rem;"><i class="fa-solid fa-user-graduate"></i></div>
+              <p style="color:var(--color-text-muted);font-size:0.875rem;">No student profiles created.</p>
+              <a href="/parent/students/add" class="btn btn-gold btn-sm" style="margin-top:1rem;">Add First Student</a>
+            </div>
+          <% } else { %>
+            <% students.forEach(student => { %>
+            <a href="/parent/students/<%= student._id %>" class="application-row">
+              <div class="app-school-logo">
+                <% if (student.avatar) { %><img src="<%= student.avatar %>" alt=""/>
+                <% } else { %><%= (student.firstName||'?')[0] %><% } %>
+              </div>
+              <div class="app-info">
+                <div class="app-school-name"><%= student.firstName %> <%= student.lastName %></div>
+                <div class="app-scholarship-name"><%= student.nationality %> · Grade <%= student.intendedGrade %></div>
+              </div>
+              <div class="app-meta">
+                <div style="text-align:right;">
+                  <div style="font-size:0.7rem;color:var(--color-text-muted);">Profile</div>
+                  <div style="font-size:0.875rem;font-weight:700;color:var(--color-gold-dim);"><%= student.profileCompletion || 0 %>%</div>
+                </div>
+              </div>
+            </a>
+            <% }) %>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- Active Offers -->
+      <% const activeOffers = offers.filter(o => o.status === 'issued'); %>
+      <% if (activeOffers.length > 0) { %>
+      <div style="margin-top:1.5rem;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+          <h2 style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;">🎉 Active Offer Letters</h2>
+          <a href="/parent/offers" class="btn btn-ghost btn-sm">View All</a>
+        </div>
+        <div class="grid-auto-fill-sm">
+          <% activeOffers.forEach(offer => { %>
+          <div class="offer-card">
+            <div class="offer-card-header">
+              <span class="offer-card-number"><%= offer.offerNumber %></span>
+              <span class="badge badge-gold">Active</span>
+            </div>
+            <div class="offer-card-body">
+              <div class="offer-school-name"><%= offer.school?.name %></div>
+              <div class="offer-scholarship-name"><%= offer.scholarship?.name || 'Scholarship Offer' %></div>
+              <div class="offer-coverage-row">
+                <div>
+                  <div class="offer-coverage-label">Coverage</div>
+                  <div class="offer-coverage-pct"><%= offer.scholarshipDetails?.coveragePercentage || 0 %>%</div>
+                </div>
+                <div style="text-align:right;">
+                  <div class="offer-coverage-label">Deposit</div>
+                  <div style="font-size:1.25rem;font-weight:700;color:var(--color-text-primary);">$<%= (offer.enrollmentDeposit||500).toLocaleString() %></div>
+                </div>
+              </div>
+              <div class="offer-expiry <%= new Date(offer.expiryDate) < new Date(Date.now() + 7*24*60*60*1000) ? 'urgent' : '' %>">
+                <i class="fa-regular fa-clock"></i>
+                Expires: <%= new Date(offer.expiryDate).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) %>
+              </div>
+              <div class="offer-actions">
+                <a href="/parent/offers" class="btn btn-gold" style="flex:1;justify-content:center;">Accept Offer</a>
+                <a href="/parent/offers" class="btn btn-ghost btn-sm">Details</a>
+              </div>
+            </div>
+          </div>
+          <% }) %>
+        </div>
+      </div>
+      <% } %>
+
+    </div>
+  </div>
+</div>
+<div id="toast-container"></div>
+<style>#toast-container{position:fixed;bottom:2rem;right:2rem;z-index:9999;display:flex;flex-direction:column;gap:.75rem;}.toast{display:flex;align-items:center;gap:.75rem;padding:.875rem 1.25rem;border-radius:10px;background:#fff;box-shadow:0 8px 32px rgba(0,0,0,.2);font-size:.875rem;font-weight:500;min-width:280px;max-width:400px;transform:translateX(120%);transition:transform .4s cubic-bezier(.34,1.56,.64,1),opacity .4s ease;opacity:0;color:#1a1a2e;}.toast.show{transform:translateX(0);opacity:1;}</style>
+<script src="/js/main.js"></script>
+</body></html>

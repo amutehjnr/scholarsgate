@@ -1,0 +1,68 @@
+<!-- students.ejs (parent) -->
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>My Students | ScholarsGate</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="/css/style.css"/></head>
+<body data-authenticated>
+<div class="dashboard-layout">
+  <div class="sidebar-overlay"></div><%- include('../../partials/sidebar') %>
+  <div class="dashboard-main">
+    <div class="dashboard-topbar">
+      <div class="topbar-left">
+        <button class="sidebar-toggle" style="width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.04);border:none;cursor:pointer;"><i class="fa-solid fa-bars"></i></button>
+        <div><div class="page-title-bar">My Students</div></div>
+      </div>
+      <div class="topbar-right">
+        <a href="/parent/students/add" class="btn btn-gold btn-sm"><i class="fa-solid fa-plus"></i> Add Student</a>
+      </div>
+    </div>
+    <%- include('../../partials/flash') %>
+    <div class="dashboard-content">
+      <% if(students.length===0){%>
+      <div style="text-align:center;padding:5rem 0;">
+        <div style="font-size:4rem;opacity:0.15;margin-bottom:1.5rem;"><i class="fa-solid fa-user-graduate"></i></div>
+        <h2 style="font-family:'Playfair Display',serif;font-size:1.75rem;margin-bottom:0.5rem;">No Student Profiles Yet</h2>
+        <p style="color:var(--color-text-muted);margin-bottom:2rem;max-width:360px;margin-left:auto;margin-right:auto;">Create a student profile to start applying for elite USA high school scholarships.</p>
+        <a href="/parent/students/add" class="btn btn-gold btn-lg"><i class="fa-solid fa-plus"></i> Add First Student</a>
+      </div>
+      <%} else {%>
+      <div class="grid-auto-fill-md">
+        <% students.forEach(student=>{%>
+        <div class="student-profile-card">
+          <div class="student-profile-header">
+            <div class="student-avatar-lg">
+              <%if(student.avatar){%><img src="<%= student.avatar %>" alt=""/>
+              <%}else{%><%= (student.firstName||'?')[0] %><%}%>
+            </div>
+            <h3 style="font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:700;color:var(--color-ivory);"><%= student.firstName %> <%= student.lastName %></h3>
+            <p style="color:rgba(255,255,255,0.4);font-size:0.875rem;"><%= student.nationality %></p>
+            <div class="profile-completion">
+              <div style="font-size:0.7rem;color:rgba(255,255,255,0.3);letter-spacing:0.08em;text-transform:uppercase;">Profile Completion</div>
+              <div class="completion-bar"><div class="completion-fill" style="width:<%= student.profileCompletion||0 %>%;"></div></div>
+              <div class="completion-text"><%= student.profileCompletion||0 %>% complete</div>
+            </div>
+          </div>
+          <div style="padding:1.5rem;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.875rem;margin-bottom:1.5rem;">
+              <div><div style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:3px;">Grade Target</div><div style="font-weight:600;color:var(--color-text-primary);">Grade <%= student.intendedGrade %></div></div>
+              <div><div style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:3px;">Current GPA</div><div style="font-weight:600;color:var(--color-gold-dim);"><%= student.gpa||'N/A' %></div></div>
+              <div><div style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:3px;">Current School</div><div style="font-weight:500;font-size:0.8rem;color:var(--color-text-secondary);"><%= student.currentSchool||'N/A' %></div></div>
+              <div><div style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:3px;">Enroll Year</div><div style="font-weight:600;color:var(--color-text-primary);"><%= student.intendedYear||'N/A' %></div></div>
+            </div>
+            <div style="display:flex;gap:0.75rem;">
+              <a href="/parent/students/<%= student._id %>" class="btn btn-navy" style="flex:1;justify-content:center;border-radius:10px;">View Profile</a>
+              <a href="/scholarships" class="btn btn-gold btn-sm" style="border-radius:10px;">Find Scholarships</a>
+            </div>
+          </div>
+        </div>
+        <%})%>
+      </div>
+      <%}%>
+    </div>
+  </div>
+</div>
+<div id="toast-container"></div>
+<style>#toast-container{position:fixed;bottom:2rem;right:2rem;z-index:9999;}</style>
+<script src="/js/main.js"></script>
+</body></html>

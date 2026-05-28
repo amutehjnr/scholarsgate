@@ -1,0 +1,100 @@
+<!-- apply.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Apply — <%= scholarship.name %> | ScholarsGate</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<%- include('../../partials/header') %>
+<div style="padding-top:var(--header-height);background:var(--gradient-hero);min-height:100vh;">
+  <div class="container-md" style="max-width:760px;padding:3rem 1.5rem;">
+
+    <!-- Header -->
+    <div style="text-align:center;margin-bottom:2.5rem;">
+      <span class="section-label">Scholarship Application</span>
+      <h1 style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--color-ivory);margin:0.5rem 0;"><%= scholarship.name %></h1>
+      <p style="color:rgba(255,255,255,0.45);"><%= scholarship.school?.name %> · <%= scholarship.coveragePercentage %>% Coverage · $<%= (scholarship.annualValue||0).toLocaleString() %>/yr</p>
+    </div>
+
+    <!-- Flash -->
+    <%- include('../../partials/flash') %>
+
+    <!-- Form -->
+    <div style="background:rgba(255,255,255,0.04);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08);border-radius:24px;padding:2.5rem;box-shadow:0 32px 80px rgba(0,0,0,0.4);">
+      <form action="/applications/apply/<%= scholarship.slug %>" method="POST" data-validate class="form-dark">
+
+        <!-- Student Selection -->
+        <div class="form-group">
+          <label class="form-label">Select Student <span class="required">*</span></label>
+          <select name="studentId" class="form-control form-select" required>
+            <option value="">Choose a student profile...</option>
+            <% students.forEach(s=>{%>
+            <option value="<%= s._id %>"><%= s.firstName %> <%= s.lastName %> — Grade <%= s.intendedGrade %> · GPA: <%= s.gpa||'N/A' %></option>
+            <%})%>
+          </select>
+          <p class="form-hint" style="color:rgba(255,255,255,0.3);">
+            Need to add a student? <a href="/parent/students/add" style="color:var(--color-gold);">Create profile first</a>
+          </p>
+        </div>
+
+        <div style="height:1px;background:rgba(255,255,255,0.06);margin:1.5rem 0;"></div>
+
+        <!-- Why This School -->
+        <div class="form-group">
+          <label class="form-label">Why This School? <span class="required">*</span></label>
+          <textarea name="whyThisSchool" class="form-control form-textarea" placeholder="Explain why your child wants to attend this specific school (200–500 words)..." rows="5" required minlength="100" maxlength="2000"></textarea>
+          <p class="form-hint" style="color:rgba(255,255,255,0.3);">100–2,000 characters</p>
+        </div>
+
+        <!-- Personal Statement -->
+        <div class="form-group">
+          <label class="form-label">Personal Statement</label>
+          <textarea name="personalStatement" class="form-control form-textarea" placeholder="Describe your child's academic achievements, goals, and aspirations..." rows="6" maxlength="5000"></textarea>
+          <p class="form-hint" style="color:rgba(255,255,255,0.3);">Up to 5,000 characters</p>
+        </div>
+
+        <!-- Extracurriculars -->
+        <div class="form-group">
+          <label class="form-label">Extracurricular Activities</label>
+          <textarea name="extracurriculars" class="form-control form-textarea" placeholder="List key activities, clubs, sports, volunteer work..." rows="3"></textarea>
+        </div>
+
+        <!-- Scholarship Info Summary -->
+        <div style="padding:1.25rem;background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.15);border-radius:14px;margin-bottom:1.5rem;">
+          <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-gold);margin-bottom:0.875rem;">Application Summary</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+            <div><div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.3);">Scholarship</div><div style="font-size:0.875rem;font-weight:600;color:var(--color-ivory);"><%= scholarship.name %></div></div>
+            <div><div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.3);">Coverage</div><div style="font-size:0.875rem;font-weight:600;color:var(--color-gold);"><%= scholarship.coveragePercentage %>%</div></div>
+            <div><div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.3);">Annual Value</div><div style="font-size:0.875rem;font-weight:600;color:var(--color-ivory);">$<%= (scholarship.annualValue||0).toLocaleString() %></div></div>
+            <div><div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.3);">Deadline</div><div style="font-size:0.875rem;font-weight:600;color:var(--color-ivory);"><%= new Date(scholarship.applicationDeadline).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) %></div></div>
+          </div>
+        </div>
+
+        <!-- Agreement -->
+        <div style="margin-bottom:1.5rem;">
+          <label style="display:flex;align-items:flex-start;gap:0.75rem;cursor:pointer;">
+            <input type="checkbox" required style="margin-top:3px;accent-color:var(--color-gold);"/>
+            <span style="font-size:0.8rem;color:rgba(255,255,255,0.4);line-height:1.6;">
+              I confirm that all information provided is accurate and complete. I understand that false statements may result in disqualification.
+            </span>
+          </label>
+        </div>
+
+        <div style="display:flex;gap:1rem;">
+          <a href="/scholarships/<%= scholarship.slug %>" class="btn btn-ghost" style="color:rgba(255,255,255,0.5);border-color:rgba(255,255,255,0.1);">Cancel</a>
+          <button type="submit" class="btn btn-gold btn-lg" style="flex:1;justify-content:center;">
+            <i class="fa-solid fa-paper-plane"></i> Submit Application
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<%- include('../../partials/footer') %>
+<script src="/js/main.js"></script>
+</body>
+</html>

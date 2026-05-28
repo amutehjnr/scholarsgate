@@ -1,0 +1,48 @@
+<!-- about.ejs -->
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>About | ScholarsGate</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=Playfair+Display:wght@400;700;900&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="/css/style.css"/></head>
+<body>
+<%- include('../../partials/header') %>
+<section style="background:var(--gradient-hero);padding:9rem 0 6rem;border-bottom:1px solid rgba(201,168,76,0.1);">
+  <div class="container" style="text-align:center;">
+    <span class="section-label">Our Story</span>
+    <h1 style="font-family:'Playfair Display',serif;font-size:clamp(2rem,4vw,4rem);font-weight:900;color:var(--color-ivory);margin:0.75rem 0;">Bridging Exceptional Students<br/><span style="background:linear-gradient(135deg,#c9a84c,#e8c96a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">with Elite Education</span></h1>
+    <p style="color:rgba(255,255,255,0.45);max-width:580px;margin:0 auto;font-size:1.1rem;line-height:1.8;">ScholarsGate was founded with one mission: to make elite American education accessible to exceptional international students regardless of their background.</p>
+  </div>
+</section>
+<section class="section-xl" style="background:var(--color-cream);">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center;margin-bottom:5rem;">
+      <div class="fade-up">
+        <span class="section-label">Our Mission</span>
+        <h2 style="font-family:'Playfair Display',serif;font-size:2.5rem;font-weight:700;margin:0.75rem 0 1.25rem;">Democratizing Access to<br/>World-Class Education</h2>
+        <p style="color:var(--color-text-secondary);line-height:1.9;margin-bottom:1rem;">We believe every exceptional student deserves access to the best education, regardless of geography or financial status. ScholarsGate partners with America's most elite boarding schools to offer genuine scholarships to international students.</p>
+        <p style="color:var(--color-text-secondary);line-height:1.9;">Our platform handles the entire admissions journey — from discovery to enrollment — in a transparent, efficient, and premium experience.</p>
+      </div>
+      <div class="fade-up" style="transition-delay:0.15s;display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+        <% const values=[
+          {icon:'fa-shield-halved',title:'Trust & Transparency',desc:'Every scholarship is verified and clearly detailed.'},
+          {icon:'fa-star',title:'Excellence',desc:'Only the most elite USA boarding schools.'},
+          {icon:'fa-globe',title:'Global Access',desc:'Students from 50+ countries have been placed.'},
+          {icon:'fa-handshake',title:'Partnerships',desc:'Direct partnerships with 150+ US schools.'},
+        ]; %>
+        <% values.forEach(v=>{%>
+        <div style="padding:1.5rem;background:#fff;border-radius:16px;box-shadow:var(--shadow-sm);border:var(--border-dark);">
+          <div style="width:44px;height:44px;border-radius:12px;background:rgba(201,168,76,0.1);display:flex;align-items:center;justify-content:center;color:var(--color-gold-dim);font-size:1.2rem;margin-bottom:1rem;"><i class="fa-solid <%= v.icon %>"></i></div>
+          <h4 style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;margin-bottom:0.375rem;"><%= v.title %></h4>
+          <p style="font-size:0.8rem;line-height:1.6;color:var(--color-text-muted);"><%= v.desc %></p>
+        </div>
+        <%})%>
+      </div>
+    </div>
+    <div style="text-align:center;">
+      <a href="/auth/register" class="btn btn-gold btn-lg"><i class="fa-solid fa-rocket"></i> Join ScholarsGate</a>
+    </div>
+  </div>
+</section>
+<%- include('../../partials/footer') %>
+<script src="/js/main.js"></script>
+</body></html>

@@ -1,0 +1,57 @@
+<!-- settings.ejs (parent) -->
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Account Settings | ScholarsGate</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="/css/style.css"/></head>
+<body data-authenticated>
+<div class="dashboard-layout">
+  <div class="sidebar-overlay"></div><%- include('../../partials/sidebar') %>
+  <div class="dashboard-main">
+    <div class="dashboard-topbar">
+      <div class="topbar-left">
+        <button class="sidebar-toggle" style="width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.04);border:none;cursor:pointer;"><i class="fa-solid fa-bars"></i></button>
+        <div><div class="page-title-bar">Account Settings</div></div>
+      </div>
+    </div>
+    <%- include('../../partials/flash') %>
+    <div class="dashboard-content">
+      <div style="max-width:640px;">
+        <form action="/parent/settings" method="POST" enctype="multipart/form-data">
+          <div class="data-table-wrap" style="padding:2rem;margin-bottom:1.5rem;">
+            <h3 style="font-family:'Playfair Display',serif;font-size:1.25rem;margin-bottom:1.5rem;">Personal Information</h3>
+            <div style="display:flex;align-items:center;gap:1.5rem;margin-bottom:2rem;">
+              <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#c9a84c,#e8c96a);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:#0a0e1a;overflow:hidden;flex-shrink:0;">
+                <%if(user.avatar){%><img src="<%= user.avatar %>" style="width:100%;height:100%;object-fit:cover;"/><%}else{%><%= (user.firstName||'U')[0] %><%}%>
+              </div>
+              <div>
+                <label class="form-label">Profile Photo</label>
+                <input type="file" name="avatar" class="form-control" accept="image/*" style="padding:0.5rem;max-width:280px;"/>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+              <div class="form-group"><label class="form-label">First Name</label><input type="text" name="firstName" class="form-control" value="<%= user.firstName %>"/></div>
+              <div class="form-group"><label class="form-label">Last Name</label><input type="text" name="lastName" class="form-control" value="<%= user.lastName %>"/></div>
+              <div class="form-group"><label class="form-label">Phone</label><input type="tel" name="phone" class="form-control" value="<%= user.phone||'' %>"/></div>
+              <div class="form-group"><label class="form-label">Country</label><input type="text" name="country" class="form-control" value="<%= user.country||'' %>"/></div>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;">
+            <button type="submit" class="btn btn-gold"><i class="fa-solid fa-floppy-disk"></i> Save Changes</button>
+          </div>
+        </form>
+
+        <!-- Change Password Section -->
+        <div class="data-table-wrap" style="padding:2rem;margin-top:1.5rem;">
+          <h3 style="font-family:'Playfair Display',serif;font-size:1.25rem;margin-bottom:0.5rem;">Security</h3>
+          <p style="font-size:0.875rem;color:var(--color-text-muted);margin-bottom:1.5rem;">Change your password or update security settings.</p>
+          <a href="/auth/forgot-password" class="btn btn-ghost"><i class="fa-solid fa-key"></i> Change Password</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="toast-container"></div>
+<style>#toast-container{position:fixed;bottom:2rem;right:2rem;z-index:9999;}</style>
+<script src="/js/main.js"></script>
+</body></html>

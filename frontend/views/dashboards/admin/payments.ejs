@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Payment Verification | Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body data-authenticated>
+<div class="dashboard-layout">
+  <div class="sidebar-overlay"></div>
+  <%- include('../../partials/sidebar') %>
+  <div class="dashboard-main">
+    <div class="dashboard-topbar">
+      <div class="topbar-left">
+        <button class="sidebar-toggle" style="width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.04);border:none;cursor:pointer;"><i class="fa-solid fa-bars"></i></button>
+        <div>
+          <div class="page-title-bar">Payment Verification</div>
+          <div class="breadcrumb"><span>Admin</span><span class="breadcrumb-sep">/</span><span>Payments</span></div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <% const pendingCount = payments.filter(p=>p.status==='pending').length; %>
+        <% if (pendingCount > 0) { %>
+        <span style="background:#fff8e0;color:#8a6000;border:1px solid rgba(201,168,76,0.3);border-radius:9999px;padding:0.25rem 0.875rem;font-size:0.75rem;font-weight:700;">
+          <%= pendingCount %> Pending Review
+        </span>
+        <% } %>
+      </div>
+    </div>
+    <%- include('../../partials/flash') %>
+    <div class="dashboard-content">
+      <div class="data-table-wrap">
+        <div class="data-table-header">
+          <h3>Enrollment Deposits</h3>
+          <div style="display:flex;gap:0.5rem;">
+            <span class="badge badge-warning">Pending: <%= payments.filter(p=>p.status==='pending').length %></span>
+            <span class="badge badge-success">Verified: <%= payments.filter(p=>p.status==='verified').length %></span>
+          </div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Guardian</th>
+                <th>School</th>
+                <th>Amount</th>
+                <th>Method</th>
+                <th>Reference</th>
+                <th>Submitted</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% payments.forEach(payment => { %>
+              <tr>
+                <td>
+                  <div class="user-cell">
+                    <div class="table-avatar"><%= (payment.guardian?.firstName||'?')[0] %></div>
+                    <div>
+                      <div class="table-name"><%= payment.guardian?.firstName %> <%= payment.guardian?.lastName %></div>
+                      <div class="table-sub"><%= payment.guardian?.email %></div>
+                    </div>
+                  </div>
+                </td>
+                <td style="font-size:0.8rem;max-width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                  <%= payment.offer?.school?.name || '—' %>
+                </td>
+                <td style="font-weight:700;color:var(--color-gold-dim);">$<%= (payment.amount||0).toLocaleString() %></td>
+                <td style="font-size:0.8rem;text-transform:capitalize;"><%= (payment.paymentMethod||'—').replace(/_/g,' ') %></td>
+                <td style="font-family:'Courier Prime',monospace;font-size:0.75rem;color:var(--color-text-muted);"><%= payment.referenceNumber || '—' %></td>
+                <td style="font-size:0.75rem;color:var(--color-text-muted);white-space:nowrap;">
+                  <%= new Date(payment.submittedAt||payment.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) %>
+                </td>
+                <td>
+                  <span class="badge badge-<%= payment.status==='verified'?'success':payment.status==='rejected'?'danger':'warning' %>">
+                    <%= payment.status %>
+                  </span>
+                </td>
+                <td>
+                  <div class="table-actions">
+                    <% if (payment.proofOfPayment?.url) { %>
+                    <a href="<%= payment.proofOfPayment.url %>" target="_blank" class="btn btn-ghost btn-sm" style="font-size:0.7rem;padding:0.25rem 0.75rem;" title="View Proof">
+                      <i class="fa-solid fa-image"></i>
+                    </a>
+                    <% } %>
+                    <% if (payment.status === 'pending') { %>
+                    <button class="btn btn-gold btn-sm" style="font-size:0.7rem;padding:0.25rem 0.875rem;"
+                      data-verify-payment
+                      data-url="/admin/payments/<%= payment._id %>/verify"
+                      data-action="verify">
+                      <i class="fa-solid fa-check"></i> Verify
+                    </button>
+                    <button class="btn btn-danger btn-sm" style="font-size:0.7rem;padding:0.25rem 0.875rem;"
+                      data-verify-payment
+                      data-url="/admin/payments/<%= payment._id %>/verify"
+                      data-action="reject">
+                      <i class="fa-solid fa-xmark"></i> Reject
+                    </button>
+                    <% } %>
+                    <% if (payment.status === 'under_review') { %>
+                    <button class="btn btn-gold btn-sm" style="font-size:0.7rem;"
+                      data-verify-payment data-url="/admin/payments/<%= payment._id %>/verify" data-action="verify">
+                      <i class="fa-solid fa-check"></i> Approve
+                    </button>
+                    <% } %>
+                  </div>
+                </td>
+              </tr>
+              <% }) %>
+              <% if (payments.length === 0) { %>
+              <tr><td colspan="8" style="text-align:center;padding:3rem;color:var(--color-text-muted);">No payment submissions yet.</td></tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="toast-container"></div>
+<style>#toast-container{position:fixed;bottom:2rem;right:2rem;z-index:9999;display:flex;flex-direction:column;gap:.75rem;}.toast{display:flex;align-items:center;gap:.75rem;padding:.875rem 1.25rem;border-radius:10px;background:#fff;box-shadow:0 8px 32px rgba(0,0,0,.2);font-size:.875rem;font-weight:500;min-width:280px;max-width:400px;transform:translateX(120%);transition:transform .4s cubic-bezier(.34,1.56,.64,1),opacity .4s ease;opacity:0;color:#1a1a2e;}.toast.show{transform:translateX(0);opacity:1;}</style>
+<script src="/js/main.js"></script>
+</body></html>

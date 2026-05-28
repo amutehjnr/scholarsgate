@@ -1,0 +1,166 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Application Detail | ScholarsGate</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="/css/style.css"/></head>
+<body data-authenticated>
+<div class="dashboard-layout">
+  <div class="sidebar-overlay"></div><%- include('../../partials/sidebar') %>
+  <div class="dashboard-main">
+    <div class="dashboard-topbar">
+      <div class="topbar-left">
+        <button class="sidebar-toggle" style="width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.04);border:none;cursor:pointer;"><i class="fa-solid fa-bars"></i></button>
+        <div>
+          <div class="page-title-bar">#<%= application.applicationNumber %></div>
+          <div class="breadcrumb"><a href="/parent/applications">Applications</a><span class="breadcrumb-sep">/</span><span>Detail</span></div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <span class="badge status-<%= application.status %>" style="font-size:0.8rem;padding:0.4rem 1rem;"><%= application.status.replace(/_/g,' ') %></span>
+      </div>
+    </div>
+    <%- include('../../partials/flash') %>
+    <div class="dashboard-content">
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:1.5rem;">
+        <div style="display:flex;flex-direction:column;gap:1.5rem;">
+
+          <!-- School & Scholarship -->
+          <div class="data-table-wrap" style="padding:1.5rem;">
+            <h3 style="font-family:'Playfair Display',serif;font-size:1.25rem;margin-bottom:1.25rem;">Application Overview</h3>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;">
+              <div style="padding:1rem;background:var(--gradient-navy);border-radius:12px;">
+                <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:0.5rem;">School</div>
+                <div style="font-weight:700;color:var(--color-ivory);font-size:1rem;"><%= application.school?.name %></div>
+                <div style="font-size:0.75rem;color:rgba(255,255,255,0.4);margin-top:3px;"><%= application.school?.location?.city %>, <%= application.school?.location?.state %></div>
+              </div>
+              <% if(application.scholarship){%>
+              <div style="padding:1rem;background:rgba(201,168,76,0.05);border:1px solid rgba(201,168,76,0.15);border-radius:12px;">
+                <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:0.5rem;">Scholarship</div>
+                <div style="font-weight:700;color:var(--color-text-primary);font-size:0.95rem;"><%= application.scholarship.name %></div>
+                <div style="font-size:0.8rem;font-weight:700;color:var(--color-gold-dim);margin-top:3px;"><%= application.scholarship.coveragePercentage %>% · $<%= (application.scholarship.annualValue||0).toLocaleString() %>/yr</div>
+              </div>
+              <%}%>
+              <div>
+                <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:3px;">Reference</div>
+                <div style="font-family:monospace;font-weight:600;">#<%= application.applicationNumber %></div>
+              </div>
+              <div>
+                <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:3px;">Submitted</div>
+                <div style="font-weight:600;"><%= application.submittedAt?new Date(application.submittedAt).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}):'Not submitted' %></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Timeline -->
+          <div class="data-table-wrap" style="padding:1.5rem;">
+            <h3 style="font-family:'Playfair Display',serif;font-size:1.25rem;margin-bottom:1.5rem;">Application Progress</h3>
+            <% const statusOrder=['submitted','under_review','shortlisted','interview_scheduled','interview_done','accepted']; %>
+            <div style="display:flex;gap:0;overflow-x:auto;padding-bottom:0.5rem;">
+              <% statusOrder.forEach((s,i)=>{
+                const isDone = statusOrder.indexOf(application.status) > i;
+                const isCurrent = application.status === s;
+                const isRejected = application.status === 'rejected';
+              %>
+              <div style="flex:1;min-width:90px;text-align:center;position:relative;">
+                <% if(i < statusOrder.length-1){%>
+                <div style="position:absolute;top:18px;left:50%;right:-50%;height:2px;background:<%= isDone?'var(--color-gold)':'rgba(0,0,0,0.08)' %>;z-index:0;"></div>
+                <%}%>
+                <div style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;position:relative;z-index:1;background:<%= isCurrent?'linear-gradient(135deg,#c9a84c,#e8c96a)':isDone?'var(--color-success-bg)':'rgba(0,0,0,0.06)' %>;border:2px solid <%= isCurrent?'transparent':isDone?'var(--color-success-light)':'rgba(0,0,0,0.1)' %>;">
+                  <% if(isDone){%><i class="fa-solid fa-check" style="font-size:0.75rem;color:var(--color-success-light);"></i>
+                  <%} else if(isCurrent){%><i class="fa-solid fa-circle" style="font-size:0.5rem;color:#0a0e1a;"></i>
+                  <%} else {%><span style="font-size:0.65rem;font-weight:700;color:rgba(0,0,0,0.3);"><%= i+1 %></span><%}%>
+                </div>
+                <div style="font-size:0.6rem;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:<%= isCurrent?'var(--color-gold-dim)':isDone?'var(--color-success-light)':'var(--color-text-muted)' %>;line-height:1.3;"><%= s.replace(/_/g,' ') %></div>
+              </div>
+              <%})%>
+            </div>
+            <% if(application.status==='rejected'){%>
+            <div class="alert alert-danger" style="margin-top:1.25rem;"><i class="fa-solid fa-circle-xmark"></i><span>This application was not successful. You may apply for other scholarships.</span></div>
+            <%} else if(application.status==='waitlisted'){%>
+            <div class="alert alert-warning" style="margin-top:1.25rem;"><i class="fa-solid fa-clock"></i><span>You are on the waitlist. We will notify you if a spot becomes available.</span></div>
+            <%}%>
+          </div>
+
+          <!-- Timeline Events -->
+          <% if(application.timeline?.length){%>
+          <div class="data-table-wrap" style="padding:1.5rem;">
+            <h3 style="font-family:'Playfair Display',serif;font-size:1.25rem;margin-bottom:1.5rem;">Activity Log</h3>
+            <div class="timeline">
+              <% [...application.timeline].reverse().forEach(event=>{%>
+              <div class="timeline-item">
+                <div class="timeline-date"><%= new Date(event.timestamp).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'}) %></div>
+                <div style="font-weight:600;font-size:0.875rem;color:var(--color-text-primary);text-transform:capitalize;"><%= event.status.replace(/_/g,' ') %></div>
+                <% if(event.note){%><div style="font-size:0.8rem;color:var(--color-text-muted);margin-top:2px;"><%= event.note %></div><%}%>
+              </div>
+              <%})%>
+            </div>
+          </div>
+          <%}%>
+        </div>
+
+        <!-- Right: Offer & Payment -->
+        <div style="display:flex;flex-direction:column;gap:1.5rem;">
+
+          <!-- Offer Card -->
+          <% if(offer){%>
+          <div class="data-table-wrap" style="padding:1.5rem;border:<%= offer.status==='confirmed'?'1px solid rgba(26,107,42,0.3)':'1px solid rgba(201,168,76,0.25)' %>;">
+            <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-gold);margin-bottom:0.75rem;">Offer Letter</div>
+            <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:0.25rem;">Offer #<%= offer.offerNumber %></h3>
+            <span class="badge badge-<%= offer.status==='confirmed'?'success':offer.status==='accepted'?'info':'gold' %>" style="margin-bottom:1rem;"><%= offer.status %></span>
+            <div style="display:flex;justify-content:space-between;padding:0.875rem;background:rgba(201,168,76,0.05);border-radius:10px;border:1px solid rgba(201,168,76,0.12);margin-bottom:1rem;">
+              <div><div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-muted);">Coverage</div><div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--color-gold-dim);"><%= offer.scholarshipDetails?.coveragePercentage||0 %>%</div></div>
+              <div style="text-align:right;"><div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-muted);">Deposit</div><div style="font-size:1.25rem;font-weight:700;">$<%= (offer.enrollmentDeposit||500).toLocaleString() %></div></div>
+            </div>
+            <div style="font-size:0.8rem;color:var(--color-text-muted);margin-bottom:1rem;">
+              Expires: <%= new Date(offer.expiryDate).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) %>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.625rem;">
+              <% if(offer.status==='issued'){%>
+              <form action="/parent/offers/<%= offer._id %>/accept" method="POST">
+                <button type="submit" class="btn btn-gold w-full" style="justify-content:center;" onclick="return confirm('Accept this offer and proceed to payment?')">
+                  <i class="fa-solid fa-check"></i> Accept Offer
+                </button>
+              </form>
+              <%} else if(offer.status==='accepted'){%>
+              <a href="/parent/offers/<%= offer._id %>/payment" class="btn btn-gold w-full" style="justify-content:center;">
+                <i class="fa-solid fa-upload"></i> Submit Enrollment Deposit
+              </a>
+              <%} else if(offer.status==='confirmed'){%>
+              <div class="btn" style="background:var(--color-success-bg);color:var(--color-success);justify-content:center;cursor:default;font-size:0.875rem;">
+                <i class="fa-solid fa-circle-check"></i> Enrollment Confirmed!
+              </div>
+              <%}%>
+              <%if(offer.pdfUrl){%>
+              <a href="<%= offer.pdfUrl %>" target="_blank" class="btn btn-ghost btn-sm w-full" style="justify-content:center;">
+                <i class="fa-solid fa-file-pdf"></i> Download Offer Letter
+              </a>
+              <%}%>
+            </div>
+          </div>
+          <%}%>
+
+          <!-- Payment Status -->
+          <% if(payment){%>
+          <div class="data-table-wrap" style="padding:1.5rem;">
+            <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:0.75rem;">Enrollment Deposit</div>
+            <span class="badge badge-<%= payment.status==='verified'?'success':payment.status==='rejected'?'danger':'warning' %>" style="margin-bottom:1rem;"><%= payment.status %></span>
+            <div style="font-size:0.875rem;color:var(--color-text-secondary);">
+              <div style="margin-bottom:0.5rem;"><strong>Amount:</strong> $<%= (payment.amount||0).toLocaleString() %></div>
+              <div style="margin-bottom:0.5rem;"><strong>Method:</strong> <%= (payment.paymentMethod||'—').replace(/_/g,' ') %></div>
+              <% if(payment.referenceNumber){%><div style="margin-bottom:0.5rem;"><strong>Reference:</strong> <%= payment.referenceNumber %></div><%}%>
+            </div>
+            <% if(payment.status==='pending'){%>
+            <div class="alert alert-info" style="margin-top:0.75rem;font-size:0.8rem;"><i class="fa-solid fa-clock"></i><span>Payment proof under review (24–48 hours)</span></div>
+            <%} else if(payment.status==='rejected'){%>
+            <div class="alert alert-danger" style="margin-top:0.75rem;font-size:0.8rem;"><i class="fa-solid fa-circle-xmark"></i><span><%= payment.rejectionReason||'Payment rejected. Please resubmit.' %></span></div>
+            <% if(offer){%><a href="/parent/offers/<%= offer._id %>/payment" class="btn btn-gold btn-sm w-full" style="margin-top:0.75rem;justify-content:center;">Resubmit Payment</a><%}%>
+            <%}%>
+          </div>
+          <%}%>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="/js/main.js"></script>
+</body></html>

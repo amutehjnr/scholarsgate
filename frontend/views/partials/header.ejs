@@ -1,0 +1,66 @@
+<header class="site-header transparent" data-transparent="true" id="site-header">
+  <div class="header-inner">
+
+    <a href="/" class="site-logo">
+      <div class="logo-mark">S</div>
+      <div class="logo-text">
+        <span class="logo-name">ScholarsGate</span>
+        <span class="logo-tagline">Elite USA Admissions</span>
+      </div>
+    </a>
+
+    <nav class="site-nav">
+      <a href="/scholarships" class="nav-link <%= currentPath.startsWith('/scholarships') ? 'active' : '' %>">Scholarships</a>
+      <a href="/schools" class="nav-link <%= currentPath.startsWith('/schools') ? 'active' : '' %>">Schools</a>
+      <a href="/about" class="nav-link <%= currentPath === '/about' ? 'active' : '' %>">About</a>
+      <a href="/faq" class="nav-link <%= currentPath === '/faq' ? 'active' : '' %>">FAQ</a>
+      <a href="/contact" class="nav-link <%= currentPath === '/contact' ? 'active' : '' %>">Contact</a>
+    </nav>
+
+    <div class="header-actions">
+      <% if (user) { %>
+        <a href="<%= user.role === 'guardian' || user.userType === 'guardian' ? '/parent/dashboard' : '/admin/dashboard' %>" class="btn btn-gold btn-sm">
+          <i class="fa-solid fa-gauge"></i> Dashboard
+        </a>
+      <% } else { %>
+        <a href="/auth/login" class="btn btn-outline-gold btn-sm">Sign In</a>
+        <a href="/auth/register" class="btn btn-gold btn-sm btn-nav-cta">Get Started</a>
+      <% } %>
+
+      <button class="menu-toggle" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+
+  </div>
+</header>
+
+<!-- Mobile Nav -->
+<div class="mobile-nav" id="mobile-nav" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(10,14,26,0.97);z-index:400;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2rem;transform:translateX(100%);transition:transform 0.4s cubic-bezier(0.4,0,0.2,1);">
+  <button style="position:absolute;top:1.5rem;right:1.5rem;background:none;border:none;color:#fff;font-size:1.5rem;cursor:pointer;" onclick="document.querySelector('.mobile-nav').style.transform='translateX(100%)';document.body.style.overflow='';">
+    <i class="fa-solid fa-xmark"></i>
+  </button>
+  <a href="/scholarships" style="font-family:'Playfair Display',serif;font-size:1.75rem;color:#e8e4d9;text-decoration:none;">Scholarships</a>
+  <a href="/schools" style="font-family:'Playfair Display',serif;font-size:1.75rem;color:#e8e4d9;text-decoration:none;">Schools</a>
+  <a href="/about" style="font-family:'Playfair Display',serif;font-size:1.75rem;color:#e8e4d9;text-decoration:none;">About</a>
+  <a href="/faq" style="font-family:'Playfair Display',serif;font-size:1.75rem;color:#e8e4d9;text-decoration:none;">FAQ</a>
+  <a href="/contact" style="font-family:'Playfair Display',serif;font-size:1.75rem;color:#e8e4d9;text-decoration:none;">Contact</a>
+  <div style="display:flex;gap:1rem;margin-top:1rem;">
+    <a href="/auth/login" class="btn btn-outline-gold">Sign In</a>
+    <a href="/auth/register" class="btn btn-gold">Get Started</a>
+  </div>
+</div>
+
+<script>
+  const menuToggle = document.querySelector('.menu-toggle');
+  const mobileNav  = document.querySelector('.mobile-nav');
+  if (menuToggle && mobileNav) {
+    menuToggle.addEventListener('click', () => {
+      const open = mobileNav.style.transform === 'translateX(0%)';
+      mobileNav.style.transform = open ? 'translateX(100%)' : 'translateX(0%)';
+      document.body.style.overflow = open ? '' : 'hidden';
+    });
+  }
+</script>

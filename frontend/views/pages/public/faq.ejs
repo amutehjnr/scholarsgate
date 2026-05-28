@@ -1,0 +1,62 @@
+<!-- faq.ejs -->
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>FAQ | ScholarsGate</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="/css/style.css"/></head>
+<body>
+<%- include('../../partials/header') %>
+<section style="background:var(--gradient-hero);padding:9rem 0 5rem;">
+  <div class="container" style="text-align:center;">
+    <span class="section-label">Help Centre</span>
+    <h1 style="font-family:'Playfair Display',serif;font-size:clamp(2rem,4vw,3.5rem);font-weight:900;color:var(--color-ivory);margin:0.75rem 0;">Frequently Asked Questions</h1>
+    <p style="color:rgba(255,255,255,0.45);max-width:480px;margin:0 auto;">Everything you need to know about ScholarsGate and the admissions process.</p>
+  </div>
+</section>
+<section class="section-xl" style="background:var(--color-cream);">
+  <div class="container-md" style="max-width:760px;">
+    <% const faqCategories=[
+      {category:'About ScholarsGate',faqs:[
+        {q:'What is ScholarsGate?',a:'ScholarsGate is a premium platform connecting international students and their families with elite USA high school scholarships and boarding school admissions opportunities. We partner directly with top American institutions.'},
+        {q:'Is ScholarsGate free to use?',a:'Yes — creating an account and applying for scholarships is completely free for families. We are funded through our institutional partnerships.'},
+        {q:'Which countries can apply?',a:'Students from any country outside the USA can apply through ScholarsGate. We currently serve families from 60+ countries across Africa, Asia, the Middle East, Europe, and Latin America.'},
+      ]},
+      {category:'Scholarships & Coverage',faqs:[
+        {q:'What does "fully funded" mean?',a:'A fully funded scholarship covers 100% of tuition costs. Some fully funded packages also include boarding, meals, books, and other benefits — each scholarship page clearly lists exactly what is covered.'},
+        {q:'What is the enrollment deposit?',a:'Once you accept an offer letter, a $500 USD enrollment deposit is required to secure your child\'s place. This fee is applied toward your account and processed manually — you upload proof of payment and our team verifies within 48 hours.'},
+        {q:'Are scholarships renewable each year?',a:'Most scholarships are renewable annually provided the student maintains the required GPA. The renewal criteria are clearly stated on each scholarship\'s detail page.'},
+      ]},
+      {category:'Application Process',faqs:[
+        {q:'How do I apply?',a:'1. Create a free parent account. 2. Add your child\'s student profile with academic documents. 3. Browse and apply to matching scholarships. The process takes under 30 minutes.'},
+        {q:'What documents are needed?',a:'Typically: academic transcripts, passport copy, English proficiency scores (TOEFL/IELTS), a personal statement, and at least one recommendation letter. Exact requirements vary per scholarship.'},
+        {q:'How long does the review take?',a:'Applications are reviewed within 2–4 weeks. Shortlisted candidates may be invited to a video interview. Final decisions are communicated within 6–8 weeks of submission.'},
+        {q:'Can I apply for multiple scholarships?',a:'Yes. You can apply for multiple scholarships across different schools for the same student. We recommend applying to 3–5 to maximize your chances.'},
+      ]},
+      {category:'Technical Support',faqs:[
+        {q:'I forgot my password. What do I do?',a:'Click "Forgot Password" on the login page and enter your email. You will receive a reset link within 5 minutes. Check your spam folder if you don\'t see it.'},
+        {q:'Can I update my child\'s documents after submitting?',a:'You can update documents in your student profile at any time before the application deadline. Contact support if you need to update documents on a submitted application.'},
+      ]},
+    ]; %>
+    <% faqCategories.forEach(cat=>{%>
+    <div style="margin-bottom:3rem;">
+      <h2 style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;margin-bottom:1.25rem;color:var(--color-text-primary);padding-bottom:0.75rem;border-bottom:2px solid rgba(201,168,76,0.2);">
+        <%= cat.category %>
+      </h2>
+      <% cat.faqs.forEach(faq=>{%>
+      <div class="faq-item">
+        <div class="faq-question"><h4><%= faq.q %></h4><div class="faq-icon"><i class="fa-solid fa-plus"></i></div></div>
+        <div class="faq-answer"><div class="faq-answer-inner"><%= faq.a %></div></div>
+      </div>
+      <%})%>
+    </div>
+    <%})%>
+    <div style="text-align:center;padding:2.5rem;background:#fff;border-radius:20px;box-shadow:var(--shadow-sm);border:var(--border-dark);">
+      <h3 style="font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:0.5rem;">Still have questions?</h3>
+      <p style="color:var(--color-text-muted);margin-bottom:1.5rem;">Our admissions team is available to help Monday–Friday.</p>
+      <a href="/contact" class="btn btn-gold">Contact Support</a>
+    </div>
+  </div>
+</section>
+<%- include('../../partials/footer') %>
+<script src="/js/main.js"></script>
+</body></html>

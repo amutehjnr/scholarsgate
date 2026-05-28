@@ -1,0 +1,22 @@
+/* ═══════════════════════════════════════════════════════════
+   SCHOLARSGATE — MAIN STYLESHEET
+   Premium USA High School Scholarship Platform
+   Architecture: Modular CSS with Custom Properties
+════════════════════════════════════════════════════════════ */
+
+/* Base */
+@import url('./base/variables.css');
+@import url('./base/reset.css');
+@import url('./base/typography.css');
+
+/* Layouts */
+@import url('./layouts/layout.css');
+
+/* Components */
+@import url('./components/components.css');
+
+/* Pages */
+@import url('./pages/pages.css');
+
+/* Dashboard */
+@import url('./pages/dashboard.css');

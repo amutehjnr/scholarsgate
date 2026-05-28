@@ -1,0 +1,85 @@
+<!-- offers.ejs (parent) -->
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Offer Letters | ScholarsGate</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="/css/style.css"/></head>
+<body data-authenticated>
+<div class="dashboard-layout">
+  <div class="sidebar-overlay"></div><%- include('../../partials/sidebar') %>
+  <div class="dashboard-main">
+    <div class="dashboard-topbar">
+      <div class="topbar-left">
+        <button class="sidebar-toggle" style="width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.04);border:none;cursor:pointer;"><i class="fa-solid fa-bars"></i></button>
+        <div><div class="page-title-bar">Offer Letters</div></div>
+      </div>
+    </div>
+    <%- include('../../partials/flash') %>
+    <div class="dashboard-content">
+      <% if(offers.length===0){%>
+      <div style="text-align:center;padding:5rem 0;">
+        <div style="font-size:4rem;opacity:0.15;margin-bottom:1.5rem;"><i class="fa-solid fa-envelope-open-text"></i></div>
+        <h2 style="font-family:'Playfair Display',serif;font-size:1.75rem;margin-bottom:0.5rem;">No Offer Letters Yet</h2>
+        <p style="color:var(--color-text-muted);margin-bottom:2rem;max-width:380px;margin-left:auto;margin-right:auto;">Once your applications are reviewed and accepted, offer letters will appear here.</p>
+        <a href="/parent/applications" class="btn btn-gold btn-lg">View Applications</a>
+      </div>
+      <%} else {%>
+      <div class="grid-auto-fill-md">
+        <% offers.forEach(offer=>{%>
+        <div class="offer-card">
+          <div class="offer-card-header">
+            <span class="offer-card-number"><%= offer.offerNumber %></span>
+            <span class="badge badge-<%= offer.status==='confirmed'?'success':offer.status==='accepted'?'info':offer.status==='expired'?'danger':'gold' %>"><%= offer.status %></span>
+          </div>
+          <div class="offer-card-body">
+            <div class="offer-school-name"><%= offer.school?.name %></div>
+            <div class="offer-scholarship-name"><%= offer.scholarship?.name||'Scholarship Offer' %></div>
+            <div class="offer-coverage-row">
+              <div><div class="offer-coverage-label">Coverage</div><div class="offer-coverage-pct"><%= offer.scholarshipDetails?.coveragePercentage||0 %>%</div></div>
+              <div style="text-align:right;"><div class="offer-coverage-label">Deposit Due</div><div style="font-size:1.25rem;font-weight:700;color:var(--color-text-primary);">$<%= (offer.enrollmentDeposit||500).toLocaleString() %></div></div>
+            </div>
+            <% if(offer.scholarshipDetails?.benefits?.length){%>
+            <div class="offer-benefits-preview">
+              <% offer.scholarshipDetails.benefits.slice(0,4).forEach(b=>{%><span class="benefit-chip"><%= b %></span><%})%>
+              <% if(offer.scholarshipDetails.benefits.length>4){%><span class="benefit-chip">+<%= offer.scholarshipDetails.benefits.length-4 %> more</span><%}%>
+            </div>
+            <%}%>
+            <div class="offer-expiry <%= new Date(offer.expiryDate)<new Date(Date.now()+7*24*60*60*1000)?'urgent':'' %>">
+              <i class="fa-regular fa-clock"></i>
+              <% if(new Date()>new Date(offer.expiryDate)){%>Expired <%= new Date(offer.expiryDate).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) %>
+              <%} else {%>Expires <%= new Date(offer.expiryDate).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) %><%}%>
+            </div>
+            <div class="offer-actions">
+              <% if(offer.status==='issued'){%>
+              <form action="/parent/offers/<%= offer._id %>/accept" method="POST" style="flex:1;">
+                <button type="submit" class="btn btn-gold w-full" style="justify-content:center;" onclick="return confirm('Accept this offer?')">
+                  <i class="fa-solid fa-check"></i> Accept Offer
+                </button>
+              </form>
+              <%} else if(offer.status==='accepted'){%>
+              <a href="/parent/offers/<%= offer._id %>/payment" class="btn btn-gold" style="flex:1;justify-content:center;">
+                <i class="fa-solid fa-upload"></i> Submit Deposit
+              </a>
+              <%} else if(offer.status==='confirmed'){%>
+              <div class="btn" style="flex:1;background:var(--color-success-bg);color:var(--color-success);border-color:transparent;justify-content:center;cursor:default;">
+                <i class="fa-solid fa-circle-check"></i> Enrollment Confirmed
+              </div>
+              <%}%>
+              <% if(offer.pdfUrl){%>
+              <a href="<%= offer.pdfUrl %>" target="_blank" class="btn btn-ghost btn-sm" title="Download PDF">
+                <i class="fa-solid fa-file-pdf"></i>
+              </a>
+              <%}%>
+            </div>
+          </div>
+        </div>
+        <%})%>
+      </div>
+      <%}%>
+    </div>
+  </div>
+</div>
+<div id="toast-container"></div>
+<style>#toast-container{position:fixed;bottom:2rem;right:2rem;z-index:9999;}</style>
+<script src="/js/main.js"></script>
+</body></html>

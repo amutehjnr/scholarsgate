@@ -1,0 +1,83 @@
+<!-- add-student.ejs -->
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Add Student | ScholarsGate</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="/css/style.css"/></head>
+<body data-authenticated>
+<div class="dashboard-layout">
+  <div class="sidebar-overlay"></div><%- include('../../partials/sidebar') %>
+  <div class="dashboard-main">
+    <div class="dashboard-topbar">
+      <div class="topbar-left">
+        <button class="sidebar-toggle" style="width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.04);border:none;cursor:pointer;"><i class="fa-solid fa-bars"></i></button>
+        <div>
+          <div class="page-title-bar">Add Student Profile</div>
+          <div class="breadcrumb"><a href="/parent/students">Students</a><span class="breadcrumb-sep">/</span><span>Add</span></div>
+        </div>
+      </div>
+    </div>
+    <%- include('../../partials/flash') %>
+    <div class="dashboard-content">
+      <div style="max-width:860px;">
+        <form action="/parent/students" method="POST" enctype="multipart/form-data" data-validate>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+
+            <div class="data-table-wrap" style="padding:1.5rem;grid-column:1/-1;">
+              <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:1.25rem;">Personal Information</h3>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;">
+                <div class="form-group"><label class="form-label">First Name <span class="required">*</span></label><input type="text" name="firstName" class="form-control" required/></div>
+                <div class="form-group"><label class="form-label">Last Name <span class="required">*</span></label><input type="text" name="lastName" class="form-control" required/></div>
+                <div class="form-group"><label class="form-label">Gender <span class="required">*</span></label>
+                  <select name="gender" class="form-control form-select" required>
+                    <option value="">Select</option>
+                    <option value="male">Male</option><option value="female">Female</option><option value="other">Other</option>
+                  </select>
+                </div>
+                <div class="form-group"><label class="form-label">Date of Birth <span class="required">*</span></label><input type="date" name="dateOfBirth" class="form-control" required/></div>
+                <div class="form-group"><label class="form-label">Nationality <span class="required">*</span></label><input type="text" name="nationality" class="form-control" placeholder="Nigerian" required/></div>
+                <div class="form-group"><label class="form-label">Passport Number</label><input type="text" name="passportNumber" class="form-control" placeholder="A12345678"/></div>
+              </div>
+            </div>
+
+            <div class="data-table-wrap" style="padding:1.5rem;">
+              <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:1.25rem;">Academic Information</h3>
+              <div class="form-group"><label class="form-label">Current School</label><input type="text" name="currentSchool" class="form-control" placeholder="Current school name"/></div>
+              <div class="form-group"><label class="form-label">Current Grade</label><input type="text" name="currentGrade" class="form-control" placeholder="Grade 8"/></div>
+              <div class="form-group"><label class="form-label">GPA (0.0 – 4.0)</label><input type="number" name="gpa" class="form-control" step="0.1" min="0" max="4" placeholder="3.8"/></div>
+            </div>
+
+            <div class="data-table-wrap" style="padding:1.5rem;">
+              <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:1.25rem;">Enrollment Target</h3>
+              <div class="form-group"><label class="form-label">Intended Grade <span class="required">*</span></label>
+                <select name="intendedGrade" class="form-control form-select" required>
+                  <option value="">Select grade</option>
+                  <% ['9','10','11','12'].forEach(g=>{%><option value="<%= g %>">Grade <%= g %></option><%})%>
+                </select>
+              </div>
+              <div class="form-group"><label class="form-label">Enrollment Year <span class="required">*</span></label><input type="number" name="intendedYear" class="form-control" required placeholder="<%= new Date().getFullYear()+1 %>" min="<%= new Date().getFullYear() %>"/></div>
+              <div class="form-group"><label class="form-label">English Proficiency Test</label>
+                <select name="englishProficiency[test]" class="form-control form-select">
+                  <option value="None">None</option><option value="TOEFL">TOEFL</option><option value="IELTS">IELTS</option><option value="Duolingo">Duolingo</option><option value="Native">Native Speaker</option>
+                </select>
+              </div>
+              <div class="form-group"><label class="form-label">English Test Score</label><input type="number" name="englishProficiency[score]" class="form-control" placeholder="e.g. 95 (TOEFL)"/></div>
+            </div>
+
+            <div class="data-table-wrap" style="padding:1.5rem;grid-column:1/-1;">
+              <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:1.25rem;">Career Goals</h3>
+              <div class="form-group"><label class="form-label">Career Goals & Interests</label><textarea name="careerGoals" class="form-control form-textarea" placeholder="Describe your child's career aspirations..." rows="3"></textarea></div>
+            </div>
+
+            <div style="grid-column:1/-1;display:flex;justify-content:flex-end;gap:1rem;">
+              <a href="/parent/students" class="btn btn-ghost">Cancel</a>
+              <button type="submit" class="btn btn-gold btn-lg"><i class="fa-solid fa-plus"></i> Create Profile</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="/js/main.js"></script>
+</body></html>

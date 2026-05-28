@@ -1,0 +1,79 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Elite USA Schools | ScholarsGate</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=Playfair+Display:wght@400;700;900&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="/css/style.css"/></head>
+<body>
+<%- include('../../partials/header') %>
+<section style="background:var(--gradient-hero);padding:9rem 0 5rem;border-bottom:1px solid rgba(201,168,76,0.1);">
+  <div class="container" style="text-align:center;">
+    <span class="section-label">Partner Schools</span>
+    <h1 style="font-family:'Playfair Display',serif;font-size:clamp(2rem,4vw,3.5rem);font-weight:900;color:var(--color-ivory);margin:0.75rem 0;">America's Most Prestigious<br/>Boarding Schools</h1>
+    <p style="color:rgba(255,255,255,0.45);max-width:500px;margin:0 auto;"><%= total %> elite partner institutions</p>
+  </div>
+</section>
+<section style="background:#fff;border-bottom:var(--border-dark);position:sticky;top:80px;z-index:99;">
+  <div class="container-2xl" style="padding-top:1rem;padding-bottom:1rem;">
+    <form method="GET" action="/schools" style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;">
+      <input type="text" name="search" class="form-control" placeholder="Search schools..." value="<%= filters.search||'' %>" style="max-width:240px;padding:0.6rem 1rem;"/>
+      <select name="type" class="form-control form-select" style="max-width:180px;padding:0.6rem 2rem 0.6rem 0.875rem;">
+        <option value="">All Types</option>
+        <option value="boarding" <%= filters.type==='boarding'?'selected':'' %>>Boarding</option>
+        <option value="day" <%= filters.type==='day'?'selected':'' %>>Day School</option>
+        <option value="boarding-day" <%= filters.type==='boarding-day'?'selected':'' %>>Boarding & Day</option>
+      </select>
+      <select name="state" class="form-control form-select" style="max-width:180px;padding:0.6rem 2rem 0.6rem 0.875rem;">
+        <option value="">All States</option>
+        <% ['New Hampshire','Massachusetts','New Jersey','Connecticut','New York','Pennsylvania','Virginia','Maryland'].forEach(st=>{%>
+        <option value="<%= st %>" <%= filters.state===st?'selected':'' %>><%= st %></option>
+        <%})%>
+      </select>
+      <button type="submit" class="btn btn-gold btn-sm"><i class="fa-solid fa-filter"></i> Filter</button>
+      <% if(filters.search||filters.type||filters.state){%><a href="/schools" class="btn btn-ghost btn-sm">Clear</a><%}%>
+    </form>
+  </div>
+</section>
+<section class="section-lg" style="background:var(--color-cream);">
+  <div class="container-2xl">
+    <% if(schools.length===0){%>
+    <div style="text-align:center;padding:5rem 0;"><div style="font-size:3rem;opacity:0.2;margin-bottom:1rem;"><i class="fa-solid fa-school"></i></div><h3 style="color:var(--color-text-muted);">No schools found</h3></div>
+    <%} else {%>
+    <div class="grid-auto-fill-lg stagger">
+      <% schools.forEach(school=>{%>
+      <a href="/schools/<%= school.slug %>" class="school-card" style="text-decoration:none;">
+        <div class="card-img" style="height:210px;background:linear-gradient(135deg,#0a0e1a,#1a2448);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+          <% if(school.images?.hero){%><img src="<%= school.images.hero %>" alt="<%= school.name %>" style="width:100%;height:100%;object-fit:cover;opacity:0.75;"/>
+          <%} else {%><div style="font-size:4rem;opacity:0.1;color:#fff;"><i class="fa-solid fa-school"></i></div><%}%>
+          <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(10,14,26,0.7) 0%,transparent 60%);"></div>
+          <div style="position:absolute;bottom:1rem;left:1rem;display:flex;gap:0.5rem;">
+            <span class="badge badge-gold" style="font-size:10px;text-transform:capitalize;"><%= school.type %></span>
+            <% if(school.featured){%><span class="badge badge-gold" style="font-size:10px;"><i class="fa-solid fa-star"></i> Featured</span><%}%>
+          </div>
+        </div>
+        <div style="padding:1.5rem;">
+          <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--color-text-primary);margin-bottom:0.25rem;line-height:1.3;"><%= school.name %></h3>
+          <p style="font-size:0.8rem;color:var(--color-text-muted);margin-bottom:1rem;"><i class="fa-solid fa-location-dot" style="margin-right:4px;opacity:0.5;"></i><%= school.location?.city %>, <%= school.location?.state %></p>
+          <div style="display:flex;gap:1.5rem;margin-bottom:1.25rem;padding-bottom:1.25rem;border-bottom:var(--border-dark);">
+            <% if(school.stats?.studentTeacherRatio){%><div><div style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;"><%= school.stats.studentTeacherRatio %></div><div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-muted);">Ratio</div></div><%}%>
+            <% if(school.founded){%><div><div style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;">Est. <%= school.founded %></div><div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-muted);">Founded</div></div><%}%>
+            <% if(school.tuition?.annual){%><div style="margin-left:auto;text-align:right;"><div style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--color-gold-dim);">$<%= Math.round(school.tuition.annual/1000) %>K</div><div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-muted);">/Year</div></div><%}%>
+          </div>
+          <p style="font-size:0.8rem;color:var(--color-text-secondary);line-height:1.6;margin-bottom:1rem;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;"><%= school.overview?.substring(0,120) %>...</p>
+          <div style="display:flex;align-items:center;gap:0.5rem;color:var(--color-gold);font-size:0.875rem;font-weight:600;">View School <i class="fa-solid fa-arrow-right"></i></div>
+        </div>
+      </a>
+      <%})%>
+    </div>
+    <% if(pages>1){%>
+    <div style="display:flex;justify-content:center;margin-top:3rem;gap:0.5rem;">
+      <% for(let i=1;i<=pages;i++){%><a href="?page=<%= i %>" class="page-btn <%= page===i?'active':'' %>"><%= i %></a><%}%>
+    </div>
+    <%}%>
+    <%}%>
+  </div>
+</section>
+<%- include('../../partials/footer') %>
+<div id="toast-container"></div>
+<style>#toast-container{position:fixed;bottom:2rem;right:2rem;z-index:9999;}</style>
+<script src="/js/main.js"></script>
+</body></html>

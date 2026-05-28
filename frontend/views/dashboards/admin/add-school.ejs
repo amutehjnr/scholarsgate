@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Add School | Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body data-authenticated>
+<div class="dashboard-layout">
+  <div class="sidebar-overlay"></div>
+  <%- include('../../partials/sidebar') %>
+  <div class="dashboard-main">
+    <div class="dashboard-topbar">
+      <div class="topbar-left">
+        <button class="sidebar-toggle" style="width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.04);border:none;cursor:pointer;"><i class="fa-solid fa-bars"></i></button>
+        <div>
+          <div class="page-title-bar">Add New School</div>
+          <div class="breadcrumb"><a href="/admin/schools">Schools</a><span class="breadcrumb-sep">/</span><span>Add</span></div>
+        </div>
+      </div>
+    </div>
+    <%- include('../../partials/flash') %>
+    <div class="dashboard-content">
+      <div style="max-width:860px;">
+        <form action="/admin/schools" method="POST" enctype="multipart/form-data">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+
+            <div class="data-table-wrap" style="padding:1.5rem;grid-column:1/-1;">
+              <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:1.25rem;">Basic Information</h3>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                <div class="form-group"><label class="form-label">School Name <span class="required">*</span></label><input type="text" name="name" class="form-control" required placeholder="Phillips Exeter Academy"/></div>
+                <div class="form-group"><label class="form-label">Founded Year</label><input type="number" name="founded" class="form-control" placeholder="1781" min="1600" max="2024"/></div>
+                <div class="form-group">
+                  <label class="form-label">Type <span class="required">*</span></label>
+                  <select name="type" class="form-control form-select" required>
+                    <option value="">Select type</option>
+                    <option value="boarding">Boarding</option>
+                    <option value="day">Day School</option>
+                    <option value="boarding-day">Boarding & Day</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Category <span class="required">*</span></label>
+                  <select name="category" class="form-control form-select" required>
+                    <option value="">Select category</option>
+                    <option value="private">Private</option>
+                    <option value="charter">Charter</option>
+                    <option value="magnet">Magnet</option>
+                    <option value="military">Military</option>
+                    <option value="religious">Religious</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group"><label class="form-label">Overview <span class="required">*</span></label><textarea name="overview" class="form-control form-textarea" required placeholder="Brief overview of the school..." rows="3"></textarea></div>
+            </div>
+
+            <div class="data-table-wrap" style="padding:1.5rem;">
+              <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:1.25rem;">Location</h3>
+              <div class="form-group"><label class="form-label">City <span class="required">*</span></label><input type="text" name="location[city]" class="form-control" required placeholder="Exeter"/></div>
+              <div class="form-group"><label class="form-label">State <span class="required">*</span></label><input type="text" name="location[state]" class="form-control" required placeholder="New Hampshire"/></div>
+              <div class="form-group"><label class="form-label">ZIP Code</label><input type="text" name="location[zipCode]" class="form-control" placeholder="03833"/></div>
+            </div>
+
+            <div class="data-table-wrap" style="padding:1.5rem;">
+              <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:1.25rem;">Tuition</h3>
+              <div class="form-group"><label class="form-label">Annual Tuition (USD) <span class="required">*</span></label><input type="number" name="tuition[annual]" class="form-control" required placeholder="60000"/></div>
+              <div class="form-group"><label class="form-label">Boarding Fee (USD)</label><input type="number" name="tuition[boarding]" class="form-control" placeholder="18000"/></div>
+              <div class="form-group"><label class="form-label">Other Fees (USD)</label><input type="number" name="tuition[fees]" class="form-control" placeholder="3000"/></div>
+            </div>
+
+            <div class="data-table-wrap" style="padding:1.5rem;">
+              <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:1.25rem;">Statistics</h3>
+              <div class="form-group"><label class="form-label">Total Students</label><input type="number" name="stats[totalStudents]" class="form-control" placeholder="1080"/></div>
+              <div class="form-group"><label class="form-label">Student:Teacher Ratio</label><input type="text" name="stats[studentTeacherRatio]" class="form-control" placeholder="5:1"/></div>
+              <div class="form-group"><label class="form-label">College Acceptance Rate (%)</label><input type="number" name="stats[collegeAcceptanceRate]" class="form-control" placeholder="99" min="0" max="100"/></div>
+              <div class="form-group"><label class="form-label">Avg SAT Score</label><input type="number" name="stats[satAverage]" class="form-control" placeholder="1480" min="400" max="1600"/></div>
+            </div>
+
+            <div class="data-table-wrap" style="padding:1.5rem;">
+              <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:1.25rem;">Contact</h3>
+              <div class="form-group"><label class="form-label">Email</label><input type="email" name="contactInfo[email]" class="form-control" placeholder="admissions@school.edu"/></div>
+              <div class="form-group"><label class="form-label">Phone</label><input type="tel" name="contactInfo[phone]" class="form-control" placeholder="+1 (555) 000-0000"/></div>
+              <div class="form-group"><label class="form-label">Website</label><input type="url" name="contactInfo[website]" class="form-control" placeholder="https://www.school.edu"/></div>
+            </div>
+
+            <div class="data-table-wrap" style="padding:1.5rem;">
+              <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:1.25rem;">Images</h3>
+              <div class="form-group"><label class="form-label">School Logo</label><input type="file" name="logo" class="form-control" accept="image/*" style="padding:0.5rem;"/></div>
+              <div class="form-group"><label class="form-label">Hero Image</label><input type="file" name="hero" class="form-control" accept="image/*" style="padding:0.5rem;"/></div>
+              <div class="form-group" style="display:flex;align-items:center;gap:0.75rem;">
+                <input type="checkbox" name="featured" id="featured" value="true" style="accent-color:var(--color-gold);width:16px;height:16px;"/>
+                <label for="featured" style="font-size:0.875rem;font-weight:600;color:var(--color-text-secondary);cursor:pointer;">Mark as Featured School</label>
+              </div>
+            </div>
+
+            <div style="grid-column:1/-1;display:flex;justify-content:flex-end;gap:1rem;">
+              <a href="/admin/schools" class="btn btn-ghost">Cancel</a>
+              <button type="submit" class="btn btn-gold btn-lg"><i class="fa-solid fa-plus"></i> Add School</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="toast-container"></div>
+<style>#toast-container{position:fixed;bottom:2rem;right:2rem;z-index:9999;}</style>
+<script src="/js/main.js"></script>
+</body></html>

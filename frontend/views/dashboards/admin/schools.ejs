@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Manage Schools | Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body data-authenticated>
+<div class="dashboard-layout">
+  <div class="sidebar-overlay"></div>
+  <%- include('../../partials/sidebar') %>
+  <div class="dashboard-main">
+    <div class="dashboard-topbar">
+      <div class="topbar-left">
+        <button class="sidebar-toggle" style="width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.04);border:none;cursor:pointer;"><i class="fa-solid fa-bars"></i></button>
+        <div>
+          <div class="page-title-bar">Schools Management</div>
+          <div class="breadcrumb"><span>Admin</span><span class="breadcrumb-sep">/</span><span>Schools</span></div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <a href="/admin/schools/add" class="btn btn-gold btn-sm"><i class="fa-solid fa-plus"></i> Add School</a>
+      </div>
+    </div>
+    <%- include('../../partials/flash') %>
+    <div class="dashboard-content">
+      <div class="data-table-wrap">
+        <div class="data-table-header">
+          <h3>All Schools <span style="font-size:0.875rem;font-weight:500;color:var(--color-text-muted);">(<%= schools.length %>)</span></h3>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>School Name</th>
+                <th>Location</th>
+                <th>Type</th>
+                <th>Tuition/Year</th>
+                <th>Featured</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% schools.forEach(school => { %>
+              <tr>
+                <td>
+                  <div class="user-cell">
+                    <div class="table-avatar" style="border-radius:8px;background:linear-gradient(135deg,#0a0e1a,#1a2448);">
+                      <% if (school.images?.logo) { %><img src="<%= school.images.logo %>" alt="" style="width:100%;height:100%;object-fit:contain;padding:4px;"/>
+                      <% } else { %><i class="fa-solid fa-school" style="color:#c9a84c;font-size:0.875rem;"></i><% } %>
+                    </div>
+                    <div>
+                      <div class="table-name"><%= school.name %></div>
+                      <div class="table-sub">Est. <%= school.founded || 'N/A' %></div>
+                    </div>
+                  </div>
+                </td>
+                <td style="font-size:0.8rem;"><%= school.location?.city %>, <%= school.location?.state %></td>
+                <td><span class="badge badge-navy" style="font-size:10px;text-transform:capitalize;"><%= school.type %></span></td>
+                <td style="font-weight:700;color:var(--color-gold-dim);">$<%= (school.tuition?.annual||0).toLocaleString() %></td>
+                <td>
+                  <% if (school.featured) { %>
+                    <span style="color:var(--color-gold);font-size:1rem;"><i class="fa-solid fa-star"></i></span>
+                  <% } else { %>
+                    <span style="color:var(--color-text-muted);font-size:1rem;"><i class="fa-regular fa-star"></i></span>
+                  <% } %>
+                </td>
+                <td>
+                  <span class="badge badge-<%= school.isActive ? 'success' : 'danger' %>">
+                    <%= school.isActive ? 'Active' : 'Inactive' %>
+                  </span>
+                </td>
+                <td>
+                  <div class="table-actions">
+                    <a href="/schools/<%= school.slug %>" target="_blank" class="btn btn-ghost btn-sm" style="font-size:0.7rem;padding:0.25rem 0.75rem;" title="View Public Page">
+                      <i class="fa-solid fa-eye"></i>
+                    </a>
+                    <button class="btn btn-ghost btn-sm" style="font-size:0.7rem;padding:0.25rem 0.75rem;" onclick="editSchool('<%= school._id %>')">
+                      <i class="fa-solid fa-pen"></i>
+                    </button>
+                    <button class="btn btn-danger btn-sm" style="font-size:0.7rem;padding:0.25rem 0.75rem;"
+                      onclick="if(confirm('Deactivate this school?')){fetch('/admin/schools/<%= school._id %>',{method:'DELETE'}).then(r=>r.json()).then(d=>{if(d.success){location.reload();}else{showToast(d.error,'error');}});}">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <% }) %>
+              <% if (schools.length === 0) { %>
+              <tr><td colspan="7" style="text-align:center;padding:3rem;color:var(--color-text-muted);">No schools yet. <a href="/admin/schools/add" style="color:var(--color-gold-dim);">Add your first school.</a></td></tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="toast-container"></div>
+<style>#toast-container{position:fixed;bottom:2rem;right:2rem;z-index:9999;display:flex;flex-direction:column;gap:.75rem;}.toast{display:flex;align-items:center;gap:.75rem;padding:.875rem 1.25rem;border-radius:10px;background:#fff;box-shadow:0 8px 32px rgba(0,0,0,.2);font-size:.875rem;font-weight:500;min-width:280px;max-width:400px;transform:translateX(120%);transition:transform .4s cubic-bezier(.34,1.56,.64,1),opacity .4s ease;opacity:0;color:#1a1a2e;}.toast.show{transform:translateX(0);opacity:1;}</style>
+<script src="/js/main.js"></script>
+<script>
+function editSchool(id) { window.location.href = '/admin/schools/add?edit=' + id; }
+</script>
+</body></html>

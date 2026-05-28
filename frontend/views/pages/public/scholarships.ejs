@@ -1,0 +1,99 @@
+<!-- scholarships.ejs (public) -->
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Scholarships | ScholarsGate</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=Playfair+Display:wght@400;700;900&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="/css/style.css"/></head>
+<body>
+<%- include('../../partials/header') %>
+<!-- Hero -->
+<section style="background:var(--gradient-hero);padding:9rem 0 5rem;border-bottom:1px solid rgba(201,168,76,0.1);">
+  <div class="container" style="text-align:center;">
+    <span class="section-label">All Opportunities</span>
+    <h1 style="font-family:'Playfair Display',serif;font-size:clamp(2rem,4vw,3.5rem);font-weight:900;color:var(--color-ivory);margin:0.75rem 0;">Elite USA Scholarships</h1>
+    <p style="color:rgba(255,255,255,0.45);max-width:500px;margin:0 auto;">Browse <%= total %> scholarship opportunities at premier American boarding schools.</p>
+  </div>
+</section>
+<!-- Filter Bar -->
+<section style="background:#fff;border-bottom:var(--border-dark);position:sticky;top:80px;z-index:99;">
+  <div class="container-2xl" style="padding-top:1rem;padding-bottom:1rem;">
+    <form method="GET" action="/scholarships" style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;">
+      <input type="text" name="search" class="form-control" placeholder="Search scholarships..." value="<%= filters.search||'' %>" style="max-width:240px;padding:0.6rem 1rem;"/>
+      <select name="type" class="form-control form-select" style="max-width:180px;padding:0.6rem 2rem 0.6rem 0.875rem;">
+        <option value="">All Types</option>
+        <% ['full','merit','partial','stem','boarding','arts'].forEach(t=>{%><option value="<%= t %>" <%= filters.type===t?'selected':'' %>><%= t.charAt(0).toUpperCase()+t.slice(1) %></option><%})%>
+      </select>
+      <select name="minCoverage" class="form-control form-select" style="max-width:180px;padding:0.6rem 2rem 0.6rem 0.875rem;">
+        <option value="">Any Coverage</option>
+        <option value="50" <%= filters.minCoverage==='50'?'selected':'' %>>50%+</option>
+        <option value="75" <%= filters.minCoverage==='75'?'selected':'' %>>75%+</option>
+        <option value="100" <%= filters.minCoverage==='100'?'selected':'' %>>100% (Full)</option>
+      </select>
+      <button type="submit" class="btn btn-gold btn-sm"><i class="fa-solid fa-filter"></i> Filter</button>
+      <% if (filters.search||filters.type||filters.minCoverage){%><a href="/scholarships" class="btn btn-ghost btn-sm">Clear</a><%}%>
+      <span style="margin-left:auto;font-size:0.8rem;color:var(--color-text-muted);"><%= total %> scholarships</span>
+    </form>
+  </div>
+</section>
+<!-- Listings -->
+<section class="section-lg" style="background:var(--color-cream);">
+  <div class="container-2xl">
+    <% if(scholarships.length===0){%>
+    <div style="text-align:center;padding:5rem 0;">
+      <div style="font-size:3rem;opacity:0.2;margin-bottom:1rem;"><i class="fa-solid fa-star"></i></div>
+      <h3 style="color:var(--color-text-muted);">No scholarships found</h3>
+      <a href="/scholarships" class="btn btn-gold btn-sm" style="margin-top:1rem;">Clear Filters</a>
+    </div>
+    <%} else {%>
+    <div class="grid-auto-fill-md stagger">
+      <% scholarships.forEach(s=>{ %>
+      <div class="scholarship-card fade-up">
+        <div style="padding:1.5rem 1.5rem 0;">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;">
+            <div style="flex:1;">
+              <% const typeColors={full:'success',merit:'info',stem:'info',partial:'warning',boarding:'gold',arts:'gold'}; %>
+              <span class="badge badge-<%= typeColors[s.type]||'gray' %>" style="margin-bottom:0.75rem;"><%= s.type==='full'?'★ Fully Funded':s.type.charAt(0).toUpperCase()+s.type.slice(1)+' Scholarship' %></span>
+              <h3 style="font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;color:var(--color-text-primary);line-height:1.3;margin-bottom:0.25rem;"><%= s.name %></h3>
+              <p style="font-size:0.8rem;color:var(--color-text-muted);"><i class="fa-solid fa-school" style="margin-right:4px;opacity:0.5;"></i><%= s.school?.name %></p>
+              <p style="font-size:0.75rem;color:var(--color-text-muted);margin-top:2px;"><i class="fa-solid fa-location-dot" style="margin-right:4px;opacity:0.5;"></i><%= s.school?.location?.city %>, <%= s.school?.location?.state %></p>
+            </div>
+            <div class="coverage-ring">
+              <span class="pct"><%= s.coveragePercentage %>%</span>
+              <span class="pct-label">Covered</span>
+            </div>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:0.375rem;margin-bottom:1.25rem;">
+            <% if(s.benefits?.fullTuition||s.benefits?.tuition){%><span class="benefit-chip">✓ Tuition</span><%}%>
+            <% if(s.benefits?.boarding){%><span class="benefit-chip">✓ Boarding</span><%}%>
+            <% if(s.benefits?.meals){%><span class="benefit-chip">✓ Meals</span><%}%>
+            <% if(s.benefits?.satPrep){%><span class="benefit-chip">✓ SAT Prep</span><%}%>
+            <% if(s.benefits?.stemMentorship){%><span class="benefit-chip">✓ STEM</span><%}%>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem;background:rgba(201,168,76,0.05);border-radius:10px;border:1px solid rgba(201,168,76,0.1);margin-bottom:1.25rem;">
+            <div><div style="font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-text-muted);">Annual Value</div><div style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--color-gold-dim);">$<%= (s.annualValue||0).toLocaleString() %></div></div>
+            <div style="text-align:right;"><div style="font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-text-muted);">Deadline</div><div style="font-size:0.8rem;font-weight:600;color:var(--color-text-primary);"><%= new Date(s.applicationDeadline).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) %></div></div>
+          </div>
+        </div>
+        <div style="padding:0 1.5rem 1.5rem;display:flex;gap:0.5rem;">
+          <a href="/scholarships/<%= s.slug %>" class="btn btn-navy" style="flex:1;justify-content:center;border-radius:10px;">View Details</a>
+          <% if(user){%><a href="/applications/apply/<%= s.slug %>" class="btn btn-gold btn-sm" style="border-radius:10px;">Apply</a><%}%>
+        </div>
+      </div>
+      <%})%>
+    </div>
+    <!-- Pagination -->
+    <% if(pages>1){%>
+    <div style="display:flex;justify-content:center;margin-top:3rem;gap:0.5rem;">
+      <% for(let i=1;i<=pages;i++){%>
+      <a href="?page=<%= i %>&type=<%= filters.type||'' %>&minCoverage=<%= filters.minCoverage||'' %>" class="page-btn <%= page===i?'active':'' %>"><%= i %></a>
+      <%}%>
+    </div>
+    <%}%>
+    <%}%>
+  </div>
+</section>
+<%- include('../../partials/footer') %>
+<div id="toast-container"></div>
+<style>#toast-container{position:fixed;bottom:2rem;right:2rem;z-index:9999;display:flex;flex-direction:column;gap:.75rem;}.toast{display:flex;align-items:center;gap:.75rem;padding:.875rem 1.25rem;border-radius:10px;background:#fff;box-shadow:0 8px 32px rgba(0,0,0,.2);font-size:.875rem;font-weight:500;min-width:280px;max-width:400px;transform:translateX(120%);transition:transform .4s cubic-bezier(.34,1.56,.64,1),opacity .4s ease;opacity:0;color:#1a1a2e;}.toast.show{transform:translateX(0);opacity:1;}</style>
+<script src="/js/main.js"></script>
+</body></html>

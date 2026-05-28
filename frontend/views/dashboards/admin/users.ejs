@@ -1,0 +1,114 @@
+<!-- users.ejs -->
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Users | Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="/css/style.css"/></head>
+<body data-authenticated>
+<div class="dashboard-layout">
+  <div class="sidebar-overlay"></div>
+  <%- include('../../partials/sidebar') %>
+  <div class="dashboard-main">
+    <div class="dashboard-topbar">
+      <div class="topbar-left">
+        <button class="sidebar-toggle" style="width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.04);border:none;cursor:pointer;"><i class="fa-solid fa-bars"></i></button>
+        <div><div class="page-title-bar">User Management</div></div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-gold btn-sm" data-open-modal="add-admin-modal"><i class="fa-solid fa-plus"></i> Add Admin</button>
+      </div>
+    </div>
+    <div class="dashboard-content">
+      <div class="nav-tabs">
+        <div class="nav-tab active" onclick="showTab('guardians',this)">Guardians (<%= guardians.length %>)</div>
+        <div class="nav-tab" onclick="showTab('admins',this)">Admin Users (<%= admins.length %>)</div>
+      </div>
+
+      <!-- Guardians Tab -->
+      <div id="tab-guardians" class="data-table-wrap">
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead><tr><th>Guardian</th><th>Email</th><th>Country</th><th>Joined</th><th>Status</th></tr></thead>
+            <tbody>
+              <% guardians.forEach(g => { %>
+              <tr>
+                <td><div class="user-cell"><div class="table-avatar"><%= (g.firstName||'?')[0] %></div><div><div class="table-name"><%= g.firstName %> <%= g.lastName %></div><div class="table-sub">Guardian</div></div></div></td>
+                <td style="font-size:0.8rem;"><%= g.email %></td>
+                <td style="font-size:0.8rem;"><%= g.country %></td>
+                <td style="font-size:0.75rem;color:var(--color-text-muted);"><%= new Date(g.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) %></td>
+                <td><span class="badge badge-<%= g.isActive?'success':'danger' %>"><%= g.isActive?'Active':'Inactive' %></span></td>
+              </tr>
+              <% }) %>
+              <% if(guardians.length===0){%><tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--color-text-muted);">No guardians registered yet.</td></tr><%}%>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Admins Tab -->
+      <div id="tab-admins" class="data-table-wrap" style="display:none;">
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead><tr><th>Admin</th><th>Email</th><th>Role</th><th>Last Login</th><th>Status</th></tr></thead>
+            <tbody>
+              <% admins.forEach(a => { %>
+              <tr>
+                <td><div class="user-cell"><div class="table-avatar" style="background:linear-gradient(135deg,#1a2448,#2a3a68);color:#c9a84c;"><%= (a.firstName||'A')[0] %></div><div><div class="table-name"><%= a.firstName %> <%= a.lastName %></div></div></div></td>
+                <td style="font-size:0.8rem;"><%= a.email %></td>
+                <td><span class="badge badge-navy" style="font-size:10px;text-transform:capitalize;"><%= a.role.replace(/_/g,' ') %></span></td>
+                <td style="font-size:0.75rem;color:var(--color-text-muted);"><%= a.lastLogin ? new Date(a.lastLogin).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : 'Never' %></td>
+                <td><span class="badge badge-<%= a.isActive?'success':'danger' %>"><%= a.isActive?'Active':'Inactive' %></span></td>
+              </tr>
+              <% }) %>
+              <% if(admins.length===0){%><tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--color-text-muted);">No admins yet.</td></tr><%}%>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Admin Modal -->
+<div class="modal-overlay" id="add-admin-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 style="font-family:'Playfair Display',serif;">Add Admin User</h3>
+      <button data-close-modal="add-admin-modal" style="background:none;border:none;cursor:pointer;font-size:1.25rem;color:var(--color-text-muted);"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form action="/admin/users/admin" method="POST">
+      <div class="modal-body" style="display:flex;flex-direction:column;gap:1rem;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div class="form-group"><label class="form-label">First Name</label><input type="text" name="firstName" class="form-control" required/></div>
+          <div class="form-group"><label class="form-label">Last Name</label><input type="text" name="lastName" class="form-control" required/></div>
+        </div>
+        <div class="form-group"><label class="form-label">Email</label><input type="email" name="email" class="form-control" required/></div>
+        <div class="form-group"><label class="form-label">Password</label><input type="password" name="password" class="form-control" required minlength="8"/></div>
+        <div class="form-group"><label class="form-label">Role</label>
+          <select name="role" class="form-control form-select" required>
+            <option value="admission_officer">Admission Officer</option>
+            <option value="school_admin">School Admin</option>
+            <option value="platform_admin">Platform Admin</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" data-close-modal="add-admin-modal" class="btn btn-ghost">Cancel</button>
+        <button type="submit" class="btn btn-gold">Create Admin</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<style>#toast-container{position:fixed;bottom:2rem;right:2rem;z-index:9999;}</style>
+<script src="/js/main.js"></script>
+<script>
+function showTab(name, el) {
+  document.querySelectorAll('[id^="tab-"]').forEach(t => t.style.display='none');
+  document.getElementById('tab-'+name).style.display='block';
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
+</script>
+</body></html>
