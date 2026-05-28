@@ -1,3 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta name="description" content="<%= typeof metaDescription !== 'undefined' ? metaDescription : 'ScholarsGate — Elite USA High School Scholarships for International Students' %>"/>
+  <title><%= title %> | ScholarsGate</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+  <link rel="icon" type="image/svg+xml" href="/images/favicon.svg"/>
+</head>
+<body>
+
 <%- include('../../partials/header') %>
 <%- include('../../partials/flash') %>
 
@@ -7,29 +21,23 @@
 <section class="hero" id="hero">
   <div class="hero-bg">
     <div style="position:absolute;inset:0;background:linear-gradient(160deg,#0a0e1a 0%,#0f1828 40%,#1a2448 100%);"></div>
-    <!-- Decorative grid lines -->
     <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(201,168,76,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(201,168,76,0.03) 1px,transparent 1px);background-size:60px 60px;"></div>
   </div>
-
   <div class="hero-orb hero-orb-1"></div>
   <div class="hero-orb hero-orb-2"></div>
-
   <div class="container-2xl">
     <div class="hero-content">
       <div class="hero-eyebrow">
         <div class="hero-eyebrow-dot"></div>
         <span class="hero-eyebrow-text">Elite USA High School Admissions</span>
       </div>
-
       <h1 class="hero-title fade-up">
         Open Doors to<br/><span class="accent">America's Finest</span><br/>Boarding Schools
       </h1>
-
       <p class="hero-subtitle fade-up" style="transition-delay:0.15s;">
         Connect your child with fully-funded scholarships at Phillips Exeter, Andover, Lawrenceville,
         and other world-class USA boarding schools. Premium admissions support for international families.
       </p>
-
       <div class="hero-cta-group fade-up" style="transition-delay:0.25s;">
         <a href="/scholarships" class="btn btn-gold btn-lg">
           <i class="fa-solid fa-star"></i> Explore Scholarships
@@ -38,7 +46,6 @@
           <i class="fa-solid fa-user-plus"></i> Create Free Account
         </a>
       </div>
-
       <div class="hero-stats fade-in" style="transition-delay:0.4s;">
         <div class="hero-stat-item">
           <span class="hero-stat-value" data-count="150" data-suffix="+">0+</span>
@@ -59,8 +66,6 @@
       </div>
     </div>
   </div>
-
-  <!-- Scroll indicator -->
   <div style="position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:0.5rem;animation:float 2s ease-in-out infinite;">
     <span style="font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.25);">Scroll</span>
     <div style="width:1px;height:40px;background:linear-gradient(to bottom,rgba(201,168,76,0.5),transparent);"></div>
@@ -77,36 +82,32 @@
       <h2 class="section-title">Elite Scholarships<br/><em style="font-style:italic;font-weight:300;">Awaiting Your Child</em></h2>
       <p style="margin-top:1rem;color:var(--color-text-secondary);">Discover fully-funded and merit-based scholarships at America's most prestigious boarding schools, specifically designed for exceptional international students.</p>
     </div>
-
     <div class="grid-auto-fill-md stagger">
-      <% featuredScholarships.forEach(s => { %>
+      <% featuredScholarships.forEach(function(s) { %>
       <div class="scholarship-card fade-up">
         <div style="padding:1.5rem 1.5rem 0;">
           <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;">
             <div style="flex:1;">
-              <% const typeColors = { full:'success', merit:'info', stem:'info', partial:'warning', boarding:'gold', arts:'gold', athletic:'gray' }; %>
+              <% var typeColors = { full:'success', merit:'info', stem:'info', partial:'warning', boarding:'gold', arts:'gold', athletic:'gray' }; %>
               <span class="badge badge-<%= typeColors[s.type] || 'gray' %>" style="margin-bottom:0.75rem;">
                 <%= s.type === 'full' ? '★ Fully Funded' : s.type.charAt(0).toUpperCase()+s.type.slice(1)+' Scholarship' %>
               </span>
               <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--color-text-primary);line-height:1.3;margin-bottom:0.25rem;"><%= s.name %></h3>
-              <p style="font-size:0.8rem;color:var(--color-text-muted);"><i class="fa-solid fa-location-dot" style="margin-right:4px;"></i><%= s.school?.location?.city %>, <%= s.school?.location?.state %></p>
+              <p style="font-size:0.8rem;color:var(--color-text-muted);"><i class="fa-solid fa-location-dot" style="margin-right:4px;"></i><%= s.school && s.school.location ? s.school.location.city : '' %>, <%= s.school && s.school.location ? s.school.location.state : '' %></p>
             </div>
             <div class="coverage-ring">
               <span class="pct"><%= s.coveragePercentage %>%</span>
               <span class="pct-label">Covered</span>
             </div>
           </div>
-
-          <!-- Benefits preview -->
           <div style="display:flex;flex-wrap:wrap;gap:0.375rem;margin-bottom:1.25rem;">
-            <% if (s.benefits?.fullTuition || s.benefits?.tuition) { %><span class="benefit-chip">✓ Tuition</span><% } %>
-            <% if (s.benefits?.boarding) { %><span class="benefit-chip">✓ Boarding</span><% } %>
-            <% if (s.benefits?.meals) { %><span class="benefit-chip">✓ Meals</span><% } %>
-            <% if (s.benefits?.satPrep) { %><span class="benefit-chip">✓ SAT Prep</span><% } %>
-            <% if (s.benefits?.stemMentorship) { %><span class="benefit-chip">✓ STEM Mentorship</span><% } %>
-            <% if (s.benefits?.collegeGuidance) { %><span class="benefit-chip">✓ College Guidance</span><% } %>
+            <% if (s.benefits && (s.benefits.fullTuition || s.benefits.tuition)) { %><span class="benefit-chip">✓ Tuition</span><% } %>
+            <% if (s.benefits && s.benefits.boarding) { %><span class="benefit-chip">✓ Boarding</span><% } %>
+            <% if (s.benefits && s.benefits.meals) { %><span class="benefit-chip">✓ Meals</span><% } %>
+            <% if (s.benefits && s.benefits.satPrep) { %><span class="benefit-chip">✓ SAT Prep</span><% } %>
+            <% if (s.benefits && s.benefits.stemMentorship) { %><span class="benefit-chip">✓ STEM Mentorship</span><% } %>
+            <% if (s.benefits && s.benefits.collegeGuidance) { %><span class="benefit-chip">✓ College Guidance</span><% } %>
           </div>
-
           <div style="display:flex;align-items:center;justify-content:space-between;padding:0.875rem;background:rgba(201,168,76,0.05);border-radius:10px;border:1px solid rgba(201,168,76,0.1);margin-bottom:1.25rem;">
             <div>
               <div style="font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-text-muted);">Annual Value</div>
@@ -118,7 +119,6 @@
             </div>
           </div>
         </div>
-
         <div style="padding:0 1.5rem 1.5rem;">
           <a href="/scholarships/<%= s.slug %>" class="btn btn-navy w-full" style="border-radius:10px;">
             View Scholarship <i class="fa-solid fa-arrow-right" style="margin-left:4px;"></i>
@@ -127,7 +127,6 @@
       </div>
       <% }) %>
     </div>
-
     <div style="text-align:center;margin-top:3rem;">
       <a href="/scholarships" class="btn btn-outline-gold btn-lg">
         View All Scholarships <i class="fa-solid fa-arrow-right"></i>
@@ -145,13 +144,12 @@
       <span class="section-label">Our Partner Schools</span>
       <h2 class="section-title">America's Most <span class="gold-text">Prestigious</span><br/>Boarding Schools</h2>
     </div>
-
     <div class="grid-auto-fill-lg stagger">
-      <% featuredSchools.forEach(school => { %>
+      <% featuredSchools.forEach(function(school) { %>
       <a href="/schools/<%= school.slug %>" class="school-card" style="text-decoration:none;">
         <div class="card-img" style="height:200px;background:linear-gradient(135deg,#0a0e1a,#1a2448);display:flex;align-items:center;justify-content:center;position:relative;">
-          <% if (school.images?.hero) { %>
-            <img src="<%= school.images.hero %>" alt="<%= school.name %>" style="width:100%;height:100%;object-fit:cover;opacity:0.7;" />
+          <% if (school.images && school.images.hero) { %>
+            <img src="<%= school.images.hero %>" alt="<%= school.name %>" style="width:100%;height:100%;object-fit:cover;opacity:0.7;"/>
           <% } else { %>
             <div style="font-size:3rem;opacity:0.15;"><i class="fa-solid fa-school"></i></div>
           <% } %>
@@ -161,10 +159,9 @@
         </div>
         <div style="padding:1.5rem;">
           <h3 style="font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700;color:var(--color-text-primary);margin-bottom:0.25rem;"><%= school.name %></h3>
-          <p style="font-size:0.8rem;color:var(--color-text-muted);margin-bottom:1rem;"><i class="fa-solid fa-location-dot" style="margin-right:4px;"></i><%= school.location?.city %>, <%= school.location?.state %></p>
-
+          <p style="font-size:0.8rem;color:var(--color-text-muted);margin-bottom:1rem;"><i class="fa-solid fa-location-dot" style="margin-right:4px;"></i><%= school.location ? school.location.city : '' %>, <%= school.location ? school.location.state : '' %></p>
           <div style="display:flex;gap:1.5rem;margin-bottom:1.25rem;">
-            <% if (school.stats?.studentTeacherRatio) { %>
+            <% if (school.stats && school.stats.studentTeacherRatio) { %>
             <div style="text-align:center;">
               <div style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--color-text-primary);"><%= school.stats.studentTeacherRatio %></div>
               <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-muted);">Student:Teacher</div>
@@ -176,14 +173,13 @@
               <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-muted);">Founded</div>
             </div>
             <% } %>
-            <% if (school.tuition?.annual) { %>
+            <% if (school.tuition && school.tuition.annual) { %>
             <div style="text-align:center;">
               <div style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--color-gold-dim);">$<%= Math.round(school.tuition.annual/1000) %>K</div>
               <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-muted);">Annual Tuition</div>
             </div>
             <% } %>
           </div>
-
           <div style="display:flex;align-items:center;gap:0.5rem;color:var(--color-gold);font-size:0.875rem;font-weight:600;">
             View School <i class="fa-solid fa-arrow-right"></i>
           </div>
@@ -191,7 +187,6 @@
       </a>
       <% }) %>
     </div>
-
     <div style="text-align:center;margin-top:3rem;">
       <a href="/schools" class="btn btn-outline-gold btn-lg">Explore All Schools</a>
     </div>
@@ -212,7 +207,7 @@
       </div>
       <div class="fade-up" style="transition-delay:0.15s;">
         <div style="display:flex;flex-direction:column;gap:0.75rem;">
-          <% const benefits = [
+          <% var benefits = [
             {icon:'fa-graduation-cap',label:'Full Tuition Support',desc:'100% tuition coverage for qualifying students'},
             {icon:'fa-house',label:'Boarding Accommodation',desc:'On-campus housing in premium dormitories'},
             {icon:'fa-utensils',label:'Meals Included',desc:'Three nutritious meals daily in school dining halls'},
@@ -222,7 +217,7 @@
             {icon:'fa-comments',label:'Academic Counseling',desc:'Personal academic advisor throughout enrollment'},
             {icon:'fa-building-columns',label:'College Guidance',desc:'Ivy League college application support'},
           ]; %>
-          <% benefits.forEach((b, i) => { %>
+          <% benefits.forEach(function(b) { %>
           <div style="display:flex;align-items:center;gap:1rem;padding:0.875rem 1.25rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:12px;transition:background 0.3s;" onmouseover="this.style.background='rgba(201,168,76,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
             <div style="width:36px;height:36px;border-radius:8px;background:rgba(201,168,76,0.12);display:flex;align-items:center;justify-content:center;color:var(--color-gold);flex-shrink:0;">
               <i class="fa-solid <%= b.icon %>"></i>
@@ -249,15 +244,14 @@
       <span class="section-label">How It Works</span>
       <h2 class="section-title light">Your Path to an<br/><em style="font-weight:300;">Elite American Education</em></h2>
     </div>
-
     <div class="process-steps stagger">
-      <% const steps = [
+      <% var steps = [
         {n:'01',icon:'fa-user-plus',title:'Create Account',desc:'Register as a parent/guardian and create detailed student profiles with academic records.'},
         {n:'02',icon:'fa-search',title:'Discover & Apply',desc:'Browse elite schools and scholarships. Apply to multiple programs with one unified application.'},
         {n:'03',icon:'fa-envelope-open-text',title:'Receive Offer',desc:'Get your official offer letter with full scholarship details, benefits, and enrollment instructions.'},
         {n:'04',icon:'fa-check-double',title:'Confirm Enrollment',desc:'Accept your offer, submit the enrollment deposit, and secure your child\'s place at their dream school.'},
       ]; %>
-      <% steps.forEach(step => { %>
+      <% steps.forEach(function(step) { %>
       <div class="process-step fade-up">
         <div class="step-number"><%= step.n %></div>
         <div style="width:48px;height:48px;border-radius:12px;background:rgba(201,168,76,0.08);display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;color:var(--color-gold);font-size:1.2rem;">
@@ -280,14 +274,13 @@
       <span class="section-label">Success Stories</span>
       <h2 class="section-title">Families Who <span class="gold-text">Trusted Us</span></h2>
     </div>
-
     <div class="grid-3 stagger">
-      <% const testimonials = [
-        {text:"ScholarsGate changed our family's life. My son received a full scholarship to Phillips Exeter Academy. The process was seamless and the support exceptional.",name:"Mrs. Chen Wei",country:"Singapore",school:"Phillips Exeter, Class of 2025",initials:"CW"},
-        {text:"I was skeptical at first, but the platform delivered. My daughter now attends Andover on a 75% merit scholarship. Incredible platform, professional team.",name:"Mr. Adebayo Okonkwo",country:"Nigeria",school:"Andover, Class of 2025",initials:"AO"},
-        {text:"The offer letter process was transparent and professional. We knew exactly what was covered. My son is thriving at Lawrenceville on a full STEM scholarship.",name:"Dr. Priya Sharma",country:"India",school:"Lawrenceville, Class of 2026",initials:"PS"},
+      <% var testimonials = [
+        {text:'ScholarsGate changed our family\'s life. My son received a full scholarship to Phillips Exeter Academy. The process was seamless and the support exceptional.',name:'Mrs. Chen Wei',country:'Singapore',school:'Phillips Exeter, Class of 2025',initials:'CW'},
+        {text:'I was skeptical at first, but the platform delivered. My daughter now attends Andover on a 75% merit scholarship. Incredible platform, professional team.',name:'Mr. Adebayo Okonkwo',country:'Nigeria',school:'Andover, Class of 2025',initials:'AO'},
+        {text:'The offer letter process was transparent and professional. We knew exactly what was covered. My son is thriving at Lawrenceville on a full STEM scholarship.',name:'Dr. Priya Sharma',country:'India',school:'Lawrenceville, Class of 2026',initials:'PS'},
       ]; %>
-      <% testimonials.forEach(t => { %>
+      <% testimonials.forEach(function(t) { %>
       <div class="testimonial-card fade-up">
         <p class="testimonial-text">"<%= t.text %>"</p>
         <div class="testimonial-author">
@@ -313,18 +306,16 @@
       <span class="section-label">Common Questions</span>
       <h2 class="section-title">Frequently Asked <span class="gold-text">Questions</span></h2>
     </div>
-
-    <% const faqs = [
-      {q:"Who is ScholarsGate for?",a:"ScholarsGate is for international parents and guardians seeking premium scholarship and admission opportunities at elite USA boarding and private high schools for their children (grades 9–12)."},
-      {q:"Are the scholarships fully funded?",a:"We offer a range of scholarships — from 100% fully funded (tuition, boarding, meals, and more) to merit-based partial scholarships covering 50–95% of costs. Each scholarship page clearly shows coverage details."},
-      {q:"What is the enrollment deposit?",a:"Once you accept an offer, a $500 enrollment deposit secures your child's place. This is manually verified by our admin team within 24–48 hours. The deposit is applied toward your first year's remaining fees."},
-      {q:"How do I apply?",a:"Create a free account, add your child's profile with academic documents, then browse and apply to matching scholarships. The entire process is digital and takes under 30 minutes."},
-      {q:"What documents are required?",a:"Typically: academic transcripts, passport copy, English proficiency test scores (TOEFL/IELTS), a personal statement, and one recommendation letter. Requirements vary by school."},
-      {q:"How long does the review process take?",a:"After submission, applications are reviewed within 2–4 weeks. Shortlisted students may be invited to a video interview. Final decisions are communicated within 6–8 weeks of submission."},
+    <% var faqs = [
+      {q:'Who is ScholarsGate for?',a:'ScholarsGate is for international parents and guardians seeking premium scholarship and admission opportunities at elite USA boarding and private high schools for their children (grades 9-12).'},
+      {q:'Are the scholarships fully funded?',a:'We offer a range of scholarships from 100% fully funded (tuition, boarding, meals, and more) to merit-based partial scholarships covering 50-95% of costs. Each scholarship page clearly shows coverage details.'},
+      {q:'What is the enrollment deposit?',a:'Once you accept an offer, a $500 enrollment deposit secures your child\'s place. This is manually verified by our admin team within 24-48 hours.'},
+      {q:'How do I apply?',a:'Create a free account, add your child\'s profile with academic documents, then browse and apply to matching scholarships. The entire process is digital and takes under 30 minutes.'},
+      {q:'What documents are required?',a:'Typically: academic transcripts, passport copy, English proficiency test scores (TOEFL/IELTS), a personal statement, and one recommendation letter. Requirements vary by school.'},
+      {q:'How long does the review process take?',a:'After submission, applications are reviewed within 2-4 weeks. Shortlisted students may be invited to a video interview. Final decisions are communicated within 6-8 weeks of submission.'},
     ]; %>
-
     <div class="fade-up">
-      <% faqs.forEach(faq => { %>
+      <% faqs.forEach(function(faq) { %>
       <div class="faq-item">
         <div class="faq-question">
           <h4><%= faq.q %></h4>
@@ -361,3 +352,14 @@
 </section>
 
 <%- include('../../partials/footer') %>
+
+<div id="toast-container"></div>
+<style>
+  #toast-container{position:fixed;bottom:2rem;right:2rem;z-index:9999;display:flex;flex-direction:column;gap:.75rem;}
+  .toast{display:flex;align-items:center;gap:.75rem;padding:.875rem 1.25rem;border-radius:10px;background:#fff;box-shadow:0 8px 32px rgba(0,0,0,.2);font-size:.875rem;font-weight:500;min-width:280px;max-width:400px;transform:translateX(120%);transition:transform .4s cubic-bezier(.34,1.56,.64,1),opacity .4s ease;opacity:0;color:#1a1a2e;}
+  .toast.show{transform:translateX(0);opacity:1;}
+  .toast-success{border-left:3px solid #2a8a3a;} .toast-error{border-left:3px solid #c0392b;} .toast-info{border-left:3px solid #1a3a6a;}
+</style>
+<script src="/js/main.js"></script>
+</body>
+</html>
