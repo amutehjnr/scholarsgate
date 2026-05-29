@@ -62,8 +62,32 @@ if (animatedEls.length && 'IntersectionObserver' in window) {
         observer.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+  }, { threshold: 0, rootMargin: '0px 0px 0px 0px' });
   animatedEls.forEach(el => observer.observe(el));
+}
+
+const animatedEls = document.querySelectorAll('.fade-up, .fade-in');
+if (animatedEls.length && 'IntersectionObserver' in window) {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0, rootMargin: '0px 0px 0px 0px' });
+
+  animatedEls.forEach(el => observer.observe(el));
+
+  // Trigger elements already visible in viewport on load
+  setTimeout(() => {
+    animatedEls.forEach(el => {
+      const rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight) {
+        el.classList.add('visible');
+      }
+    });
+  }, 100);
 }
 
 // ─── FAQ Accordion ───────────────────────────────────────
