@@ -1,10 +1,5 @@
-/* ═══════════════════════════════════════════════════════════
-   SCHOLARSGATE — MAIN CLIENT JAVASCRIPT
-════════════════════════════════════════════════════════════ */
-
 'use strict';
 
-// ─── Header Scroll Behavior ──────────────────────────────
 const header = document.querySelector('.site-header');
 if (header) {
   const onScroll = () => {
@@ -20,7 +15,6 @@ if (header) {
   onScroll();
 }
 
-// ─── Mobile Menu ─────────────────────────────────────────
 const menuToggle = document.querySelector('.menu-toggle');
 const mobileNav  = document.querySelector('.mobile-nav');
 if (menuToggle && mobileNav) {
@@ -31,7 +25,6 @@ if (menuToggle && mobileNav) {
   });
 }
 
-// ─── Dashboard Sidebar Toggle (Mobile) ───────────────────
 const sidebarToggle = document.querySelector('.sidebar-toggle');
 const sidebar = document.querySelector('.dashboard-sidebar');
 const sidebarOverlay = document.querySelector('.sidebar-overlay');
@@ -52,7 +45,6 @@ if (sidebarOverlay) {
   });
 }
 
-// ─── Scroll Animations ───────────────────────────────────
 const animatedEls = document.querySelectorAll('.fade-up, .fade-in');
 if (animatedEls.length && 'IntersectionObserver' in window) {
   const observer = new IntersectionObserver((entries) => {
@@ -62,24 +54,10 @@ if (animatedEls.length && 'IntersectionObserver' in window) {
         observer.unobserve(entry.target);
       }
     });
-  }, { threshold: 0, rootMargin: '0px 0px 0px 0px' });
-  animatedEls.forEach(el => observer.observe(el));
-}
-
-const animatedEls = document.querySelectorAll('.fade-up, .fade-in');
-if (animatedEls.length && 'IntersectionObserver' in window) {
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0, rootMargin: '0px 0px 0px 0px' });
+  }, { threshold: 0, rootMargin: '0px 0px -20px 0px' });
 
   animatedEls.forEach(el => observer.observe(el));
 
-  // Trigger elements already visible in viewport on load
   setTimeout(() => {
     animatedEls.forEach(el => {
       const rect = el.getBoundingClientRect();
@@ -88,9 +66,10 @@ if (animatedEls.length && 'IntersectionObserver' in window) {
       }
     });
   }, 100);
+} else {
+  animatedEls.forEach(el => el.classList.add('visible'));
 }
 
-// ─── FAQ Accordion ───────────────────────────────────────
 document.querySelectorAll('.faq-question').forEach(btn => {
   btn.addEventListener('click', () => {
     const item = btn.closest('.faq-item');
@@ -100,7 +79,6 @@ document.querySelectorAll('.faq-question').forEach(btn => {
   });
 });
 
-// ─── Flash Message Auto-dismiss ──────────────────────────
 const flash = document.querySelector('.flash-message');
 if (flash) {
   setTimeout(() => {
@@ -110,7 +88,6 @@ if (flash) {
   }, 5000);
 }
 
-// ─── File Upload Zone ────────────────────────────────────
 document.querySelectorAll('.upload-zone').forEach(zone => {
   const input = zone.querySelector('input[type="file"]');
 
@@ -148,7 +125,6 @@ document.querySelectorAll('.upload-zone').forEach(zone => {
   }
 });
 
-// ─── Form Validation (Client-side) ───────────────────────
 document.querySelectorAll('form[data-validate]').forEach(form => {
   form.addEventListener('submit', e => {
     let valid = true;
@@ -161,7 +137,6 @@ document.querySelectorAll('form[data-validate]').forEach(form => {
       }
     });
 
-    // Password confirm
     const pass = form.querySelector('[name="password"]');
     const confirm = form.querySelector('[name="confirmPassword"]');
     if (pass && confirm && pass.value !== confirm.value) {
@@ -173,7 +148,6 @@ document.querySelectorAll('form[data-validate]').forEach(form => {
     if (!valid) e.preventDefault();
   });
 
-  // Remove error on input
   form.querySelectorAll('.form-control').forEach(field => {
     field.addEventListener('input', () => field.classList.remove('error'));
   });
@@ -189,7 +163,6 @@ function showFieldError(field, message) {
   err.textContent = message;
 }
 
-// ─── AJAX Status Update (Admin) ──────────────────────────
 document.querySelectorAll('[data-status-update]').forEach(btn => {
   btn.addEventListener('click', async () => {
     const url = btn.dataset.url;
@@ -222,7 +195,6 @@ document.querySelectorAll('[data-status-update]').forEach(btn => {
   });
 });
 
-// ─── Payment Verification (Admin) ────────────────────────
 document.querySelectorAll('[data-verify-payment]').forEach(btn => {
   btn.addEventListener('click', async () => {
     const url = btn.dataset.url;
@@ -258,7 +230,6 @@ document.querySelectorAll('[data-verify-payment]').forEach(btn => {
   });
 });
 
-// ─── Issue Offer (Admin) ─────────────────────────────────
 const issueOfferBtn = document.querySelector('[data-issue-offer]');
 if (issueOfferBtn) {
   issueOfferBtn.addEventListener('click', async () => {
@@ -292,7 +263,6 @@ if (issueOfferBtn) {
   });
 }
 
-// ─── Modal System ─────────────────────────────────────────
 function openModal(id) {
   const overlay = document.querySelector(`#${id}`);
   if (overlay) {
@@ -326,7 +296,6 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
   });
 });
 
-// ─── Toast Notifications ──────────────────────────────────
 function showToast(message, type = 'info') {
   const container = document.querySelector('#toast-container') || createToastContainer();
   const toast = document.createElement('div');
@@ -350,8 +319,7 @@ function createToastContainer() {
   return div;
 }
 
-// ─── Auto Token Refresh ───────────────────────────────────
-const refreshInterval = 12 * 60 * 1000; // 12 minutes
+const refreshInterval = 12 * 60 * 1000;
 if (document.querySelector('[data-authenticated]')) {
   setInterval(async () => {
     try {
@@ -360,7 +328,6 @@ if (document.querySelector('[data-authenticated]')) {
   }, refreshInterval);
 }
 
-// ─── Number Counter Animation ─────────────────────────────
 document.querySelectorAll('[data-count]').forEach(el => {
   const target = parseInt(el.dataset.count);
   const duration = 1800;
@@ -382,7 +349,6 @@ document.querySelectorAll('[data-count]').forEach(el => {
   observer.observe(el);
 });
 
-// ─── Country Phone Prefix Hint ────────────────────────────
 const countrySelect = document.querySelector('[name="country"]');
 const phoneInput = document.querySelector('[name="phone"]');
 if (countrySelect && phoneInput) {
@@ -391,7 +357,6 @@ if (countrySelect && phoneInput) {
   });
 }
 
-// Expose globals
 window.openModal = openModal;
 window.closeModal = closeModal;
 window.showToast = showToast;
