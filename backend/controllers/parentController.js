@@ -183,17 +183,23 @@ exports.acceptOffer = async (req, res, next) => {
 
 // ─── Payment Upload ───────────────────────────────────────
 exports.getPaymentPage = async (req, res, next) => {
+  const { BankDetails } = require('../models/index');
+
   const offer = await Offer.findOne({ _id: req.params.id, guardian: req.user._id })
     .populate('school', 'name').populate('scholarship', 'name').lean();
 
   if (!offer) return next(new AppError('Offer not found', 404));
 
-  const existingPayment = await Payment.findOne({ offer: offer._id }).lean();
+  const [existingPayment, bankDetails] = await Promise.all([
+    Payment.findOne({ offer: offer._id }).lean(),
+    BankDetails.findOne({ isActive: true }).lean(),
+  ]);
 
   res.render('dashboards/parent/payment-upload', {
     title: 'Submit Enrollment Deposit',
     offer,
     existingPayment,
+    bankDetails,
   });
 };
 

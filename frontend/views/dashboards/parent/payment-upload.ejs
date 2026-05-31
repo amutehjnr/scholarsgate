@@ -1,148 +1,255 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Submit Enrollment Deposit | ScholarsGate</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-<link rel="stylesheet" href="/css/style.css"/></head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Submit Enrollment Deposit | ScholarsGate</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
 <body data-authenticated>
 <div class="dashboard-layout">
-  <div class="sidebar-overlay"></div><%- include('../../partials/sidebar') %>
+  <div class="sidebar-overlay"></div>
+  <%- include('../../partials/sidebar') %>
   <div class="dashboard-main">
     <div class="dashboard-topbar">
       <div class="topbar-left">
-        <button class="sidebar-toggle" style="width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.04);border:none;cursor:pointer;"><i class="fa-solid fa-bars"></i></button>
+        <button class="sidebar-toggle" style="width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.04);border:none;cursor:pointer;">
+          <i class="fa-solid fa-bars"></i>
+        </button>
         <div>
           <div class="page-title-bar">Submit Enrollment Deposit</div>
-          <div class="breadcrumb"><a href="/parent/offers">Offers</a><span class="breadcrumb-sep">/</span><span>Submit Payment</span></div>
+          <div class="breadcrumb">
+            <a href="/parent/offers">Offers</a>
+            <span class="breadcrumb-sep">/</span>
+            <span>Submit Payment</span>
+          </div>
         </div>
       </div>
     </div>
-    <%- include('../../partials/flash') %>
-    <div class="dashboard-content">
-      <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:2rem;max-width:1000px;">
 
-        <!-- Left: Bank Details + Upload Form -->
+    <%- include('../../partials/flash') %>
+
+    <div class="dashboard-content">
+      <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:2rem;max-width:1100px;">
+
+        <!-- ─── LEFT COLUMN ─────────────────────────────── -->
         <div style="display:flex;flex-direction:column;gap:1.5rem;">
 
           <!-- Amount Display -->
           <div class="deposit-amount-display">
-            <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:0.5rem;">Enrollment Deposit Required</div>
-            <div class="deposit-amount-value">$<%= (offer.enrollmentDeposit||500).toLocaleString() %></div>
-            <div style="font-size:0.8rem;color:var(--color-text-muted);margin-top:0.5rem;">USD — One-time enrollment fee</div>
+            <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:0.5rem;">
+              Enrollment Deposit Required
+            </div>
+            <div class="deposit-amount-value">
+              $<%= (offer.enrollmentDeposit || 500).toLocaleString() %>
+            </div>
+            <div style="font-size:0.8rem;color:var(--color-text-muted);margin-top:0.5rem;">
+              <%= bankDetails?.currency || 'USD' %> — One-time enrollment fee
+            </div>
           </div>
 
-          <!-- Bank Details -->
+          <!-- Bank Details Card -->
           <div class="bank-details-card">
             <h3>Bank Transfer Details</h3>
-            <div class="bank-detail-row">
-              <span class="bank-detail-label">Bank Name</span>
-              <span class="bank-detail-value">JPMorgan Chase Bank N.A.</span>
-            </div>
-            <div class="bank-detail-row">
-              <span class="bank-detail-label">Account Name</span>
-              <span class="bank-detail-value">ScholarsGate LLC</span>
-            </div>
-            <div class="bank-detail-row">
-              <span class="bank-detail-label">Account Number</span>
-              <span class="bank-detail-value">1234 5678 9012</span>
-            </div>
-            <div class="bank-detail-row">
-              <span class="bank-detail-label">Routing (ABA)</span>
-              <span class="bank-detail-value">021 000 021</span>
-            </div>
-            <div class="bank-detail-row">
-              <span class="bank-detail-label">SWIFT / BIC</span>
-              <span class="bank-detail-value">CHASUS33</span>
-            </div>
-            <div class="bank-detail-row">
-              <span class="bank-detail-label">Reference</span>
-              <span style="font-weight:600;color:var(--color-gold);font-size:0.875rem;"><%= offer.offerNumber %></span>
-            </div>
-            <div class="bank-detail-row">
-              <span class="bank-detail-label">Amount</span>
-              <span class="bank-detail-value">$<%= (offer.enrollmentDeposit||500).toLocaleString() %> USD</span>
-            </div>
-            <div style="margin-top:1rem;padding:0.875rem;background:rgba(201,168,76,0.08);border-radius:10px;border:1px solid rgba(201,168,76,0.15);">
-              <p style="font-size:0.75rem;color:rgba(255,255,255,0.5);line-height:1.7;">
-                <i class="fa-solid fa-info-circle" style="color:var(--color-gold);margin-right:6px;"></i>
-                Please use your offer number <strong style="color:var(--color-gold);"><%= offer.offerNumber %></strong> as the payment reference to ensure your deposit is correctly matched.
-              </p>
-            </div>
+
+            <% if (bankDetails) { %>
+
+              <% if (bankDetails.bankName) { %>
+              <div class="bank-detail-row">
+                <span class="bank-detail-label">Bank Name</span>
+                <span class="bank-detail-value"><%= bankDetails.bankName %></span>
+              </div>
+              <% } %>
+
+              <div class="bank-detail-row">
+                <span class="bank-detail-label">Account Name</span>
+                <span class="bank-detail-value"><%= bankDetails.accountName %></span>
+              </div>
+
+              <div class="bank-detail-row">
+                <span class="bank-detail-label">Account Number</span>
+                <span class="bank-detail-value"><%= bankDetails.accountNumber %></span>
+              </div>
+
+              <% if (bankDetails.routingNumber) { %>
+              <div class="bank-detail-row">
+                <span class="bank-detail-label">Routing (ABA)</span>
+                <span class="bank-detail-value"><%= bankDetails.routingNumber %></span>
+              </div>
+              <% } %>
+
+              <% if (bankDetails.swiftCode) { %>
+              <div class="bank-detail-row">
+                <span class="bank-detail-label">SWIFT / BIC</span>
+                <span class="bank-detail-value"><%= bankDetails.swiftCode %></span>
+              </div>
+              <% } %>
+
+              <% if (bankDetails.iban) { %>
+              <div class="bank-detail-row">
+                <span class="bank-detail-label">IBAN</span>
+                <span class="bank-detail-value"><%= bankDetails.iban %></span>
+              </div>
+              <% } %>
+
+              <% if (bankDetails.paypalEmail) { %>
+              <div class="bank-detail-row">
+                <span class="bank-detail-label">PayPal</span>
+                <span class="bank-detail-value"><%= bankDetails.paypalEmail %></span>
+              </div>
+              <% } %>
+
+              <div class="bank-detail-row">
+                <span class="bank-detail-label">Reference</span>
+                <span style="font-weight:600;color:var(--color-gold);font-size:0.875rem;">
+                  <%= offer.offerNumber %>
+                </span>
+              </div>
+
+              <div class="bank-detail-row">
+                <span class="bank-detail-label">Amount</span>
+                <span class="bank-detail-value">
+                  $<%= (offer.enrollmentDeposit || 500).toLocaleString() %> <%= bankDetails.currency || 'USD' %>
+                </span>
+              </div>
+
+              <div style="margin-top:1rem;padding:0.875rem;background:rgba(201,168,76,0.08);border-radius:10px;border:1px solid rgba(201,168,76,0.15);">
+                <p style="font-size:0.75rem;color:rgba(255,255,255,0.5);line-height:1.7;">
+                  <i class="fa-solid fa-info-circle" style="color:var(--color-gold);margin-right:6px;"></i>
+                  Please use your offer number <strong style="color:var(--color-gold);">
+                  <%= offer.offerNumber %></strong> as the payment reference to ensure your deposit is correctly matched.
+                  <% if (bankDetails.instructions) { %>
+                    <br/><br/><%= bankDetails.instructions %>
+                  <% } %>
+                </p>
+              </div>
+
+            <% } else { %>
+              <!-- No bank details configured -->
+              <div style="padding:2rem;text-align:center;">
+                <i class="fa-solid fa-triangle-exclamation" style="font-size:2.5rem;color:var(--color-warning);margin-bottom:1rem;display:block;"></i>
+                <div style="font-weight:600;color:var(--color-ivory);margin-bottom:0.5rem;">Bank details not configured yet</div>
+                <p style="font-size:0.8rem;color:rgba(255,255,255,0.4);line-height:1.7;">
+                  Please contact our team directly at
+                  <a href="mailto:payments@scholarsgate.com" style="color:var(--color-gold);">payments@scholarsgate.com</a>
+                  to receive payment instructions for your enrollment deposit.
+                </p>
+              </div>
+            <% } %>
           </div>
 
           <!-- Upload Form -->
           <div class="data-table-wrap" style="padding:1.75rem;">
-            <h3 style="font-family:'Playfair Display',serif;font-size:1.25rem;margin-bottom:0.5rem;">Upload Payment Proof</h3>
-            <p style="font-size:0.875rem;color:var(--color-text-muted);margin-bottom:1.5rem;">Upload a screenshot, photo, or PDF of your payment receipt or transfer confirmation.</p>
+            <h3 style="font-family:'Playfair Display',serif;font-size:1.25rem;margin-bottom:0.5rem;">
+              Upload Payment Proof
+            </h3>
+            <p style="font-size:0.875rem;color:var(--color-text-muted);margin-bottom:1.5rem;">
+              Upload a screenshot, photo, or PDF of your payment receipt or transfer confirmation.
+            </p>
 
-            <% if(existingPayment && existingPayment.status==='verified'){%>
-            <div class="alert alert-success"><i class="fa-solid fa-circle-check"></i><span>Your enrollment deposit has been verified! Enrollment is confirmed.</span></div>
-            <%} else {%>
-            <form action="/parent/offers/<%= offer._id %>/payment" method="POST" enctype="multipart/form-data" data-validate>
-              <div class="form-group">
-                <label class="form-label">Payment Method <span class="required">*</span></label>
-                <select name="paymentMethod" class="form-control form-select" required>
-                  <option value="">Select method...</option>
-                  <option value="wire_transfer" <%= existingPayment?.paymentMethod==='wire_transfer'?'selected':'' %>>Wire Transfer</option>
-                  <option value="bank_transfer" <%= existingPayment?.paymentMethod==='bank_transfer'?'selected':'' %>>Bank Transfer</option>
-                  <option value="western_union" <%= existingPayment?.paymentMethod==='western_union'?'selected':'' %>>Western Union</option>
-                  <option value="paypal" <%= existingPayment?.paymentMethod==='paypal'?'selected':'' %>>PayPal</option>
-                  <option value="other" <%= existingPayment?.paymentMethod==='other'?'selected':'' %>>Other</option>
-                </select>
+            <% if (existingPayment && existingPayment.status === 'verified') { %>
+              <div class="alert alert-success">
+                <i class="fa-solid fa-circle-check"></i>
+                <span>Your enrollment deposit has been verified. Enrollment is confirmed!</span>
               </div>
+            <% } else { %>
 
-              <div class="form-group">
-                <label class="form-label">Transaction Reference Number</label>
-                <input type="text" name="referenceNumber" class="form-control" placeholder="e.g. TXN-2024-XXXXXXXX" value="<%= existingPayment?.referenceNumber||'' %>"/>
-              </div>
+              <form action="/parent/offers/<%= offer._id %>/payment" method="POST" enctype="multipart/form-data" data-validate>
 
-              <div class="form-group">
-                <label class="form-label">Payment Proof (Receipt/Screenshot) <span class="required">*</span></label>
-                <div class="upload-zone" style="position:relative;">
-                  <input type="file" name="proof" accept=".pdf,.jpg,.jpeg,.png" required style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;"/>
-                  <div class="upload-prompt">
-                    <span class="upload-icon" style="font-size:2.5rem;">📎</span>
-                    <div style="font-weight:600;color:var(--color-text-primary);margin-bottom:0.25rem;">Click or drag file here</div>
-                    <div style="font-size:0.8rem;color:var(--color-text-muted);">PDF, JPG, or PNG · Max 10MB</div>
-                  </div>
-                  <div class="upload-success" style="display:none;">
-                    <span style="font-size:2rem;">✅</span>
-                    <div style="font-weight:600;color:var(--color-success-light);">File selected</div>
-                    <div class="upload-file-name" style="font-size:0.8rem;color:var(--color-text-muted);"></div>
-                  </div>
+                <div class="form-group">
+                  <label class="form-label">Payment Method <span class="required">*</span></label>
+                  <select name="paymentMethod" class="form-control form-select" required>
+                    <option value="">Select method...</option>
+                    <option value="wire_transfer"   <%= existingPayment?.paymentMethod === 'wire_transfer'   ? 'selected' : '' %>>Wire Transfer</option>
+                    <option value="bank_transfer"   <%= existingPayment?.paymentMethod === 'bank_transfer'   ? 'selected' : '' %>>Bank Transfer</option>
+                    <option value="western_union"   <%= existingPayment?.paymentMethod === 'western_union'   ? 'selected' : '' %>>Western Union</option>
+                    <option value="paypal"          <%= existingPayment?.paymentMethod === 'paypal'          ? 'selected' : '' %>>PayPal</option>
+                    <option value="other"           <%= existingPayment?.paymentMethod === 'other'           ? 'selected' : '' %>>Other</option>
+                  </select>
                 </div>
-                <% if(existingPayment?.proofOfPayment?.url){%>
-                <div style="margin-top:0.75rem;padding:0.75rem;background:var(--color-info-bg);border-radius:8px;border:1px solid rgba(26,58,106,0.1);">
-                  <span style="font-size:0.8rem;color:var(--color-info);"><i class="fa-solid fa-file-image" style="margin-right:6px;"></i>Previous upload on file. Uploading again will replace it.</span>
+
+                <div class="form-group">
+                  <label class="form-label">Transaction Reference Number</label>
+                  <input type="text" name="referenceNumber" class="form-control"
+                    placeholder="e.g. TXN-2024-XXXXXXXX"
+                    value="<%= existingPayment?.referenceNumber || '' %>"/>
                 </div>
-                <%}%>
-              </div>
 
-              <% if(existingPayment && existingPayment.status==='pending'){%>
-              <div class="alert alert-warning" style="margin-bottom:1rem;"><i class="fa-solid fa-clock"></i><span>Payment proof submitted. Under review (24–48 hours).</span></div>
-              <%} else if(existingPayment && existingPayment.status==='rejected'){%>
-              <div class="alert alert-danger" style="margin-bottom:1rem;"><i class="fa-solid fa-circle-xmark"></i><span><%= existingPayment.rejectionReason||'Your previous submission was rejected.' %> Please resubmit.</span></div>
-              <%}%>
+                <div class="form-group">
+                  <label class="form-label">Payment Proof (Receipt / Screenshot) <span class="required">*</span></label>
+                  <div class="upload-zone" style="position:relative;">
+                    <input type="file" name="proof" accept=".pdf,.jpg,.jpeg,.png" required
+                      style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;"/>
+                    <div class="upload-prompt">
+                      <span class="upload-icon" style="font-size:2.5rem;">📎</span>
+                      <div style="font-weight:600;color:var(--color-text-primary);margin-bottom:0.25rem;">
+                        Click or drag file here
+                      </div>
+                      <div style="font-size:0.8rem;color:var(--color-text-muted);">
+                        PDF, JPG, or PNG · Max 10MB
+                      </div>
+                    </div>
+                    <div class="upload-success" style="display:none;">
+                      <span style="font-size:2rem;">✅</span>
+                      <div style="font-weight:600;color:var(--color-success-light);">File selected</div>
+                      <div class="upload-file-name" style="font-size:0.8rem;color:var(--color-text-muted);"></div>
+                    </div>
+                  </div>
 
-              <button type="submit" class="btn btn-gold btn-lg w-full" style="justify-content:center;">
-                <i class="fa-solid fa-upload"></i> Submit Payment Proof
-              </button>
-            </form>
-            <%}%>
+                  <% if (existingPayment?.proofOfPayment?.url) { %>
+                  <div style="margin-top:0.75rem;padding:0.75rem;background:var(--color-info-bg);border-radius:8px;border:1px solid rgba(26,58,106,0.1);display:flex;align-items:center;justify-content:space-between;">
+                    <span style="font-size:0.8rem;color:var(--color-info);">
+                      <i class="fa-solid fa-file-image" style="margin-right:6px;"></i>
+                      Previous upload on file. Uploading again will replace it.
+                    </span>
+                    <a href="<%= existingPayment.proofOfPayment.url %>" target="_blank"
+                      style="font-size:0.75rem;font-weight:600;color:var(--color-info);text-decoration:none;">
+                      View Current ↗
+                    </a>
+                  </div>
+                  <% } %>
+                </div>
+
+                <!-- Status alerts -->
+                <% if (existingPayment && existingPayment.status === 'pending') { %>
+                <div class="alert alert-warning" style="margin-bottom:1rem;">
+                  <i class="fa-solid fa-clock"></i>
+                  <span>Payment proof submitted and under review (24–48 hours).</span>
+                </div>
+                <% } else if (existingPayment && existingPayment.status === 'rejected') { %>
+                <div class="alert alert-danger" style="margin-bottom:1rem;">
+                  <i class="fa-solid fa-circle-xmark"></i>
+                  <span><%= existingPayment.rejectionReason || 'Your previous submission was rejected.' %> Please resubmit.</span>
+                </div>
+                <% } %>
+
+                <button type="submit" class="btn btn-gold btn-lg w-full" style="justify-content:center;">
+                  <i class="fa-solid fa-upload"></i> Submit Payment Proof
+                </button>
+
+              </form>
+
+            <% } %>
           </div>
         </div>
 
-        <!-- Right: Steps & Info -->
+        <!-- ─── RIGHT COLUMN ────────────────────────────── -->
         <div style="display:flex;flex-direction:column;gap:1.5rem;">
+
+          <!-- How It Works -->
           <div class="data-table-wrap" style="padding:1.5rem;">
-            <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:1.25rem;">How It Works</h3>
+            <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:1.25rem;">
+              How It Works
+            </h3>
             <div class="payment-steps">
-              <% const steps=[
-                {n:1,title:'Make Payment',desc:'Transfer $'+((offer.enrollmentDeposit||500).toLocaleString())+' USD to the bank details provided.'},
-                {n:2,title:'Save Receipt',desc:'Download or screenshot your payment confirmation from your bank.'},
-                {n:3,title:'Upload Proof',desc:'Upload the receipt using the form on the left.'},
-                {n:4,title:'Confirmation',desc:'Our team verifies within 24–48 hours and confirms your enrollment.'},
+              <% const steps = [
+                { n:1, title:'Make Payment', desc:'Transfer $' + ((offer.enrollmentDeposit||500).toLocaleString()) + ' ' + (bankDetails?.currency||'USD') + ' to the bank details on the left.' },
+                { n:2, title:'Save Receipt', desc:'Download or screenshot your payment confirmation from your bank or payment app.' },
+                { n:3, title:'Upload Proof', desc:'Select your payment method, add the reference number, and upload your receipt below.' },
+                { n:4, title:'Await Confirmation', desc:'Our team verifies within 24–48 hours and your enrollment will be confirmed.' },
               ]; %>
-              <% steps.forEach(step=>{%>
+              <% steps.forEach(step => { %>
               <div class="payment-step">
                 <div class="payment-step-icon"><%= step.n %></div>
                 <div>
@@ -150,32 +257,132 @@
                   <div style="font-size:0.8rem;color:var(--color-text-muted);line-height:1.5;"><%= step.desc %></div>
                 </div>
               </div>
-              <%})%>
+              <% }) %>
             </div>
           </div>
 
           <!-- Offer Summary -->
           <div class="data-table-wrap" style="padding:1.5rem;border:1px solid rgba(201,168,76,0.2);">
-            <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:1rem;color:var(--color-gold-dim);">Offer Summary</h3>
-            <div style="font-weight:700;font-size:1.05rem;margin-bottom:0.25rem;"><%= offer.school?.name %></div>
-            <div style="font-size:0.8rem;color:var(--color-text-muted);margin-bottom:1rem;"><%= offer.scholarship?.name||'Scholarship Offer' %></div>
-            <div style="font-size:0.75rem;color:var(--color-text-muted);margin-bottom:0.375rem;">Offer: <strong>#<%= offer.offerNumber %></strong></div>
-            <div style="font-size:0.75rem;color:var(--color-text-muted);margin-bottom:0.375rem;">Enrollment Year: <strong><%= offer.enrollmentYear||'N/A' %></strong></div>
-            <div style="font-size:0.75rem;color:var(--color-text-muted);">Offer Expires: <strong><%= new Date(offer.expiryDate).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) %></strong></div>
+            <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--color-gold);margin-bottom:1rem;">
+              Offer Summary
+            </div>
+
+            <div style="display:flex;align-items:center;gap:0.875rem;margin-bottom:1.25rem;padding-bottom:1.25rem;border-bottom:var(--border-dark);">
+              <div style="width:44px;height:44px;border-radius:10px;background:var(--gradient-navy);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:700;color:var(--color-gold);font-size:1.1rem;">
+                <%= (offer.school?.name || 'S')[0] %>
+              </div>
+              <div>
+                <div style="font-weight:700;font-size:0.95rem;color:var(--color-text-primary);">
+                  <%= offer.school?.name %>
+                </div>
+                <div style="font-size:0.8rem;color:var(--color-text-muted);">
+                  <%= offer.scholarship?.name || 'Scholarship Offer' %>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:0.625rem;">
+              <div style="display:flex;justify-content:space-between;font-size:0.8rem;">
+                <span style="color:var(--color-text-muted);">Offer Number</span>
+                <span style="font-weight:600;font-family:monospace;">#<%= offer.offerNumber %></span>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:0.8rem;">
+                <span style="color:var(--color-text-muted);">Deposit Amount</span>
+                <span style="font-weight:700;color:var(--color-gold-dim);">
+                  $<%= (offer.enrollmentDeposit || 500).toLocaleString() %>
+                </span>
+              </div>
+              <% if (offer.enrollmentYear) { %>
+              <div style="display:flex;justify-content:space-between;font-size:0.8rem;">
+                <span style="color:var(--color-text-muted);">Enrollment Year</span>
+                <span style="font-weight:600;"><%= offer.enrollmentYear %></span>
+              </div>
+              <% } %>
+              <div style="display:flex;justify-content:space-between;font-size:0.8rem;">
+                <span style="color:var(--color-text-muted);">Offer Expires</span>
+                <span style="font-weight:600;color:<%= new Date() > new Date(offer.expiryDate) ? 'var(--color-danger-light)' : 'var(--color-text-primary)' %>;">
+                  <%= new Date(offer.expiryDate).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) %>
+                </span>
+              </div>
+            </div>
+
+            <!-- Expiry warning -->
+            <% const daysLeft = Math.ceil((new Date(offer.expiryDate) - new Date()) / (1000*60*60*24)); %>
+            <% if (daysLeft > 0 && daysLeft <= 7) { %>
+            <div style="margin-top:1rem;padding:0.75rem;background:var(--color-warning-bg);border-radius:8px;border:1px solid rgba(201,168,76,0.3);">
+              <p style="font-size:0.75rem;color:var(--color-warning);font-weight:600;">
+                <i class="fa-solid fa-clock" style="margin-right:6px;"></i>
+                Only <%= daysLeft %> day<%= daysLeft > 1 ? 's' : '' %> left to accept this offer!
+              </p>
+            </div>
+            <% } else if (daysLeft <= 0) { %>
+            <div style="margin-top:1rem;padding:0.75rem;background:var(--color-danger-bg);border-radius:8px;border:1px solid rgba(192,57,43,0.2);">
+              <p style="font-size:0.75rem;color:var(--color-danger-light);font-weight:600;">
+                <i class="fa-solid fa-circle-xmark" style="margin-right:6px;"></i>
+                This offer has expired. Please contact support.
+              </p>
+            </div>
+            <% } %>
           </div>
 
-          <div style="padding:1.25rem;background:var(--color-info-bg);border-radius:12px;border:1px solid rgba(26,58,106,0.12);">
-            <p style="font-size:0.8rem;color:var(--color-info);line-height:1.7;">
-              <i class="fa-solid fa-info-circle" style="margin-right:6px;"></i>
-              Need help? Email us at <a href="mailto:payments@scholarsgate.com" style="color:var(--color-gold-dim);font-weight:600;">payments@scholarsgate.com</a> with your offer number.
-            </p>
+          <!-- Payment Status -->
+          <% if (existingPayment) { %>
+          <div class="data-table-wrap" style="padding:1.5rem;">
+            <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:0.75rem;">
+              Payment Status
+            </div>
+            <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+              <div style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;
+                background:<%= existingPayment.status==='verified'?'var(--color-success-bg)':existingPayment.status==='rejected'?'var(--color-danger-bg)':'var(--color-warning-bg)' %>;">
+                <% if(existingPayment.status==='verified'){%>✅<%}else if(existingPayment.status==='rejected'){%>❌<%}else{%>⏳<%}%>
+              </div>
+              <div>
+                <div style="font-weight:700;font-size:0.875rem;text-transform:capitalize;">
+                  <%= existingPayment.status.replace('_',' ') %>
+                </div>
+                <div style="font-size:0.75rem;color:var(--color-text-muted);">
+                  Submitted <%= new Date(existingPayment.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) %>
+                </div>
+              </div>
+            </div>
+            <% if (existingPayment.proofOfPayment?.url) { %>
+            <a href="<%= existingPayment.proofOfPayment.url %>" target="_blank"
+              class="btn btn-ghost btn-sm w-full" style="justify-content:center;">
+              <i class="fa-solid fa-file-image"></i> View Submitted Proof
+            </a>
+            <% } %>
           </div>
+          <% } %>
+
+          <!-- Help Box -->
+          <div style="padding:1.25rem;background:var(--color-info-bg);border-radius:12px;border:1px solid rgba(26,58,106,0.12);">
+            <div style="font-weight:600;font-size:0.875rem;color:var(--color-info);margin-bottom:0.5rem;">
+              <i class="fa-solid fa-headset" style="margin-right:6px;"></i>Need Help?
+            </div>
+            <p style="font-size:0.8rem;color:var(--color-text-secondary);line-height:1.7;margin-bottom:0.75rem;">
+              Having trouble with your payment? Our team is here to help.
+            </p>
+            <a href="mailto:payments@scholarsgate.com"
+              style="font-size:0.8rem;font-weight:600;color:var(--color-info);text-decoration:none;">
+              payments@scholarsgate.com ↗
+            </a>
+          </div>
+
         </div>
       </div>
     </div>
   </div>
 </div>
+
 <div id="toast-container"></div>
-<style>#toast-container{position:fixed;bottom:2rem;right:2rem;z-index:9999;}</style>
+<style>
+  #toast-container{position:fixed;bottom:2rem;right:2rem;z-index:9999;display:flex;flex-direction:column;gap:.75rem;}
+  .toast{display:flex;align-items:center;gap:.75rem;padding:.875rem 1.25rem;border-radius:10px;background:#fff;box-shadow:0 8px 32px rgba(0,0,0,.2);font-size:.875rem;font-weight:500;min-width:280px;max-width:400px;transform:translateX(120%);transition:transform .4s cubic-bezier(.34,1.56,.64,1),opacity .4s ease;opacity:0;color:#1a1a2e;}
+  .toast.show{transform:translateX(0);opacity:1;}
+  @media(max-width:768px){
+    .dashboard-content > div { grid-template-columns: 1fr !important; }
+  }
+</style>
 <script src="/js/main.js"></script>
-</body></html>
+</body>
+</html>

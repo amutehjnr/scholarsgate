@@ -337,3 +337,47 @@ exports.getAuditLogs = async (req, res) => {
     pages: Math.ceil(total / limit),
   });
 };
+
+// ─── Bank Details ─────────────────────────────────────────
+const { BankDetails } = require('../models/index');
+
+exports.getBankDetails = async (req, res) => {
+  const bankDetails = await BankDetails.findOne({ isActive: true }).lean();
+  res.render('dashboards/admin/bank-details', {
+    title: 'Bank Account Details',
+    bankDetails,
+  });
+};
+
+exports.saveBankDetails = async (req, res, next) => {
+  const {
+    accountName, bankName, accountNumber, routingNumber,
+    swiftCode, iban, paypalEmail, currency, instructions,
+  } = req.body;
+
+  const existing = await BankDetails.findOne({ isActive: true });
+
+  if (existing) {
+    Object.assign(existing, {
+      accountName, bankName, accountNumber, routingNumber,
+      swiftCode, iban, paypalEmail, currency, instructions,
+      updatedBy: req.user._id,
+    });
+    await existing.save();
+  } else {
+    await BankDetails.create({
+      accountName, bankName, accountNumber, routingNumber,
+      swiftCode, iban, paypalEmail, currency, instructions,
+      updatedBy: req.user._id,
+    });
+  }
+
+  await AuditLog.create({
+    actor: req.user._id, actorModel: 'Admin', actorEmail: req.user.email,
+    action: 'UPDATE_BANK_DETAILS', resource: 'BankDetails',
+    ipAddress: req.ip,
+  });
+
+  req.session.flash = { success: 'Bank details updated successfully.' };
+  res.redirect('/admin/bank-details');
+};

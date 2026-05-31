@@ -40,4 +40,8 @@ router.post('/users/admin', platformAdminOnly, adminController.createAdmin);
 // Audit Logs
 router.get('/audit-logs', platformAdminOnly, adminController.getAuditLogs);
 
+// Bank Details
+router.get('/bank-details', adminController.getBankDetails);
+router.post('/bank-details', adminController.saveBankDetails);
+
 module.exports = router;

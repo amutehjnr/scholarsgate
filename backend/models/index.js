@@ -132,6 +132,21 @@ const auditLogSchema = new mongoose.Schema({
   status: { type: String, enum: ['success', 'failure'], default: 'success' },
 }, { timestamps: true });
 
+// ─── BankDetails ──────────────────────────────────────────
+const bankDetailsSchema = new mongoose.Schema({
+  accountName: { type: String, required: true },
+  bankName: { type: String, required: true },
+  accountNumber: { type: String, required: true },
+  routingNumber: { type: String },
+  swiftCode: { type: String },
+  iban: { type: String },
+  paypalEmail: { type: String },
+  currency: { type: String, default: 'USD' },
+  instructions: { type: String },
+  isActive: { type: Boolean, default: true },
+  updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin' },
+}, { timestamps: true });
+
 auditLogSchema.index({ actor: 1, createdAt: -1 });
 auditLogSchema.index({ action: 1 });
 auditLogSchema.index({ createdAt: -1 });
@@ -142,4 +157,5 @@ module.exports = {
   Notification: mongoose.model('Notification', notificationSchema),
   Admin: mongoose.model('Admin', adminSchema),
   AuditLog: mongoose.model('AuditLog', auditLogSchema),
+  BankDetails: mongoose.model('BankDetails', bankDetailsSchema),
 };
