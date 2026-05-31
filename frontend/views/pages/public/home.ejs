@@ -36,16 +36,16 @@
         <span class="hero-eyebrow-text">Elite USA High School Admissions</span>
       </div>
 
-      <h1 class="hero-title fade-up">
+      <h1 class="hero-title">
         Open Doors to<br/><span class="accent">America's Finest</span><br/>Boarding Schools
       </h1>
 
-      <p class="hero-subtitle fade-up" style="transition-delay:0.15s;">
+      <p class="hero-subtitle" style="transition-delay:0.15s;">
         Connect your child with fully-funded scholarships at Phillips Exeter, Andover, Lawrenceville,
         and other world-class USA boarding schools. Premium admissions support for international families.
       </p>
 
-      <div class="hero-cta-group fade-up" style="transition-delay:0.25s;">
+      <div class="hero-cta-group" style="transition-delay:0.25s;">
         <a href="/scholarships" class="btn btn-gold btn-lg">
           <i class="fa-solid fa-star"></i> Explore Scholarships
         </a>
@@ -54,7 +54,7 @@
         </a>
       </div>
 
-      <div class="hero-stats fade-in" style="transition-delay:0.4s;">
+      <div class="hero-stats" style="transition-delay:0.4s;">
         <div class="hero-stat-item">
           <span class="hero-stat-value" data-count="150" data-suffix="+">0+</span>
           <span class="hero-stat-label">Partner Schools</span>
@@ -87,7 +87,7 @@
 ══════════════════════════════════════════ -->
 <section class="section-xl" style="background:var(--color-cream);">
   <div class="container-2xl">
-    <div class="section-header fade-up">
+    <div class="section-header">
       <span class="section-label">Featured Opportunities</span>
       <h2 class="section-title">Elite Scholarships<br/><em style="font-style:italic;font-weight:300;">Awaiting Your Child</em></h2>
       <p style="margin-top:1rem;color:var(--color-text-secondary);">Discover fully-funded and merit-based scholarships at America's most prestigious boarding schools, specifically designed for exceptional international students.</p>
@@ -156,7 +156,7 @@
 ══════════════════════════════════════════ -->
 <section class="section-xl" style="background:#fff;">
   <div class="container-2xl">
-    <div class="section-header fade-up">
+    <div class="section-header">
       <span class="section-label">Our Partner Schools</span>
       <h2 class="section-title">America's Most <span class="gold-text">Prestigious</span><br/>Boarding Schools</h2>
     </div>
@@ -219,13 +219,13 @@
 <section class="section-xl" style="background:var(--gradient-hero);">
   <div class="container-2xl">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center;">
-      <div class="fade-up">
+      <div>
         <span class="section-label">What's Included</span>
         <h2 class="section-title light" style="margin-bottom:1.5rem;">Comprehensive<br/>Scholarship <span style="font-style:italic;font-weight:300;">Benefits</span></h2>
         <p style="color:rgba(255,255,255,0.45);margin-bottom:2.5rem;line-height:1.8;">Our scholarship packages go beyond tuition. We ensure your child has everything they need to thrive at elite American boarding schools.</p>
         <a href="/auth/register" class="btn btn-gold btn-lg">Apply Now</a>
       </div>
-      <div class="fade-up" style="transition-delay:0.15s;">
+      <div style="display:grid;">
         <div style="display:flex;flex-direction:column;gap:0.75rem;">
           <% const benefits = [
             {icon:'fa-graduation-cap',label:'Full Tuition Support',desc:'100% tuition coverage for qualifying students'},
@@ -260,12 +260,12 @@
 ══════════════════════════════════════════ -->
 <section class="section-xl process-section">
   <div class="container-2xl">
-    <div class="section-header fade-up">
+    <div class="section-header">
       <span class="section-label">How It Works</span>
       <h2 class="section-title light">Your Path to an<br/><em style="font-weight:300;">Elite American Education</em></h2>
     </div>
 
-    <div class="process-steps stagger">
+    <div class="process-steps">
       <% const steps = [
         {n:'01',icon:'fa-user-plus',title:'Create Account',desc:'Register as a parent/guardian and create detailed student profiles with academic records.'},
         {n:'02',icon:'fa-search',title:'Discover & Apply',desc:'Browse elite schools and scholarships. Apply to multiple programs with one unified application.'},
@@ -273,7 +273,7 @@
         {n:'04',icon:'fa-check-double',title:'Confirm Enrollment',desc:'Accept your offer, submit the enrollment deposit, and secure your child\'s place at their dream school.'},
       ]; %>
       <% steps.forEach(step => { %>
-      <div class="process-step fade-up">
+      <div class="process-step">
         <div class="step-number"><%= step.n %></div>
         <div style="width:48px;height:48px;border-radius:12px;background:rgba(201,168,76,0.08);display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;color:var(--color-gold);font-size:1.2rem;">
           <i class="fa-solid <%= step.icon %>"></i>
@@ -291,7 +291,7 @@
 ══════════════════════════════════════════ -->
 <section class="section-xl" style="background:var(--color-ivory);">
   <div class="container-2xl">
-    <div class="section-header fade-up">
+    <div class="section-header">
       <span class="section-label">Success Stories</span>
       <h2 class="section-title">Families Who <span class="gold-text">Trusted Us</span></h2>
     </div>
@@ -303,7 +303,7 @@
         {text:"The offer letter process was transparent and professional. We knew exactly what was covered. My son is thriving at Lawrenceville on a full STEM scholarship.",name:"Dr. Priya Sharma",country:"India",school:"Lawrenceville, Class of 2026",initials:"PS"},
       ]; %>
       <% testimonials.forEach(t => { %>
-      <div class="testimonial-card fade-up">
+      <div class="testimonial-card">
         <p class="testimonial-text">"<%= t.text %>"</p>
         <div class="testimonial-author">
           <div class="testimonial-avatar"><%= t.initials %></div>
@@ -324,7 +324,7 @@
 ══════════════════════════════════════════ -->
 <section class="section-xl" style="background:#fff;">
   <div class="container-md" style="max-width:760px;">
-    <div class="section-header fade-up">
+    <div class="section-header">
       <span class="section-label">Common Questions</span>
       <h2 class="section-title">Frequently Asked <span class="gold-text">Questions</span></h2>
     </div>
@@ -338,7 +338,7 @@
       {q:"How long does the review process take?",a:"After submission, applications are reviewed within 2–4 weeks. Shortlisted students may be invited to a video interview. Final decisions are communicated within 6–8 weeks of submission."},
     ]; %>
 
-    <div class="fade-up">
+    <div>
       <% faqs.forEach(faq => { %>
       <div class="faq-item">
         <div class="faq-question">
@@ -358,7 +358,7 @@
      CTA SECTION
 ══════════════════════════════════════════ -->
 <section class="cta-section">
-  <div class="container fade-up">
+  <div class="container">
     <span class="section-label" style="justify-content:center;">Start Today</span>
     <h2 style="font-family:'Playfair Display',serif;font-size:clamp(2rem,4vw,3.5rem);font-weight:900;color:var(--color-ivory);margin:1rem 0;line-height:1.1;">
       Your Child's Future Starts<br/><span style="background:linear-gradient(135deg,#c9a84c,#e8c96a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">with One Application</span>
