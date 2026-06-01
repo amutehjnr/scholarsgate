@@ -31,7 +31,7 @@
         <div style="overflow-x:auto;">
           <table class="data-table">
             <thead>
-              <tr><th>Name</th><th>School</th><th>Type</th><th>Coverage</th><th>Value/Year</th><th>Deadline</th><th>Featured</th><th>Status</th></tr>
+              <tr><th>Name</th><th>School</th><th>Type</th><th>Coverage</th><th>Value/Year</th><th>Deadline</th><th>Featured</th><th>Status</th><th>Actions</th></tr>
             </thead>
             <tbody>
               <% scholarships.forEach(s => { %>
@@ -44,6 +44,13 @@
                 <td style="font-size:0.75rem;"><%= new Date(s.applicationDeadline).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) %></td>
                 <td><% if(s.featured){%><i class="fa-solid fa-star" style="color:var(--color-gold);"></i><%}else{%><i class="fa-regular fa-star" style="color:#ccc;"></i><%}%></td>
                 <td><span class="badge badge-<%= s.isActive?'success':'danger' %>"><%= s.isActive?'Active':'Inactive' %></span></td>
+                <td>
+                  <div class="table-actions">
+                    <a href="/admin/scholarships/<%= s._id %>/edit" class="btn btn-ghost btn-sm" style="font-size:0.7rem;padding:0.25rem 0.75rem;">
+                      <i class="fa-solid fa-pen"></i> Edit
+                    </a>
+                  </div>
+                </td>
               </tr>
               <% }) %>
               <% if(scholarships.length===0){%><tr><td colspan="8" style="text-align:center;padding:3rem;color:var(--color-text-muted);">No scholarships yet.</td></tr><%}%>

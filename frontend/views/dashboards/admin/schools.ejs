@@ -78,9 +78,9 @@
                     <a href="/schools/<%= school.slug %>" target="_blank" class="btn btn-ghost btn-sm" style="font-size:0.7rem;padding:0.25rem 0.75rem;" title="View Public Page">
                       <i class="fa-solid fa-eye"></i>
                     </a>
-                    <button class="btn btn-ghost btn-sm" style="font-size:0.7rem;padding:0.25rem 0.75rem;" onclick="editSchool('<%= school._id %>')">
-                      <i class="fa-solid fa-pen"></i>
-                    </button>
+                    <a href="/admin/schools/<%= school._id %>/edit" class="btn btn-ghost btn-sm" style="font-size:0.7rem;padding:0.25rem 0.75rem;">
+                      <i class="fa-solid fa-pen"></i> Edit
+                    </a>
                     <button class="btn btn-danger btn-sm" style="font-size:0.7rem;padding:0.25rem 0.75rem;"
                       onclick="if(confirm('Deactivate this school?')){fetch('/admin/schools/<%= school._id %>',{method:'DELETE'}).then(r=>r.json()).then(d=>{if(d.success){location.reload();}else{showToast(d.error,'error');}});}">
                       <i class="fa-solid fa-trash"></i>

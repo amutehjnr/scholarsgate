@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Edit Scholarship | Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body data-authenticated>
+<div class="dashboard-layout">
+  <div class="sidebar-overlay"></div>
+  <%- include('../../partials/sidebar') %>
+  <div class="dashboard-main">
+
+    <div class="dashboard-topbar">
+      <div class="topbar-left">
+        <button class="sidebar-toggle" style="width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.04);border:none;cursor:pointer;">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <div>
+          <div class="page-title-bar">Edit Scholarship</div>
+          <div class="breadcrumb">
+            <a href="/admin/scholarships">Scholarships</a>
+            <span class="breadcrumb-sep">/</span>
+            <span><%= scholarship.name %></span>
+          </div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <a href="/scholarships/<%= scholarship.slug %>" target="_blank" class="btn btn-ghost btn-sm">
+          <i class="fa-solid fa-eye"></i> Preview
+        </a>
+      </div>
+    </div>
+
+    <%- include('../../partials/flash') %>
+
+    <div class="dashboard-content">
+      <div style="max-width:960px;">
+        <form action="/admin/scholarships/<%= scholarship._id %>/edit" method="POST">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+
+            <!-- ─── Basic Info ──────────────────────────────── -->
+            <div class="data-table-wrap" style="padding:1.75rem;grid-column:1/-1;">
+              <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.5rem;">
+                <i class="fa-solid fa-star" style="color:var(--color-gold);"></i> Basic Information
+              </h3>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;">
+                <div class="form-group" style="grid-column:1/-1;">
+                  <label class="form-label">Scholarship Name <span class="required">*</span></label>
+                  <input type="text" name="name" class="form-control" required value="<%= scholarship.name %>"/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Partner School <span class="required">*</span></label>
+                  <select name="school" class="form-control form-select" required>
+                    <% schools.forEach(sc => { %>
+                    <option value="<%= sc._id %>" <%= String(scholarship.school?._id || scholarship.school) === String(sc._id) ? 'selected' : '' %>>
+                      <%= sc.name %>
+                    </option>
+                    <% }) %>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Scholarship Type <span class="required">*</span></label>
+                  <select name="type" class="form-control form-select" required>
+                    <option value="full"       <%= scholarship.type === 'full'       ? 'selected' : '' %>>Full Scholarship</option>
+                    <option value="merit"      <%= scholarship.type === 'merit'      ? 'selected' : '' %>>Merit-Based</option>
+                    <option value="partial"    <%= scholarship.type === 'partial'    ? 'selected' : '' %>>Partial</option>
+                    <option value="stem"       <%= scholarship.type === 'stem'       ? 'selected' : '' %>>STEM</option>
+                    <option value="boarding"   <%= scholarship.type === 'boarding'   ? 'selected' : '' %>>Boarding</option>
+                    <option value="arts"       <%= scholarship.type === 'arts'       ? 'selected' : '' %>>Arts</option>
+                    <option value="athletic"   <%= scholarship.type === 'athletic'   ? 'selected' : '' %>>Athletic</option>
+                    <option value="need-based" <%= scholarship.type === 'need-based' ? 'selected' : '' %>>Need-Based</option>
+                  </select>
+                </div>
+                <div class="form-group" style="grid-column:1/-1;">
+                  <label class="form-label">Description <span class="required">*</span></label>
+                  <textarea name="description" class="form-control form-textarea" required rows="4"><%= scholarship.description %></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- ─── Fees & Financial ───────────────────────── -->
+            <div class="data-table-wrap" style="padding:1.75rem;border:2px solid rgba(201,168,76,0.3);">
+              <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;">
+                <i class="fa-solid fa-dollar-sign" style="color:var(--color-gold);"></i> Fees & Financial Details
+              </h3>
+              <p style="font-size:0.8rem;color:var(--color-text-muted);margin-bottom:1.25rem;">All amounts in USD</p>
+
+              <div class="form-group">
+                <label class="form-label">Coverage Percentage (%) <span class="required">*</span></label>
+                <div style="position:relative;">
+                  <input type="number" name="coveragePercentage" class="form-control" required
+                    value="<%= scholarship.coveragePercentage %>" min="1" max="100"
+                    style="padding-right:2.5rem;" id="coverageInput"/>
+                  <span style="position:absolute;right:1rem;top:50%;transform:translateY(-50%);color:var(--color-gold);font-weight:700;">%</span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Annual Value (USD) <span class="required">*</span></label>
+                <div style="position:relative;">
+                  <span style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:var(--color-text-muted);font-weight:600;">$</span>
+                  <input type="number" name="annualValue" class="form-control" required
+                    value="<%= scholarship.annualValue %>" style="padding-left:2rem;" id="annualValueInput"/>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Total Value Over Duration (USD)</label>
+                <div style="position:relative;">
+                  <span style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:var(--color-text-muted);font-weight:600;">$</span>
+                  <input type="number" name="totalValue" class="form-control"
+                    value="<%= scholarship.totalValue || '' %>" style="padding-left:2rem;" id="totalValueInput"/>
+                </div>
+                <p class="form-hint">Automatically calculated: Annual Value × Duration Years</p>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Remaining Tuition After Scholarship (USD/yr)</label>
+                <div style="position:relative;">
+                  <span style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:var(--color-text-muted);font-weight:600;">$</span>
+                  <input type="number" name="remainingTuition" class="form-control"
+                    value="<%= scholarship.remainingTuition || 0 %>" style="padding-left:2rem;"/>
+                </div>
+                <p class="form-hint">Amount family must pay annually after scholarship</p>
+              </div>
+
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">
+                  Enrollment Deposit (USD) <span class="required">*</span>
+                  <span style="background:rgba(201,168,76,0.1);color:var(--color-gold-dim);font-size:0.65rem;padding:2px 8px;border-radius:99px;margin-left:6px;letter-spacing:0.05em;">ONE-TIME FEE</span>
+                </label>
+                <div style="position:relative;">
+                  <span style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:var(--color-text-muted);font-weight:600;">$</span>
+                  <input type="number" name="enrollmentDeposit" class="form-control" required
+                    value="<%= scholarship.enrollmentDeposit || 500 %>" style="padding-left:2rem;"/>
+                </div>
+                <p class="form-hint">Paid by parent upon accepting the offer to confirm enrollment</p>
+              </div>
+
+              <!-- Fee Summary -->
+              <div style="margin-top:1.25rem;padding:1rem;background:rgba(201,168,76,0.05);border-radius:10px;border:1px solid rgba(201,168,76,0.15);">
+                <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:0.75rem;">Fee Summary</div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:0.5rem;">
+                  <span style="font-size:0.8rem;color:var(--color-text-muted);">Coverage</span>
+                  <span style="font-size:0.875rem;font-weight:700;color:var(--color-gold-dim);"><%= scholarship.coveragePercentage %>%</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:0.5rem;">
+                  <span style="font-size:0.8rem;color:var(--color-text-muted);">Annual Value</span>
+                  <span style="font-size:0.875rem;font-weight:700;color:var(--color-success-light);">$<%= (scholarship.annualValue||0).toLocaleString() %></span>
+                </div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:0.5rem;">
+                  <span style="font-size:0.8rem;color:var(--color-text-muted);">Total Value</span>
+                  <span style="font-size:0.875rem;font-weight:700;color:var(--color-success-light);">$<%= (scholarship.totalValue||0).toLocaleString() %></span>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding-top:0.5rem;border-top:1px solid rgba(0,0,0,0.06);">
+                  <span style="font-size:0.8rem;color:var(--color-text-muted);">Enrollment Deposit</span>
+                  <span style="font-size:0.875rem;font-weight:700;color:var(--color-text-primary);">$<%= (scholarship.enrollmentDeposit||500).toLocaleString() %></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- ─── Duration & Deadline ────────────────────── -->
+            <div class="data-table-wrap" style="padding:1.75rem;">
+              <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.5rem;">
+                <i class="fa-solid fa-calendar" style="color:var(--color-gold);"></i> Duration & Deadline
+              </h3>
+              <div class="form-group">
+                <label class="form-label">Application Deadline <span class="required">*</span></label>
+                <input type="date" name="applicationDeadline" class="form-control" required
+                  value="<%= scholarship.applicationDeadline ? new Date(scholarship.applicationDeadline).toISOString().split('T')[0] : '' %>"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Duration (Years)</label>
+                <input type="number" name="duration[years]" class="form-control"
+                  value="<%= scholarship.duration?.years || 4 %>" min="1" max="6" id="durationInput"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Renewable?</label>
+                <select name="duration[renewable]" class="form-control form-select">
+                  <option value="true"  <%= scholarship.duration?.renewable ? 'selected' : '' %>>Yes — Renewable</option>
+                  <option value="false" <%= !scholarship.duration?.renewable ? 'selected' : '' %>>No — Fixed Term</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Renewal Criteria</label>
+                <input type="text" name="duration[renewalCriteria]" class="form-control"
+                  value="<%= scholarship.duration?.renewalCriteria || '' %>"
+                  placeholder="e.g. Maintain 3.5+ GPA"/>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Total Slots Available</label>
+                <input type="number" name="slotsTotal" class="form-control"
+                  value="<%= scholarship.slotsTotal || '' %>" placeholder="20"/>
+              </div>
+            </div>
+
+            <!-- ─── Eligibility ────────────────────────────── -->
+            <div class="data-table-wrap" style="padding:1.75rem;">
+              <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.5rem;">
+                <i class="fa-solid fa-clipboard-check" style="color:var(--color-gold);"></i> Eligibility Requirements
+              </h3>
+              <div class="form-group">
+                <label class="form-label">Eligible Grades</label>
+                <div style="display:flex;flex-wrap:wrap;gap:0.75rem;padding:1rem;background:rgba(0,0,0,0.02);border-radius:10px;border:var(--border-dark);">
+                  <% ['9','10','11','12'].forEach(grade => { %>
+                  <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-size:0.875rem;font-weight:500;">
+                    <input type="checkbox" name="eligibility[grades]" value="<%= grade %>"
+                      <%= (scholarship.eligibility?.grades || []).includes(grade) ? 'checked' : '' %>
+                      style="accent-color:var(--color-gold);width:15px;height:15px;"/>
+                    Grade <%= grade %>
+                  </label>
+                  <% }) %>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                <div class="form-group">
+                  <label class="form-label">Minimum GPA</label>
+                  <input type="number" name="eligibility[minGpa]" class="form-control"
+                    value="<%= scholarship.eligibility?.minGpa || '' %>" step="0.1" min="0" max="4" placeholder="3.5"/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Min Age</label>
+                  <input type="number" name="eligibility[ageMin]" class="form-control"
+                    value="<%= scholarship.eligibility?.ageMin || '' %>" placeholder="13"/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Max Age</label>
+                  <input type="number" name="eligibility[ageMax]" class="form-control"
+                    value="<%= scholarship.eligibility?.ageMax || '' %>" placeholder="17"/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">English Requirement</label>
+                  <input type="text" name="eligibility[englishProficiency]" class="form-control"
+                    value="<%= scholarship.eligibility?.englishProficiency || '' %>"
+                    placeholder="TOEFL 90+ or IELTS 6.5+"/>
+                </div>
+              </div>
+            </div>
+
+            <!-- ─── Benefits ───────────────────────────────── -->
+            <div class="data-table-wrap" style="padding:1.75rem;grid-column:1/-1;">
+              <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.5rem;">
+                <i class="fa-solid fa-gift" style="color:var(--color-gold);"></i> Scholarship Benefits
+              </h3>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;">
+                <%
+                const benefitsList = [
+                  { key: 'fullTuition',        label: 'Full Tuition',        icon: 'fa-graduation-cap' },
+                  { key: 'tuition',            label: 'Tuition Support',     icon: 'fa-school' },
+                  { key: 'boarding',           label: 'Boarding',            icon: 'fa-house' },
+                  { key: 'meals',              label: 'Meals',               icon: 'fa-utensils' },
+                  { key: 'books',              label: 'Books & Materials',   icon: 'fa-book' },
+                  { key: 'uniform',            label: 'Uniform',             icon: 'fa-shirt' },
+                  { key: 'healthInsurance',    label: 'Health Insurance',    icon: 'fa-heart-pulse' },
+                  { key: 'airfare',            label: 'Airfare',             icon: 'fa-plane' },
+                  { key: 'satPrep',            label: 'SAT Prep',            icon: 'fa-pencil' },
+                  { key: 'mentorship',         label: 'Mentorship',          icon: 'fa-people-arrows' },
+                  { key: 'internship',         label: 'Internship',          icon: 'fa-briefcase' },
+                  { key: 'collegeGuidance',    label: 'College Guidance',    icon: 'fa-building-columns' },
+                  { key: 'leadershipPrograms', label: 'Leadership Programs', icon: 'fa-trophy' },
+                  { key: 'stemMentorship',     label: 'STEM Mentorship',     icon: 'fa-microscope' },
+                  { key: 'academicCounseling', label: 'Academic Counseling', icon: 'fa-comments' },
+                ];
+                %>
+                <% benefitsList.forEach(b => { %>
+                <label style="display:flex;align-items:center;gap:0.75rem;padding:0.875rem;border-radius:10px;border:var(--border-dark);cursor:pointer;transition:all 0.2s;background:<%= scholarship.benefits?.[b.key] ? 'var(--color-success-bg)' : '#fff' %>;"
+                  onmouseover="this.style.borderColor='rgba(201,168,76,0.4)'"
+                  onmouseout="this.style.borderColor=''">
+                  <input type="checkbox" name="benefits[<%= b.key %>]" value="true"
+                    <%= scholarship.benefits?.[b.key] ? 'checked' : '' %>
+                    style="accent-color:var(--color-gold);width:16px;height:16px;flex-shrink:0;"
+                    onchange="this.closest('label').style.background=this.checked?'var(--color-success-bg)':'#fff'"/>
+                  <div>
+                    <i class="fa-solid <%= b.icon %>" style="color:<%= scholarship.benefits?.[b.key] ? 'var(--color-success-light)' : 'var(--color-text-muted)' %>;font-size:0.875rem;margin-bottom:2px;display:block;"></i>
+                    <div style="font-size:0.75rem;font-weight:600;color:var(--color-text-primary);line-height:1.3;"><%= b.label %></div>
+                  </div>
+                </label>
+                <% }) %>
+              </div>
+            </div>
+
+            <!-- ─── Settings & Status ──────────────────────── -->
+            <div class="data-table-wrap" style="padding:1.75rem;">
+              <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.5rem;">
+                <i class="fa-solid fa-gear" style="color:var(--color-gold);"></i> Settings
+              </h3>
+              <div style="display:flex;flex-direction:column;gap:1rem;">
+                <label style="display:flex;align-items:center;gap:0.75rem;cursor:pointer;padding:1rem;border-radius:10px;border:var(--border-dark);">
+                  <input type="checkbox" name="featured" value="true"
+                    <%= scholarship.featured ? 'checked' : '' %>
+                    style="accent-color:var(--color-gold);width:16px;height:16px;"/>
+                  <div>
+                    <div style="font-size:0.875rem;font-weight:600;color:var(--color-text-primary);">
+                      <i class="fa-solid fa-star" style="color:var(--color-gold);margin-right:6px;"></i>Featured Scholarship
+                    </div>
+                    <div style="font-size:0.75rem;color:var(--color-text-muted);">Show on homepage and top of listings</div>
+                  </div>
+                </label>
+                <label style="display:flex;align-items:center;gap:0.75rem;cursor:pointer;padding:1rem;border-radius:10px;border:var(--border-dark);">
+                  <input type="checkbox" name="isActive" value="true"
+                    <%= scholarship.isActive !== false ? 'checked' : '' %>
+                    style="accent-color:var(--color-gold);width:16px;height:16px;"/>
+                  <div>
+                    <div style="font-size:0.875rem;font-weight:600;color:var(--color-text-primary);">
+                      <i class="fa-solid fa-circle-check" style="color:var(--color-success-light);margin-right:6px;"></i>Active
+                    </div>
+                    <div style="font-size:0.75rem;color:var(--color-text-muted);">Visible to students and families</div>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- ─── Slots Info ─────────────────────────────── -->
+            <div class="data-table-wrap" style="padding:1.75rem;">
+              <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.5rem;">
+                <i class="fa-solid fa-users" style="color:var(--color-gold);"></i> Applications Info
+              </h3>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                <div style="padding:1rem;background:rgba(0,0,0,0.02);border-radius:10px;border:var(--border-dark);text-align:center;">
+                  <div style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--color-text-primary);"><%= scholarship.applicationCount || 0 %></div>
+                  <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-muted);">Applications</div>
+                </div>
+                <div style="padding:1rem;background:rgba(0,0,0,0.02);border-radius:10px;border:var(--border-dark);text-align:center;">
+                  <div style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--color-text-primary);"><%= scholarship.slotsTotal ? scholarship.slotsTotal - (scholarship.slotsFilled||0) : '∞' %></div>
+                  <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-muted);">Slots Remaining</div>
+                </div>
+                <div style="padding:1rem;background:rgba(0,0,0,0.02);border-radius:10px;border:var(--border-dark);text-align:center;">
+                  <div style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--color-text-primary);"><%= scholarship.viewCount || 0 %></div>
+                  <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-muted);">Total Views</div>
+                </div>
+                <div style="padding:1rem;background:rgba(0,0,0,0.02);border-radius:10px;border:var(--border-dark);text-align:center;">
+                  <div style="font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:700;color:<%= new Date() > new Date(scholarship.applicationDeadline) ? 'var(--color-danger-light)' : 'var(--color-success-light)' %>;">
+                    <%= new Date() > new Date(scholarship.applicationDeadline) ? 'Closed' : 'Open' %>
+                  </div>
+                  <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-muted);">Status</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ─── Actions ───────────────────────────────── -->
+            <div style="grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;padding:1.25rem 1.5rem;background:#fff;border-radius:12px;box-shadow:var(--shadow-sm);border:var(--border-dark);">
+              <div style="font-size:0.8rem;color:var(--color-text-muted);">
+                <i class="fa-regular fa-clock" style="margin-right:4px;"></i>
+                Last updated: <%= new Date(scholarship.updatedAt).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) %>
+              </div>
+              <div style="display:flex;gap:1rem;">
+                <a href="/admin/scholarships" class="btn btn-ghost">Cancel</a>
+                <button type="submit" class="btn btn-gold btn-lg">
+                  <i class="fa-solid fa-floppy-disk"></i> Save Changes
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<style>
+  #toast-container{position:fixed;bottom:2rem;right:2rem;z-index:9999;display:flex;flex-direction:column;gap:.75rem;}
+  .toast{display:flex;align-items:center;gap:.75rem;padding:.875rem 1.25rem;border-radius:10px;background:#fff;box-shadow:0 8px 32px rgba(0,0,0,.2);font-size:.875rem;font-weight:500;min-width:280px;max-width:400px;transform:translateX(120%);transition:transform .4s cubic-bezier(.34,1.56,.64,1),opacity .4s ease;opacity:0;color:#1a1a2e;}
+  .toast.show{transform:translateX(0);opacity:1;}
+</style>
+<script src="/js/main.js"></script>
+<script>
+  // Auto-calculate total value when annual value or duration changes
+  const annualInput    = document.getElementById('annualValueInput');
+  const durationInput  = document.getElementById('durationInput');
+  const totalInput     = document.getElementById('totalValueInput');
+
+  function calcTotal() {
+    const annual   = parseFloat(annualInput?.value)   || 0;
+    const duration = parseFloat(durationInput?.value) || 4;
+    if (annual && duration) totalInput.value = annual * duration;
+  }
+
+  annualInput?.addEventListener('input', calcTotal);
+  durationInput?.addEventListener('input', calcTotal);
+</script>
+</body>
+</html>

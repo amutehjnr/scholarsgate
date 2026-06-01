@@ -60,21 +60,77 @@ exports.createSchool = async (req, res, next) => {
   }
 
   const school = await School.create(data);
-  req.session.flash = { success: 'School added.' };
+  req.session.flash = { success: 'School added successfully.' };
   res.redirect('/admin/schools');
+};
+
+exports.getEditSchool = async (req, res, next) => {
+  const school = await School.findById(req.params.id).lean();
+  if (!school) return next(new AppError('School not found', 404));
+  res.render('dashboards/admin/edit-school', { title: `Edit — ${school.name}`, school });
 };
 
 exports.updateSchool = async (req, res, next) => {
   const school = await School.findById(req.params.id);
   if (!school) return next(new AppError('School not found', 404));
 
-  Object.assign(school, req.body);
+  // Handle nested fields from form
+  const body = req.body;
+
+  // Basic fields
+  school.name         = body.name || school.name;
+  school.type         = body.type || school.type;
+  school.category     = body.category || school.category;
+  school.overview     = body.overview || school.overview;
+  school.mission      = body.mission || school.mission;
+  school.founded      = body.founded || school.founded;
+  school.featured     = body.featured === 'true' || body.featured === 'on';
+  school.isActive     = body.isActive !== 'false';
+
+  // Location
+  if (body['location[city]'])    school.location.city    = body['location[city]'];
+  if (body['location[state]'])   school.location.state   = body['location[state]'];
+  if (body['location[zipCode]']) school.location.zipCode = body['location[zipCode]'];
+  if (body['location[address]']) school.location.address = body['location[address]'];
+
+  // Tuition & Fees
+  if (body['tuition[annual]'])   school.tuition.annual   = Number(body['tuition[annual]']);
+  if (body['tuition[boarding]']) school.tuition.boarding = Number(body['tuition[boarding]']);
+  if (body['tuition[fees]'])     school.tuition.fees     = Number(body['tuition[fees]']);
+
+  // Stats
+  if (body['stats[totalStudents]'])        school.stats.totalStudents        = Number(body['stats[totalStudents]']);
+  if (body['stats[internationalStudents]']) school.stats.internationalStudents = Number(body['stats[internationalStudents]']);
+  if (body['stats[studentTeacherRatio]'])  school.stats.studentTeacherRatio  = body['stats[studentTeacherRatio]'];
+  if (body['stats[collegeAcceptanceRate]']) school.stats.collegeAcceptanceRate = Number(body['stats[collegeAcceptanceRate]']);
+  if (body['stats[satAverage]'])           school.stats.satAverage           = Number(body['stats[satAverage]']);
+  if (body['stats[apCourses]'])            school.stats.apCourses            = Number(body['stats[apCourses]']);
+
+  // Contact
+  if (body['contactInfo[email]'])          school.contactInfo.email          = body['contactInfo[email]'];
+  if (body['contactInfo[phone]'])          school.contactInfo.phone          = body['contactInfo[phone]'];
+  if (body['contactInfo[website]'])        school.contactInfo.website        = body['contactInfo[website]'];
+  if (body['contactInfo[admissionsEmail]']) school.contactInfo.admissionsEmail = body['contactInfo[admissionsEmail]'];
+
+  // Image uploads
   if (req.files?.logo?.[0]) {
     const { url } = await uploadToCloudinary(req.files.logo[0].buffer, 'schools/logos');
     school.images.logo = url;
   }
+  if (req.files?.hero?.[0]) {
+    const { url } = await uploadToCloudinary(req.files.hero[0].buffer, 'schools/hero');
+    school.images.hero = url;
+  }
+
   await school.save();
-  req.session.flash = { success: 'School updated.' };
+
+  await AuditLog.create({
+    actor: req.user._id, actorModel: 'Admin', actorEmail: req.user.email,
+    action: 'UPDATE_SCHOOL', resource: 'School', resourceId: school._id,
+    ipAddress: req.ip,
+  });
+
+  req.session.flash = { success: `${school.name} updated successfully.` };
   res.redirect('/admin/schools');
 };
 
@@ -85,8 +141,11 @@ exports.deleteSchool = async (req, res, next) => {
 
 // ─── Scholarship Management ────────────────────────────────
 exports.getScholarships = async (req, res) => {
-  const scholarships = await Scholarship.find().populate('school', 'name').sort({ createdAt: -1 }).lean();
-  res.render('dashboards/admin/scholarships', { title: 'Manage Scholarships', scholarships });
+  const [scholarships, schools] = await Promise.all([
+    Scholarship.find().populate('school', 'name').sort({ createdAt: -1 }).lean(),
+    School.find({ isActive: true }, 'name').lean(),
+  ]);
+  res.render('dashboards/admin/scholarships', { title: 'Manage Scholarships', scholarships, schools });
 };
 
 exports.createScholarship = async (req, res, next) => {
@@ -96,9 +155,83 @@ exports.createScholarship = async (req, res, next) => {
   res.redirect('/admin/scholarships');
 };
 
+exports.getEditScholarship = async (req, res, next) => {
+  const [scholarship, schools] = await Promise.all([
+    Scholarship.findById(req.params.id).populate('school', 'name').lean(),
+    School.find({ isActive: true }, 'name').lean(),
+  ]);
+  if (!scholarship) return next(new AppError('Scholarship not found', 404));
+  res.render('dashboards/admin/edit-scholarship', {
+    title: `Edit — ${scholarship.name}`,
+    scholarship,
+    schools,
+  });
+};
+
 exports.updateScholarship = async (req, res, next) => {
-  await Scholarship.findByIdAndUpdate(req.params.id, req.body, { runValidators: true });
-  req.session.flash = { success: 'Scholarship updated.' };
+  const scholarship = await Scholarship.findById(req.params.id);
+  if (!scholarship) return next(new AppError('Scholarship not found', 404));
+
+  const body = req.body;
+
+  // Core fields
+  if (body.name)               scholarship.name               = body.name;
+  if (body.school)             scholarship.school             = body.school;
+  if (body.type)               scholarship.type               = body.type;
+  if (body.coveragePercentage) scholarship.coveragePercentage = Number(body.coveragePercentage);
+  if (body.annualValue)        scholarship.annualValue        = Number(body.annualValue);
+  if (body.totalValue)         scholarship.totalValue         = Number(body.totalValue);
+  if (body.description)        scholarship.description        = body.description;
+  if (body.applicationDeadline) scholarship.applicationDeadline = new Date(body.applicationDeadline);
+  if (body.slotsTotal)         scholarship.slotsTotal         = Number(body.slotsTotal);
+  if (body.remainingTuition !== undefined) scholarship.remainingTuition = Number(body.remainingTuition);
+
+  // FEES — enrollment deposit & remaining tuition
+  if (body.enrollmentDeposit !== undefined) scholarship.enrollmentDeposit = Number(body.enrollmentDeposit);
+
+  // Duration
+  if (body['duration[years]'])    scholarship.duration.years    = Number(body['duration[years]']);
+  if (body['duration[renewable]']) scholarship.duration.renewable = body['duration[renewable]'] === 'true';
+  if (body['duration[renewalCriteria]']) scholarship.duration.renewalCriteria = body['duration[renewalCriteria]'];
+
+  // Eligibility
+  if (body['eligibility[minGpa]'])     scholarship.eligibility.minGpa     = Number(body['eligibility[minGpa]']);
+  if (body['eligibility[ageMin]'])     scholarship.eligibility.ageMin     = Number(body['eligibility[ageMin]']);
+  if (body['eligibility[ageMax]'])     scholarship.eligibility.ageMax     = Number(body['eligibility[ageMax]']);
+  if (body['eligibility[grades]'])     scholarship.eligibility.grades     = Array.isArray(body['eligibility[grades]']) ? body['eligibility[grades]'] : [body['eligibility[grades]']];
+  if (body['eligibility[englishProficiency]']) scholarship.eligibility.englishProficiency = body['eligibility[englishProficiency]'];
+
+  // Benefits
+  scholarship.benefits = {
+    fullTuition:        body['benefits[fullTuition]']        === 'true' || body['benefits[fullTuition]']        === 'on',
+    tuition:            body['benefits[tuition]']            === 'true' || body['benefits[tuition]']            === 'on',
+    boarding:           body['benefits[boarding]']           === 'true' || body['benefits[boarding]']           === 'on',
+    meals:              body['benefits[meals]']              === 'true' || body['benefits[meals]']              === 'on',
+    books:              body['benefits[books]']              === 'true' || body['benefits[books]']              === 'on',
+    uniform:            body['benefits[uniform]']            === 'true' || body['benefits[uniform]']            === 'on',
+    healthInsurance:    body['benefits[healthInsurance]']    === 'true' || body['benefits[healthInsurance]']    === 'on',
+    airfare:            body['benefits[airfare]']            === 'true' || body['benefits[airfare]']            === 'on',
+    satPrep:            body['benefits[satPrep]']            === 'true' || body['benefits[satPrep]']            === 'on',
+    mentorship:         body['benefits[mentorship]']         === 'true' || body['benefits[mentorship]']         === 'on',
+    internship:         body['benefits[internship]']         === 'true' || body['benefits[internship]']         === 'on',
+    collegeGuidance:    body['benefits[collegeGuidance]']    === 'true' || body['benefits[collegeGuidance]']    === 'on',
+    leadershipPrograms: body['benefits[leadershipPrograms]'] === 'true' || body['benefits[leadershipPrograms]'] === 'on',
+    stemMentorship:     body['benefits[stemMentorship]']     === 'true' || body['benefits[stemMentorship]']     === 'on',
+    academicCounseling: body['benefits[academicCounseling]'] === 'true' || body['benefits[academicCounseling]'] === 'on',
+  };
+
+  scholarship.featured = body.featured === 'true' || body.featured === 'on';
+  scholarship.isActive = body.isActive !== 'false';
+
+  await scholarship.save();
+
+  await AuditLog.create({
+    actor: req.user._id, actorModel: 'Admin', actorEmail: req.user.email,
+    action: 'UPDATE_SCHOLARSHIP', resource: 'Scholarship', resourceId: scholarship._id,
+    ipAddress: req.ip,
+  });
+
+  req.session.flash = { success: `${scholarship.name} updated successfully.` };
   res.redirect('/admin/scholarships');
 };
 
@@ -317,7 +450,7 @@ exports.getUsers = async (req, res) => {
 };
 
 exports.createAdmin = async (req, res, next) => {
-  const admin = await Admin.create({ ...req.body });
+  await Admin.create({ ...req.body });
   req.session.flash = { success: 'Admin user created.' };
   res.redirect('/admin/users');
 };
@@ -343,39 +476,23 @@ const { BankDetails } = require('../models/index');
 
 exports.getBankDetails = async (req, res) => {
   const bankDetails = await BankDetails.findOne({ isActive: true }).lean();
-  res.render('dashboards/admin/bank-details', {
-    title: 'Bank Account Details',
-    bankDetails,
-  });
+  res.render('dashboards/admin/bank-details', { title: 'Bank Account Details', bankDetails });
 };
 
 exports.saveBankDetails = async (req, res, next) => {
-  const {
-    accountName, bankName, accountNumber, routingNumber,
-    swiftCode, iban, paypalEmail, currency, instructions,
-  } = req.body;
-
+  const { accountName, bankName, accountNumber, routingNumber, swiftCode, iban, paypalEmail, currency, instructions } = req.body;
   const existing = await BankDetails.findOne({ isActive: true });
 
   if (existing) {
-    Object.assign(existing, {
-      accountName, bankName, accountNumber, routingNumber,
-      swiftCode, iban, paypalEmail, currency, instructions,
-      updatedBy: req.user._id,
-    });
+    Object.assign(existing, { accountName, bankName, accountNumber, routingNumber, swiftCode, iban, paypalEmail, currency, instructions, updatedBy: req.user._id });
     await existing.save();
   } else {
-    await BankDetails.create({
-      accountName, bankName, accountNumber, routingNumber,
-      swiftCode, iban, paypalEmail, currency, instructions,
-      updatedBy: req.user._id,
-    });
+    await BankDetails.create({ accountName, bankName, accountNumber, routingNumber, swiftCode, iban, paypalEmail, currency, instructions, updatedBy: req.user._id });
   }
 
   await AuditLog.create({
     actor: req.user._id, actorModel: 'Admin', actorEmail: req.user.email,
-    action: 'UPDATE_BANK_DETAILS', resource: 'BankDetails',
-    ipAddress: req.ip,
+    action: 'UPDATE_BANK_DETAILS', resource: 'BankDetails', ipAddress: req.ip,
   });
 
   req.session.flash = { success: 'Bank details updated successfully.' };

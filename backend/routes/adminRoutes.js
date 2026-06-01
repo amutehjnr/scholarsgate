@@ -12,13 +12,15 @@ router.get('/dashboard', adminController.getDashboard);
 router.get('/schools', adminController.getSchools);
 router.get('/schools/add', adminController.getAddSchool);
 router.post('/schools', imageUpload.fields([{ name: 'logo', maxCount: 1 }, { name: 'hero', maxCount: 1 }]), adminController.createSchool);
-router.put('/schools/:id', imageUpload.fields([{ name: 'logo', maxCount: 1 }]), adminController.updateSchool);
+router.get('/schools/:id/edit', adminController.getEditSchool);
+router.post('/schools/:id/edit', imageUpload.fields([{ name: 'logo', maxCount: 1 }, { name: 'hero', maxCount: 1 }]), adminController.updateSchool);
 router.delete('/schools/:id', adminController.deleteSchool);
 
 // Scholarships
 router.get('/scholarships', adminController.getScholarships);
 router.post('/scholarships', adminController.createScholarship);
-router.put('/scholarships/:id', adminController.updateScholarship);
+router.get('/scholarships/:id/edit', adminController.getEditScholarship);
+router.post('/scholarships/:id/edit', adminController.updateScholarship);
 
 // Applications
 router.get('/applications', adminController.getApplications);
