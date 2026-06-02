@@ -185,26 +185,22 @@
 
           <!-- Issue Offer (if accepted) -->
           <% if (['shortlisted','interview_done','accepted'].includes(application.status) && !offer) { %>
-          <div class="data-table-wrap" style="padding:1.5rem;border:1px solid rgba(201,168,76,0.3);">
-            <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:0.5rem;color:var(--color-gold-dim);">Issue Offer Letter</h3>
-            <p style="font-size:0.8rem;color:var(--color-text-muted);margin-bottom:1rem;line-height:1.6;">Issue a formal offer letter with scholarship details and enrollment deposit instructions.</p>
-            <div style="display:flex;flex-direction:column;gap:0.75rem;" id="issue-offer-form">
-              <div class="form-group" style="margin-bottom:0;">
-                <label class="form-label">Enrollment Year</label>
-                <input type="text" name="enrollmentYear" value="Fall <%= new Date().getFullYear() + 1 %>" class="form-control"/>
-              </div>
-              <div class="form-group" style="margin-bottom:0;">
-                <label class="form-label">Start Date</label>
-                <input type="date" name="startDate" class="form-control"/>
-              </div>
-              <div class="form-group" style="margin-bottom:0;">
-                <label class="form-label">Notes</label>
-                <textarea name="notes" class="form-control" rows="2" style="min-height:60px;" placeholder="Optional notes for the family..."></textarea>
-              </div>
-              <button class="btn btn-gold w-full" data-issue-offer data-url="/admin/applications/<%= application._id %>/offer">
-                <i class="fa-solid fa-envelope-open-text"></i> Issue Offer Letter
-              </button>
+          <div style="display:flex;flex-direction:column;gap:0.75rem;" id="issue-offer-form">
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Enrollment Year</label>
+              <input type="text" name="enrollmentYear" value="Fall <%= new Date().getFullYear() + 1 %>" class="form-control"/>
             </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Start Date</label>
+              <input type="date" name="startDate" class="form-control"/>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Notes</label>
+              <textarea name="notes" class="form-control" rows="2" style="min-height:60px;" placeholder="Optional notes for the family..."></textarea>
+            </div>
+            <button class="btn btn-gold w-full" data-issue-offer data-url="/admin/applications/<%= application._id %>/offer">
+              <i class="fa-solid fa-envelope-open-text"></i> Issue Offer Letter
+            </button>
           </div>
           <% } %>
 
