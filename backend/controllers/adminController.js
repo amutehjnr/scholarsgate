@@ -352,7 +352,7 @@ exports.issueOffer = async (req, res, next) => {
     expiryDate,
     enrollmentDeposit: application.scholarship?.enrollmentDeposit || 500,
     scholarshipDetails: {
-      type: application.scholarship?.type,
+      scholarshipType: application.scholarship?.type,
       coveragePercentage: application.scholarship?.coveragePercentage,
       annualValue: application.scholarship?.annualValue,
       benefits,

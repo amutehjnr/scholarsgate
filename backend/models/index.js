@@ -16,7 +16,7 @@ const offerSchema = new mongoose.Schema({
   acceptanceFeeStatus: { type: String, enum: ['pending', 'paid', 'waived'], default: 'pending' },
   acceptanceFeePaidAt: Date,
   scholarshipDetails: {
-    type: String,
+    scholarshipType: String,
     coveragePercentage: Number,
     annualValue: Number,
     benefits: [String],
