@@ -198,7 +198,7 @@
               <label class="form-label">Notes</label>
               <textarea name="notes" class="form-control" rows="2" style="min-height:60px;" placeholder="Optional notes for the family..."></textarea>
             </div>
-            <button class="btn btn-gold w-full" data-issue-offer data-url="/admin/applications/<%= application._id %>/offer">
+            <button class="btn btn-gold w-full" id="issueOfferBtn">
               <i class="fa-solid fa-envelope-open-text"></i> Issue Offer Letter
             </button>
           </div>
@@ -268,6 +268,7 @@
 
   // ── Issue Offer ───────────────────────────────────────
   document.getElementById('issueOfferBtn')?.addEventListener('click', async function () {
+    console.log('issueOfferBtn clicked');
     const btn = this;
     const enrollmentYear = document.getElementById('offerEnrollmentYear')?.value?.trim();
     const startDate      = document.getElementById('offerStartDate')?.value?.trim();
