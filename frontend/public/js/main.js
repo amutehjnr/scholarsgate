@@ -230,39 +230,6 @@ document.querySelectorAll('[data-verify-payment]').forEach(btn => {
   });
 });
 
-const issueOfferBtn = document.querySelector('[data-issue-offer]');
-if (issueOfferBtn) {
-  issueOfferBtn.addEventListener('click', async () => {
-    const url = issueOfferBtn.dataset.url;
-    const form = document.querySelector('#issue-offer-form');
-    const data = form ? Object.fromEntries(new FormData(form)) : {};
-
-    issueOfferBtn.disabled = true;
-    issueOfferBtn.innerHTML = '<span class="spinner"></span> Issuing...';
-
-    try {
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      const result = await res.json();
-      if (result.success) {
-        showToast('Offer letter issued!', 'success');
-        closeModal('offer-modal');
-        setTimeout(() => location.reload(), 1500);
-      } else {
-        showToast(result.error || 'Failed', 'error');
-        issueOfferBtn.disabled = false;
-        issueOfferBtn.textContent = 'Issue Offer';
-      }
-    } catch {
-      showToast('Network error', 'error');
-      issueOfferBtn.disabled = false;
-    }
-  });
-}
-
 function openModal(id) {
   const overlay = document.querySelector(`#${id}`);
   if (overlay) {
