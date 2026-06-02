@@ -51,6 +51,7 @@
                 <th>Submitted</th>
                 <th>Status</th>
                 <th>Actions</th>
+                <th>Type</th>
               </tr>
             </thead>
             <tbody>
@@ -107,6 +108,11 @@
                     </button>
                     <% } %>
                   </div>
+                </td>
+                <td>
+                  <span class="badge badge-<%= payment.paymentType === 'acceptance_fee' ? 'warning' : 'info' %>">
+                    <%= payment.paymentType === 'acceptance_fee' ? 'Acceptance Fee' : 'Enrollment Deposit' %>
+                  </span>
                 </td>
               </tr>
               <% }) %>

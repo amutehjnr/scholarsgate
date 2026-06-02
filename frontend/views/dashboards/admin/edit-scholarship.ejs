@@ -140,6 +140,16 @@
                 <p class="form-hint">Paid by parent upon accepting the offer to confirm enrollment</p>
               </div>
 
+              <div class="form-group">
+                <label class="form-label">Acceptance Fee (USD)</label>
+                <div style="position:relative;">
+                  <span style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:var(--color-text-muted);font-weight:600;">$</span>
+                  <input type="number" name="acceptanceFee" class="form-control"
+                  value="<%= scholarship.acceptanceFee || 0 %>" style="padding-left:2rem;" min="0"/>
+                </div>
+                <p class="form-hint">Paid when parent accepts the offer. Set to 0 if no acceptance fee.</p>
+              </div>
+
               <!-- Fee Summary -->
               <div style="margin-top:1.25rem;padding:1rem;background:rgba(201,168,76,0.05);border-radius:10px;border:1px solid rgba(201,168,76,0.15);">
                 <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:0.75rem;">Fee Summary</div>

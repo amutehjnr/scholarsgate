@@ -1,6 +1,6 @@
 const Student = require('../models/Student');
 const Application = require('../models/Application');
-const { Offer, Payment, Notification } = require('../models/index');
+const { Offer, Payment, Notification, BankDetails } = require('../models/index');
 const { uploadToCloudinary, deleteFromCloudinary } = require('../middleware/upload');
 const AppError = require('../utils/AppError');
 const pdfService = require('../services/pdfService');
@@ -165,6 +165,7 @@ exports.getOffers = async (req, res) => {
   res.render('dashboards/parent/offers', { title: 'Offer Letters', offers });
 };
 
+// ─── Accept Offer ─────────────────────────────────────────
 exports.acceptOffer = async (req, res, next) => {
   const offer = await Offer.findOne({ _id: req.params.id, guardian: req.user._id });
   if (!offer) return next(new AppError('Offer not found', 404));
@@ -173,25 +174,126 @@ exports.acceptOffer = async (req, res, next) => {
 
   offer.status = 'accepted';
   offer.acceptedAt = new Date();
-  await offer.save();
 
+  // If there is an acceptance fee, mark it as pending payment
+  if (offer.acceptanceFee && offer.acceptanceFee > 0) {
+    offer.acceptanceFeeStatus = 'pending';
+  } else {
+    // No acceptance fee — skip straight to enrollment deposit step
+    offer.acceptanceFeeStatus = 'waived';
+  }
+
+  await offer.save();
   await Application.findByIdAndUpdate(offer.application, { status: 'accepted' });
 
-  req.session.flash = { success: 'Offer accepted! Please proceed with enrollment deposit.' };
+  await Notification.create({
+    recipient: req.user._id,
+    recipientModel: 'Guardian',
+    type: 'application_update',
+    title: '✅ Offer Accepted!',
+    message: `You have accepted the offer from ${offer.school?.name || 'the school'}. ${offer.acceptanceFee > 0 ? 'Please pay the acceptance fee to proceed.' : 'Please submit your enrollment deposit to confirm your seat.'}`,
+    link: `/parent/offers`,
+  });
+
+  // Redirect based on whether acceptance fee is required
+  if (offer.acceptanceFee && offer.acceptanceFee > 0) {
+    req.session.flash = { success: 'Offer accepted! Please pay the acceptance fee to proceed.' };
+    return res.redirect(`/parent/offers/${offer._id}/acceptance-fee`);
+  }
+
+  req.session.flash = { success: 'Offer accepted! Please submit your enrollment deposit to confirm your seat.' };
   res.redirect(`/parent/offers/${offer._id}/payment`);
+};
+
+// ─── Acceptance Fee Page ──────────────────────────────────
+exports.getAcceptanceFeePage = async (req, res, next) => {
+  const offer = await Offer.findOne({ _id: req.params.id, guardian: req.user._id })
+    .populate('school', 'name').populate('scholarship', 'name').lean();
+
+  if (!offer) return next(new AppError('Offer not found', 404));
+  if (!offer.acceptanceFee || offer.acceptanceFee === 0) {
+    return res.redirect(`/parent/offers/${offer._id}/payment`);
+  }
+
+  const bankDetails = await BankDetails.findOne({ isActive: true }).lean();
+  const existingPayment = await Payment.findOne({
+    offer: offer._id,
+    paymentType: 'acceptance_fee',
+  }).lean();
+
+  res.render('dashboards/parent/acceptance-fee', {
+    title: 'Pay Acceptance Fee',
+    offer,
+    bankDetails,
+    existingPayment,
+  });
+};
+
+// ─── Submit Acceptance Fee ────────────────────────────────
+exports.submitAcceptanceFee = async (req, res, next) => {
+  const offer = await Offer.findOne({ _id: req.params.offerId, guardian: req.user._id });
+  if (!offer) return next(new AppError('Offer not found', 404));
+
+  if (!req.file) return next(new AppError('Proof of payment is required', 400));
+
+  const existing = await Payment.findOne({
+    offer: offer._id,
+    paymentType: 'acceptance_fee',
+  });
+
+  if (existing && existing.status === 'verified') {
+    return next(new AppError('Acceptance fee already verified', 400));
+  }
+
+  const { url, publicId } = await uploadToCloudinary(req.file.buffer, 'payments');
+
+  const paymentData = {
+    guardian: req.user._id,
+    offer: offer._id,
+    application: offer.application,
+    amount: offer.acceptanceFee,
+    paymentMethod: req.body.paymentMethod,
+    referenceNumber: req.body.referenceNumber,
+    proofOfPayment: { url, publicId },
+    paymentType: 'acceptance_fee',
+    status: 'pending',
+  };
+
+  if (existing) {
+    Object.assign(existing, paymentData);
+    await existing.save();
+  } else {
+    await Payment.create(paymentData);
+  }
+
+  await Notification.create({
+    recipient: offer.guardian,
+    recipientModel: 'Guardian',
+    type: 'payment_submitted',
+    title: 'Acceptance Fee Submitted',
+    message: 'Your acceptance fee proof has been submitted and is under review.',
+    link: `/parent/offers/${offer._id}/acceptance-fee`,
+  });
+
+  req.session.flash = { success: 'Acceptance fee proof submitted. Admin will verify within 24–48 hours.' };
+  res.redirect(`/parent/offers`);
 };
 
 // ─── Payment Upload ───────────────────────────────────────
 exports.getPaymentPage = async (req, res, next) => {
-  const { BankDetails } = require('../models/index');
-
   const offer = await Offer.findOne({ _id: req.params.id, guardian: req.user._id })
     .populate('school', 'name').populate('scholarship', 'name').lean();
 
   if (!offer) return next(new AppError('Offer not found', 404));
 
+  // Block enrollment deposit page if acceptance fee not yet verified
+  if (offer.acceptanceFee > 0 && offer.acceptanceFeeStatus === 'pending') {
+    req.session.flash = { warning: 'Please complete your acceptance fee payment first before submitting the enrollment deposit.' };
+    return res.redirect(`/parent/offers/${offer._id}/acceptance-fee`);
+  }
+
   const [existingPayment, bankDetails] = await Promise.all([
-    Payment.findOne({ offer: offer._id }).lean(),
+    Payment.findOne({ offer: offer._id, paymentType: { $ne: 'acceptance_fee' } }).lean(),
     BankDetails.findOne({ isActive: true }).lean(),
   ]);
 
@@ -209,7 +311,11 @@ exports.submitPayment = async (req, res, next) => {
 
   if (!req.file) return next(new AppError('Proof of payment is required', 400));
 
-  const existing = await Payment.findOne({ offer: offer._id });
+  const existing = await Payment.findOne({
+    offer: offer._id,
+    paymentType: { $ne: 'acceptance_fee' },
+  });
+
   if (existing && existing.status === 'verified') {
     return next(new AppError('Payment already verified', 400));
   }
@@ -224,6 +330,7 @@ exports.submitPayment = async (req, res, next) => {
     paymentMethod: req.body.paymentMethod,
     referenceNumber: req.body.referenceNumber,
     proofOfPayment: { url, publicId },
+    paymentType: 'enrollment_deposit',
     status: 'pending',
   };
 
@@ -238,12 +345,12 @@ exports.submitPayment = async (req, res, next) => {
     recipient: offer.guardian,
     recipientModel: 'Guardian',
     type: 'payment_submitted',
-    title: 'Payment Proof Submitted',
+    title: 'Enrollment Deposit Submitted',
     message: 'Your enrollment deposit proof has been submitted and is under review.',
     link: `/parent/offers/${offer._id}/payment`,
   });
 
-  req.session.flash = { success: 'Payment proof submitted. Admin will verify within 24-48 hours.' };
+  req.session.flash = { success: 'Payment proof submitted. Admin will verify within 24–48 hours.' };
   res.redirect('/parent/applications');
 };
 

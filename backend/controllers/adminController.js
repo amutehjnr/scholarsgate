@@ -188,6 +188,7 @@ exports.updateScholarship = async (req, res, next) => {
 
   // FEES — enrollment deposit & remaining tuition
   if (body.enrollmentDeposit !== undefined) scholarship.enrollmentDeposit = Number(body.enrollmentDeposit);
+  if (body.acceptanceFee !== undefined) scholarship.acceptanceFee = Number(body.acceptanceFee);
 
   // Duration
   if (body['duration[years]'])    scholarship.duration.years    = Number(body['duration[years]']);
@@ -356,6 +357,7 @@ exports.issueOffer = async (req, res, next) => {
       annualValue: application.scholarship?.annualValue,
       benefits,
       remainingTuition: application.scholarship?.remainingTuition,
+      acceptanceFee: application.scholarship?.acceptanceFee || 0,
     },
     enrollmentYear: req.body.enrollmentYear,
     startDate: req.body.startDate,

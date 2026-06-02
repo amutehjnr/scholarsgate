@@ -33,6 +33,7 @@ const scholarshipSchema = new mongoose.Schema({
     custom: [String],
   },
   remainingTuition: Number,
+  acceptanceFee: { type: Number, default: 0 },
   enrollmentDeposit: { type: Number, default: 500 },
   eligibility: {
     grades: [String],
