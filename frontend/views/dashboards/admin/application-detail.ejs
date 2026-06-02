@@ -174,11 +174,10 @@
                 <label class="form-label">Internal Note</label>
                 <textarea data-note-field class="form-control form-textarea" placeholder="Add a note..." rows="2" style="min-height:70px;"></textarea>
               </div>
-              <button class="btn btn-gold w-full"
+              <button class="btn btn-gold w-full" id="updateStatusBtn"
                 data-status-update
                 data-url="/admin/applications/<%= application._id %>/status"
-                data-status=""
-                onclick="this.dataset.status = document.getElementById('new-status').value">
+                data-status="">
                 <i class="fa-solid fa-check"></i> Update Status
               </button>
             </div>
@@ -259,4 +258,24 @@
 <div id="toast-container"></div>
 <style>#toast-container{position:fixed;bottom:2rem;right:2rem;z-index:9999;display:flex;flex-direction:column;gap:.75rem;}.toast{display:flex;align-items:center;gap:.75rem;padding:.875rem 1.25rem;border-radius:10px;background:#fff;box-shadow:0 8px 32px rgba(0,0,0,.2);font-size:.875rem;font-weight:500;min-width:280px;max-width:400px;transform:translateX(120%);transition:transform .4s cubic-bezier(.34,1.56,.64,1),opacity .4s ease;opacity:0;color:#1a1a2e;}.toast.show{transform:translateX(0);opacity:1;}</style>
 <script src="/js/main.js"></script>
+<script>
+  // Set status on select change and on button click
+  const statusSelect  = document.getElementById('new-status');
+  const statusBtn     = document.getElementById('updateStatusBtn');
+
+  function syncStatus() {
+    if (statusBtn && statusSelect) {
+      statusBtn.dataset.status = statusSelect.value;
+    }
+  }
+
+  // Sync on page load
+  syncStatus();
+
+  // Sync whenever select changes
+  statusSelect?.addEventListener('change', syncStatus);
+
+  // Also sync right before the click is processed
+  statusBtn?.addEventListener('mousedown', syncStatus);
+</script>
 </body></html>
