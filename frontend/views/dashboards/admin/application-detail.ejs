@@ -255,27 +255,6 @@
 <style>#toast-container{position:fixed;bottom:2rem;right:2rem;z-index:9999;display:flex;flex-direction:column;gap:.75rem;}.toast{display:flex;align-items:center;gap:.75rem;padding:.875rem 1.25rem;border-radius:10px;background:#fff;box-shadow:0 8px 32px rgba(0,0,0,.2);font-size:.875rem;font-weight:500;min-width:280px;max-width:400px;transform:translateX(120%);transition:transform .4s cubic-bezier(.34,1.56,.64,1),opacity .4s ease;opacity:0;color:#1a1a2e;}.toast.show{transform:translateX(0);opacity:1;}</style>
 <script src="/js/main.js"></script>
 <script>
-  // Set status on select change and on button click
-  const statusSelect  = document.getElementById('new-status');
-  const statusBtn     = document.getElementById('updateStatusBtn');
-
-  function syncStatus() {
-    if (statusBtn && statusSelect) {
-      statusBtn.dataset.status = statusSelect.value;
-    }
-  }
-
-  // Sync on page load
-  syncStatus();
-
-  // Sync whenever select changes
-  statusSelect?.addEventListener('change', syncStatus);
-
-  // Also sync right before the click is processed
-  statusBtn?.addEventListener('mousedown', syncStatus);
-</script>
-
-<script>
   // ── Status Update ─────────────────────────────────────
   const statusSelect = document.getElementById('new-status');
   const statusBtn    = document.getElementById('updateStatusBtn');
@@ -290,7 +269,6 @@
   // ── Issue Offer ───────────────────────────────────────
   document.getElementById('issueOfferBtn')?.addEventListener('click', async function () {
     const btn = this;
-
     const enrollmentYear = document.getElementById('offerEnrollmentYear')?.value?.trim();
     const startDate      = document.getElementById('offerStartDate')?.value?.trim();
     const notes          = document.getElementById('offerNotes')?.value?.trim();
@@ -311,9 +289,7 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ enrollmentYear, startDate, notes }),
       });
-
       const result = await res.json();
-
       if (result.success) {
         showToast('Offer letter issued successfully!', 'success');
         setTimeout(() => location.reload(), 1500);
