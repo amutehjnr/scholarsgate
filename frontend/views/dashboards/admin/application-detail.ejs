@@ -213,7 +213,7 @@
             <div style="font-size:0.8rem;color:var(--color-text-secondary);margin-bottom:0.5rem;">Offer #<%= offer.offerNumber %></div>
             <span class="badge badge-<%= offer.status === 'confirmed' ? 'success' : offer.status === 'accepted' ? 'info' : 'gold' %>"><%= offer.status %></span>
             <% if (offer.pdfUrl) { %>
-            <a href="<%= offer.pdfUrl %>" target="_blank" class="btn btn-ghost btn-sm w-full" style="margin-top:1rem;">
+            <a href="<%= offer.pdfUrl %>" class="btn btn-ghost btn-sm w-full" style="margin-top:1rem;">
               <i class="fa-solid fa-file-pdf"></i> Download PDF
             </a>
             <% } %>

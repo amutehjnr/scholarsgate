@@ -383,3 +383,32 @@ exports.updateSettings = async (req, res, next) => {
   req.session.flash = { success: 'Profile updated.' };
   res.redirect('/parent/settings');
 };
+
+exports.downloadOfferPdf = async (req, res, next) => {
+  const Application = require('../models/Application');
+  const pdfService  = require('../services/pdfService');
+
+  const offer = await Offer.findOne({ _id: req.params.id, guardian: req.user._id })
+    .populate('school')
+    .populate('scholarship')
+    .populate('student')
+    .populate('guardian');
+
+  if (!offer) return next(new AppError('Offer not found', 404));
+
+  const application = await Application.findById(offer.application)
+    .populate('school')
+    .populate('scholarship')
+    .populate('student')
+    .populate('guardian');
+
+  try {
+    const pdfBuffer = await pdfService.generateOfferLetter(offer.toObject(), application.toObject());
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="offer-${offer.offerNumber}.pdf"`);
+    res.setHeader('Content-Length', pdfBuffer.length);
+    res.end(pdfBuffer);
+  } catch (err) {
+    return next(new AppError('PDF generation failed', 500));
+  }
+};

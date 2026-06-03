@@ -500,3 +500,29 @@ exports.saveBankDetails = async (req, res, next) => {
   req.session.flash = { success: 'Bank details updated successfully.' };
   res.redirect('/admin/bank-details');
 };
+
+exports.downloadOfferPdf = async (req, res, next) => {
+  const offer = await Offer.findById(req.params.id)
+    .populate('school')
+    .populate('scholarship')
+    .populate('student')
+    .populate('guardian');
+
+  if (!offer) return next(new AppError('Offer not found', 404));
+
+  const application = await Application.findById(offer.application)
+    .populate('school')
+    .populate('scholarship')
+    .populate('student')
+    .populate('guardian');
+
+  try {
+    const pdfBuffer = await pdfService.generateOfferLetter(offer.toObject(), application.toObject());
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="offer-${offer.offerNumber}.pdf"`);
+    res.setHeader('Content-Length', pdfBuffer.length);
+    res.end(pdfBuffer);
+  } catch (err) {
+    return next(new AppError('PDF generation failed', 500));
+  }
+};

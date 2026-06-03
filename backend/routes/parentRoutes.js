@@ -26,4 +26,5 @@ router.get('/settings', parentController.getSettings);
 router.post('/settings', imageUpload.single('avatar'), parentController.updateSettings);
 router.get('/offers/:id/acceptance-fee', parentController.getAcceptanceFeePage);
 router.post('/offers/:offerId/acceptance-fee', uploadLimiter, documentUpload.single('proof'), parentController.submitAcceptanceFee);
+router.get('/offers/:id/pdf', parentController.downloadOfferPdf);
 module.exports = router;

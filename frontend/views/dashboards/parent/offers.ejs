@@ -66,7 +66,7 @@
               </div>
               <%}%>
               <% if(offer.pdfUrl){%>
-              <a href="<%= offer.pdfUrl %>" target="_blank" class="btn btn-ghost btn-sm" title="Download PDF">
+              <a href="/parent/offers/<%= offer._id %>/pdf" class="btn btn-ghost btn-sm" title="Download PDF">
                 <i class="fa-solid fa-file-pdf"></i>
               </a>
               <%}%>
