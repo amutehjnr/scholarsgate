@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-// ─── Offer ──────────────────────────────────────────────
+// ─── Offer ──────────────────────────────────────────────────────────────────
 const offerSchema = new mongoose.Schema({
   application: { type: mongoose.Schema.Types.ObjectId, ref: 'Application', required: true },
   guardian: { type: mongoose.Schema.Types.ObjectId, ref: 'Guardian', required: true },
@@ -47,18 +47,44 @@ offerSchema.index({ application: 1 });
 offerSchema.index({ guardian: 1, status: 1 });
 offerSchema.index({ offerNumber: 1 });
 
-// ─── Payment ─────────────────────────────────────────────
+// ─── Payment ─────────────────────────────────────────────────────────────────
 const paymentSchema = new mongoose.Schema({
   guardian: { type: mongoose.Schema.Types.ObjectId, ref: 'Guardian', required: true },
   offer: { type: mongoose.Schema.Types.ObjectId, ref: 'Offer', required: true },
   application: { type: mongoose.Schema.Types.ObjectId, ref: 'Application', required: true },
   amount: { type: Number, required: true },
   currency: { type: String, default: 'USD' },
-  paymentType: { type: String, enum: ['acceptance_fee', 'enrollment_deposit'], default: 'enrollment_deposit' },
-  paymentMethod: { type: String, enum: ['wire_transfer', 'bank_transfer', 'western_union', 'paypal', 'other'] },
+  paymentType: {
+    type: String,
+    enum: ['acceptance_fee', 'enrollment_deposit'],
+    default: 'enrollment_deposit',
+  },
+  paymentMethod: {
+    type: String,
+    enum: [
+      'wire_transfer',
+      'bank_transfer',
+      'western_union',
+      'paypal',
+      'crypto_usdt',
+      'crypto_btc',
+      'crypto_eth',
+      'other',
+    ],
+  },
   referenceNumber: String,
+
+  // ── Crypto-specific fields ────────────────────────────────────────────────
+  cryptoTxHash: String,        // on-chain transaction hash
+  cryptoWalletAddress: String, // sender wallet address
+  cryptoNetwork: String,       // e.g. TRC20, ERC20, BEP20, Mainnet
+
   proofOfPayment: { url: String, publicId: String },
-  status: { type: String, enum: ['pending', 'under_review', 'verified', 'rejected'], default: 'pending' },
+  status: {
+    type: String,
+    enum: ['pending', 'under_review', 'verified', 'rejected'],
+    default: 'pending',
+  },
   submittedAt: { type: Date, default: Date.now },
   verifiedAt: Date,
   verifiedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin' },
@@ -70,15 +96,17 @@ paymentSchema.index({ guardian: 1, status: 1 });
 paymentSchema.index({ offer: 1 });
 paymentSchema.index({ status: 1 });
 
-// ─── Notification ─────────────────────────────────────────
+// ─── Notification ─────────────────────────────────────────────────────────────
 const notificationSchema = new mongoose.Schema({
   recipient: { type: mongoose.Schema.Types.ObjectId, required: true },
   recipientModel: { type: String, enum: ['Guardian', 'Admin'], required: true },
   type: {
     type: String,
-    enum: ['application_submitted', 'application_update', 'offer_issued', 'offer_expiring',
-           'payment_submitted', 'payment_verified', 'payment_rejected', 'interview_scheduled',
-           'document_required', 'deadline_reminder', 'welcome', 'system'],
+    enum: [
+      'application_submitted', 'application_update', 'offer_issued', 'offer_expiring',
+      'payment_submitted', 'payment_verified', 'payment_rejected', 'interview_scheduled',
+      'document_required', 'deadline_reminder', 'welcome', 'system',
+    ],
     required: true,
   },
   title: { type: String, required: true },
@@ -92,7 +120,7 @@ const notificationSchema = new mongoose.Schema({
 notificationSchema.index({ recipient: 1, isRead: 1 });
 notificationSchema.index({ createdAt: -1 });
 
-// ─── Admin ────────────────────────────────────────────────
+// ─── Admin ────────────────────────────────────────────────────────────────────
 const bcrypt = require('bcryptjs');
 
 const adminSchema = new mongoose.Schema({
@@ -123,7 +151,7 @@ adminSchema.virtual('fullName').get(function () {
   return `${this.firstName} ${this.lastName}`;
 });
 
-// ─── AuditLog ─────────────────────────────────────────────
+// ─── AuditLog ─────────────────────────────────────────────────────────────────
 const auditLogSchema = new mongoose.Schema({
   actor: { type: mongoose.Schema.Types.ObjectId, required: true },
   actorModel: { type: String, enum: ['Guardian', 'Admin'], required: true },
@@ -137,8 +165,13 @@ const auditLogSchema = new mongoose.Schema({
   status: { type: String, enum: ['success', 'failure'], default: 'success' },
 }, { timestamps: true });
 
-// ─── BankDetails ──────────────────────────────────────────
+auditLogSchema.index({ actor: 1, createdAt: -1 });
+auditLogSchema.index({ action: 1 });
+auditLogSchema.index({ createdAt: -1 });
+
+// ─── BankDetails ──────────────────────────────────────────────────────────────
 const bankDetailsSchema = new mongoose.Schema({
+  // ── Traditional bank ──────────────────────────────────────────────────────
   accountName: { type: String, required: true },
   bankName: { type: String, required: true },
   accountNumber: { type: String, required: true },
@@ -148,19 +181,27 @@ const bankDetailsSchema = new mongoose.Schema({
   paypalEmail: { type: String },
   currency: { type: String, default: 'USD' },
   instructions: { type: String },
+
+  // ── Crypto wallets ────────────────────────────────────────────────────────
+  cryptoEnabled: { type: Boolean, default: false },
+  cryptoAddresses: {
+    usdtTrc20:  { type: String, default: '' },  // USDT on TRON  (TRC20)
+    usdtErc20:  { type: String, default: '' },  // USDT on ETH   (ERC20)
+    usdtBep20:  { type: String, default: '' },  // USDT on BNB   (BEP20)
+    bitcoin:    { type: String, default: '' },  // BTC
+    ethereum:   { type: String, default: '' },  // ETH
+  },
+  cryptoInstructions: { type: String, default: '' },
+
   isActive: { type: Boolean, default: true },
   updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin' },
 }, { timestamps: true });
 
-auditLogSchema.index({ actor: 1, createdAt: -1 });
-auditLogSchema.index({ action: 1 });
-auditLogSchema.index({ createdAt: -1 });
-
 module.exports = {
-  Offer: mongoose.model('Offer', offerSchema),
-  Payment: mongoose.model('Payment', paymentSchema),
+  Offer:       mongoose.model('Offer', offerSchema),
+  Payment:     mongoose.model('Payment', paymentSchema),
   Notification: mongoose.model('Notification', notificationSchema),
-  Admin: mongoose.model('Admin', adminSchema),
-  AuditLog: mongoose.model('AuditLog', auditLogSchema),
+  Admin:       mongoose.model('Admin', adminSchema),
+  AuditLog:    mongoose.model('AuditLog', auditLogSchema),
   BankDetails: mongoose.model('BankDetails', bankDetailsSchema),
 };

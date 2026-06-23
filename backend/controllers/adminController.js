@@ -482,14 +482,38 @@ exports.getBankDetails = async (req, res) => {
 };
 
 exports.saveBankDetails = async (req, res, next) => {
-  const { accountName, bankName, accountNumber, routingNumber, swiftCode, iban, paypalEmail, currency, instructions } = req.body;
+  const {
+    accountName, bankName, accountNumber, routingNumber,
+    swiftCode, iban, paypalEmail, currency, instructions,
+    // crypto fields
+    cryptoEnabled,
+    cryptoUsdtTrc20, cryptoUsdtErc20, cryptoUsdtBep20,
+    cryptoBitcoin, cryptoEthereum,
+    cryptoInstructions,
+  } = req.body;
+
   const existing = await BankDetails.findOne({ isActive: true });
 
+  const updateData = {
+    accountName, bankName, accountNumber, routingNumber,
+    swiftCode, iban, paypalEmail, currency, instructions,
+    cryptoEnabled: cryptoEnabled === 'on' || cryptoEnabled === 'true',
+    cryptoAddresses: {
+      usdtTrc20:  cryptoUsdtTrc20  || '',
+      usdtErc20:  cryptoUsdtErc20  || '',
+      usdtBep20:  cryptoUsdtBep20  || '',
+      bitcoin:    cryptoBitcoin    || '',
+      ethereum:   cryptoEthereum   || '',
+    },
+    cryptoInstructions: cryptoInstructions || '',
+    updatedBy: req.user._id,
+  };
+
   if (existing) {
-    Object.assign(existing, { accountName, bankName, accountNumber, routingNumber, swiftCode, iban, paypalEmail, currency, instructions, updatedBy: req.user._id });
+    Object.assign(existing, updateData);
     await existing.save();
   } else {
-    await BankDetails.create({ accountName, bankName, accountNumber, routingNumber, swiftCode, iban, paypalEmail, currency, instructions, updatedBy: req.user._id });
+    await BankDetails.create(updateData);
   }
 
   await AuditLog.create({
@@ -497,7 +521,7 @@ exports.saveBankDetails = async (req, res, next) => {
     action: 'UPDATE_BANK_DETAILS', resource: 'BankDetails', ipAddress: req.ip,
   });
 
-  req.session.flash = { success: 'Bank details updated successfully.' };
+  req.session.flash = { success: 'Bank & payment details updated successfully.' };
   res.redirect('/admin/bank-details');
 };
 

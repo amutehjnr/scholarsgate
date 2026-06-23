@@ -14,239 +14,265 @@
   <div class="dashboard-main">
     <div class="dashboard-topbar">
       <div class="topbar-left">
-        <button class="sidebar-toggle" style="width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.04);border:none;cursor:pointer;">
-          <i class="fa-solid fa-bars"></i>
-        </button>
+        <button class="sidebar-toggle" style="width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.04);border:none;cursor:pointer;"><i class="fa-solid fa-bars"></i></button>
         <div>
           <div class="page-title-bar">Submit Enrollment Deposit</div>
-          <div class="breadcrumb">
-            <a href="/parent/offers">Offers</a>
-            <span class="breadcrumb-sep">/</span>
-            <span>Submit Payment</span>
-          </div>
+          <div class="breadcrumb"><a href="/parent/offers">Offers</a><span class="breadcrumb-sep">/</span><span>Submit Payment</span></div>
         </div>
       </div>
     </div>
-
     <%- include('../../partials/flash') %>
 
     <div class="dashboard-content">
       <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:2rem;max-width:1100px;">
 
-        <!-- ─── LEFT COLUMN ─────────────────────────────── -->
+        <!-- ─── LEFT COLUMN ──────────────────────────────────────────── -->
         <div style="display:flex;flex-direction:column;gap:1.5rem;">
 
           <!-- Amount Display -->
           <div class="deposit-amount-display">
-            <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:0.5rem;">
-              Enrollment Deposit Required
-            </div>
-            <div class="deposit-amount-value">
-              $<%= (offer.enrollmentDeposit || 500).toLocaleString() %>
-            </div>
-            <div style="font-size:0.8rem;color:var(--color-text-muted);margin-top:0.5rem;">
-              <%= bankDetails?.currency || 'USD' %> — One-time enrollment fee
-            </div>
+            <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:0.5rem;">Enrollment Deposit Required</div>
+            <div class="deposit-amount-value">$<%= (offer.enrollmentDeposit || 500).toLocaleString() %></div>
+            <div style="font-size:0.8rem;color:var(--color-text-muted);margin-top:0.5rem;"><%= bankDetails?.currency || 'USD' %> — One-time enrollment fee</div>
           </div>
 
-          <!-- Bank Details Card -->
-          <div class="bank-details-card">
-            <h3>Bank Transfer Details</h3>
+          <!-- Payment Method Tabs -->
+          <div class="data-table-wrap" style="padding:1.75rem;">
+            <h3 style="font-family:'Playfair Display',serif;font-size:1.2rem;margin-bottom:1.25rem;">Choose Payment Method</h3>
 
-            <% if (bankDetails) { %>
-
-              <% if (bankDetails.bankName) { %>
-              <div class="bank-detail-row">
-                <span class="bank-detail-label">Bank Name</span>
-                <span class="bank-detail-value"><%= bankDetails.bankName %></span>
-              </div>
+            <!-- Tab selector -->
+            <div style="display:flex;gap:0.5rem;margin-bottom:1.5rem;border-bottom:2px solid rgba(0,0,0,0.08);padding-bottom:0;">
+              <button type="button" onclick="switchTab('bank')" id="tab-bank"
+                style="padding:0.625rem 1.25rem;font-size:0.8rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;border:none;background:none;cursor:pointer;border-bottom:2px solid var(--color-gold);margin-bottom:-2px;color:var(--color-gold-dim);">
+                <i class="fa-solid fa-building-columns" style="margin-right:6px;"></i>Bank Transfer
+              </button>
+              <% if (bankDetails?.cryptoEnabled) { %>
+              <button type="button" onclick="switchTab('crypto')" id="tab-crypto"
+                style="padding:0.625rem 1.25rem;font-size:0.8rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;color:var(--color-text-muted);">
+                <i class="fa-solid fa-coins" style="margin-right:6px;"></i>Cryptocurrency
+              </button>
               <% } %>
+            </div>
 
-              <div class="bank-detail-row">
-                <span class="bank-detail-label">Account Name</span>
-                <span class="bank-detail-value"><%= bankDetails.accountName %></span>
+            <!-- ─── Bank Tab ─────────────────────────────────────────── -->
+            <div id="panel-bank">
+              <% if (bankDetails) { %>
+              <div class="bank-details-card">
+                <h3>Bank Transfer Details</h3>
+                <% if (bankDetails.bankName) { %>
+                <div class="bank-detail-row"><span class="bank-detail-label">Bank Name</span><span class="bank-detail-value"><%= bankDetails.bankName %></span></div>
+                <% } %>
+                <div class="bank-detail-row"><span class="bank-detail-label">Account Name</span><span class="bank-detail-value"><%= bankDetails.accountName %></span></div>
+                <div class="bank-detail-row"><span class="bank-detail-label">Account Number</span><span class="bank-detail-value"><%= bankDetails.accountNumber %></span></div>
+                <% if (bankDetails.routingNumber) { %>
+                <div class="bank-detail-row"><span class="bank-detail-label">Routing (ABA)</span><span class="bank-detail-value"><%= bankDetails.routingNumber %></span></div>
+                <% } %>
+                <% if (bankDetails.swiftCode) { %>
+                <div class="bank-detail-row"><span class="bank-detail-label">SWIFT / BIC</span><span class="bank-detail-value"><%= bankDetails.swiftCode %></span></div>
+                <% } %>
+                <% if (bankDetails.iban) { %>
+                <div class="bank-detail-row"><span class="bank-detail-label">IBAN</span><span class="bank-detail-value"><%= bankDetails.iban %></span></div>
+                <% } %>
+                <% if (bankDetails.paypalEmail) { %>
+                <div class="bank-detail-row"><span class="bank-detail-label">PayPal</span><span class="bank-detail-value"><%= bankDetails.paypalEmail %></span></div>
+                <% } %>
+                <div class="bank-detail-row"><span class="bank-detail-label">Reference</span><span style="font-weight:600;color:var(--color-gold);font-size:0.875rem;"><%= offer.offerNumber %></span></div>
+                <div class="bank-detail-row"><span class="bank-detail-label">Amount</span><span class="bank-detail-value">$<%= (offer.enrollmentDeposit || 500).toLocaleString() %> <%= bankDetails.currency || 'USD' %></span></div>
+                <% if (bankDetails.instructions) { %>
+                <div style="margin-top:1rem;padding:0.875rem;background:rgba(201,168,76,0.08);border-radius:10px;border:1px solid rgba(201,168,76,0.15);">
+                  <p style="font-size:0.75rem;color:rgba(255,255,255,0.5);line-height:1.7;"><i class="fa-solid fa-info-circle" style="color:var(--color-gold);margin-right:6px;"></i><%= bankDetails.instructions %></p>
+                </div>
+                <% } %>
               </div>
-
-              <div class="bank-detail-row">
-                <span class="bank-detail-label">Account Number</span>
-                <span class="bank-detail-value"><%= bankDetails.accountNumber %></span>
-              </div>
-
-              <% if (bankDetails.routingNumber) { %>
-              <div class="bank-detail-row">
-                <span class="bank-detail-label">Routing (ABA)</span>
-                <span class="bank-detail-value"><%= bankDetails.routingNumber %></span>
-              </div>
-              <% } %>
-
-              <% if (bankDetails.swiftCode) { %>
-              <div class="bank-detail-row">
-                <span class="bank-detail-label">SWIFT / BIC</span>
-                <span class="bank-detail-value"><%= bankDetails.swiftCode %></span>
-              </div>
-              <% } %>
-
-              <% if (bankDetails.iban) { %>
-              <div class="bank-detail-row">
-                <span class="bank-detail-label">IBAN</span>
-                <span class="bank-detail-value"><%= bankDetails.iban %></span>
-              </div>
-              <% } %>
-
-              <% if (bankDetails.paypalEmail) { %>
-              <div class="bank-detail-row">
-                <span class="bank-detail-label">PayPal</span>
-                <span class="bank-detail-value"><%= bankDetails.paypalEmail %></span>
-              </div>
-              <% } %>
-
-              <div class="bank-detail-row">
-                <span class="bank-detail-label">Reference</span>
-                <span style="font-weight:600;color:var(--color-gold);font-size:0.875rem;">
-                  <%= offer.offerNumber %>
-                </span>
-              </div>
-
-              <div class="bank-detail-row">
-                <span class="bank-detail-label">Amount</span>
-                <span class="bank-detail-value">
-                  $<%= (offer.enrollmentDeposit || 500).toLocaleString() %> <%= bankDetails.currency || 'USD' %>
-                </span>
-              </div>
-
-              <div style="margin-top:1rem;padding:0.875rem;background:rgba(201,168,76,0.08);border-radius:10px;border:1px solid rgba(201,168,76,0.15);">
-                <p style="font-size:0.75rem;color:rgba(255,255,255,0.5);line-height:1.7;">
-                  <i class="fa-solid fa-info-circle" style="color:var(--color-gold);margin-right:6px;"></i>
-                  Please use your offer number <strong style="color:var(--color-gold);">
-                  <%= offer.offerNumber %></strong> as the payment reference to ensure your deposit is correctly matched.
-                  <% if (bankDetails.instructions) { %>
-                    <br/><br/><%= bankDetails.instructions %>
-                  <% } %>
-                </p>
-              </div>
-
-            <% } else { %>
-              <!-- No bank details configured -->
-              <div style="padding:2rem;text-align:center;">
+              <% } else { %>
+              <div style="padding:2rem;text-align:center;background:var(--gradient-navy);border-radius:16px;border:1px solid rgba(201,168,76,0.2);">
                 <i class="fa-solid fa-triangle-exclamation" style="font-size:2.5rem;color:var(--color-warning);margin-bottom:1rem;display:block;"></i>
-                <div style="font-weight:600;color:var(--color-ivory);margin-bottom:0.5rem;">Bank details not configured yet</div>
-                <p style="font-size:0.8rem;color:rgba(255,255,255,0.4);line-height:1.7;">
-                  Please contact our team directly at
-                  <a href="mailto:payments@scholarsgate.com" style="color:var(--color-gold);">payments@scholarsgate.com</a>
-                  to receive payment instructions for your enrollment deposit.
-                </p>
+                <p style="font-size:0.875rem;color:rgba(255,255,255,0.5);">At this time, we accept cryptocurrency payments only to better accomodate our international students and simplify cross-border transaction. Contact <a href="mailto:supports@schoolgatess.com" style="color:var(--color-gold);">payments@scholarsgate.com</a></p>
               </div>
+              <% } %>
+            </div>
+
+            <!-- ─── Crypto Tab ────────────────────────────────────────── -->
+            <% if (bankDetails?.cryptoEnabled) { %>
+            <div id="panel-crypto" style="display:none;">
+
+              <!-- Crypto network selector -->
+              <div style="margin-bottom:1.25rem;">
+                <label class="form-label">Select Cryptocurrency & Network</label>
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:0.625rem;" id="cryptoNetworkGrid">
+
+                  <% const cryptoOptions = [
+                    { id:'usdt-trc20', label:'USDT', sub:'TRC20 (TRON)', address: bankDetails.cryptoAddresses?.usdtTrc20, icon:'💵', color:'#26a17b' },
+                    { id:'usdt-erc20', label:'USDT', sub:'ERC20 (Ethereum)', address: bankDetails.cryptoAddresses?.usdtErc20, icon:'💵', color:'#26a17b' },
+                    { id:'usdt-bep20', label:'USDT', sub:'BEP20 (BNB Chain)', address: bankDetails.cryptoAddresses?.usdtBep20, icon:'💵', color:'#F0B90B' },
+                    { id:'btc',        label:'Bitcoin', sub:'BTC Mainnet', address: bankDetails.cryptoAddresses?.bitcoin, icon:'₿', color:'#f7931a' },
+                    { id:'eth',        label:'Ethereum', sub:'ETH Mainnet', address: bankDetails.cryptoAddresses?.ethereum, icon:'Ξ', color:'#627eea' },
+                  ]; %>
+
+                  <% cryptoOptions.forEach(opt => { if (opt.address) { %>
+                  <label style="display:flex;flex-direction:column;align-items:center;gap:0.375rem;padding:1rem 0.75rem;border-radius:10px;border:2px solid rgba(0,0,0,0.08);cursor:pointer;text-align:center;transition:all 0.2s;"
+                    class="crypto-option-label" data-address="<%= opt.address %>" data-id="<%= opt.id %>"
+                    onclick="selectCrypto(this,'<%= opt.address %>','<%= opt.id %>')">
+                    <input type="radio" name="_cryptoChoice" value="<%= opt.id %>" style="display:none;"/>
+                    <span style="font-size:1.4rem;"><%= opt.icon %></span>
+                    <span style="font-size:0.875rem;font-weight:700;color:var(--color-text-primary);"><%= opt.label %></span>
+                    <span style="font-size:0.65rem;color:var(--color-text-muted);"><%= opt.sub %></span>
+                  </label>
+                  <% } }); %>
+                </div>
+              </div>
+
+              <!-- Wallet address display (shown after selection) -->
+              <div id="cryptoAddressDisplay" style="display:none;background:linear-gradient(135deg,#0f1524,#1a2240);border-radius:14px;padding:1.5rem;border:1px solid rgba(201,168,76,0.25);margin-bottom:1.25rem;">
+                <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:0.75rem;">Send Payment To This Wallet</div>
+                <div style="display:flex;align-items:center;gap:0.75rem;">
+                  <div id="cryptoAddressText" style="font-family:monospace;font-size:0.875rem;color:var(--color-gold);word-break:break-all;flex:1;background:rgba(201,168,76,0.08);padding:0.875rem;border-radius:8px;border:1px solid rgba(201,168,76,0.2);"></div>
+                  <button type="button" onclick="copyWallet()" title="Copy address"
+                    style="width:40px;height:40px;border-radius:8px;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.3);color:var(--color-gold);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+                    <i class="fa-regular fa-copy"></i>
+                  </button>
+                </div>
+                <div style="margin-top:0.875rem;padding:0.75rem;background:rgba(255,165,0,0.08);border-radius:8px;border:1px solid rgba(255,165,0,0.2);">
+                  <p style="font-size:0.75rem;color:rgba(255,200,100,0.8);line-height:1.7;margin:0;">
+                    <i class="fa-solid fa-triangle-exclamation" style="margin-right:6px;"></i>
+                    Send <strong style="color:var(--color-gold);">exactly $<%= (offer.enrollmentDeposit || 500).toLocaleString() %> USD</strong> equivalent. Double-check the network before sending — wrong network = lost funds.
+                  </p>
+                </div>
+                <% if (bankDetails.cryptoInstructions) { %>
+                <p style="font-size:0.75rem;color:rgba(255,255,255,0.4);line-height:1.7;margin-top:0.75rem;"><%= bankDetails.cryptoInstructions %></p>
+                <% } %>
+              </div>
+
+            </div>
             <% } %>
           </div>
 
-          <!-- Upload Form -->
+          <!-- ─── Upload Form ──────────────────────────────────────────── -->
           <div class="data-table-wrap" style="padding:1.75rem;">
-            <h3 style="font-family:'Playfair Display',serif;font-size:1.25rem;margin-bottom:0.5rem;">
-              Upload Payment Proof
-            </h3>
-            <p style="font-size:0.875rem;color:var(--color-text-muted);margin-bottom:1.5rem;">
-              Upload a screenshot, photo, or PDF of your payment receipt or transfer confirmation.
-            </p>
+            <h3 style="font-family:'Playfair Display',serif;font-size:1.25rem;margin-bottom:0.5rem;">Upload Payment Proof</h3>
+            <p style="font-size:0.875rem;color:var(--color-text-muted);margin-bottom:1.5rem;">Upload your payment receipt or screenshot as proof of transfer.</p>
 
             <% if (existingPayment && existingPayment.status === 'verified') { %>
-              <div class="alert alert-success">
-                <i class="fa-solid fa-circle-check"></i>
-                <span>Your enrollment deposit has been verified. Enrollment is confirmed!</span>
-              </div>
+            <div class="alert alert-success">
+              <i class="fa-solid fa-circle-check"></i>
+              <span>Your enrollment deposit has been verified. Enrollment is confirmed!</span>
+            </div>
             <% } else { %>
 
-              <form action="/parent/offers/<%= offer._id %>/payment" method="POST" enctype="multipart/form-data" data-validate>
+            <form action="/parent/offers/<%= offer._id %>/payment" method="POST" enctype="multipart/form-data" data-validate>
 
-                <div class="form-group">
-                  <label class="form-label">Payment Method <span class="required">*</span></label>
-                  <select name="paymentMethod" class="form-control form-select" required>
-                    <option value="">Select method...</option>
-                    <option value="wire_transfer"   <%= existingPayment?.paymentMethod === 'wire_transfer'   ? 'selected' : '' %>>Wire Transfer</option>
-                    <option value="bank_transfer"   <%= existingPayment?.paymentMethod === 'bank_transfer'   ? 'selected' : '' %>>Bank Transfer</option>
-                    <option value="western_union"   <%= existingPayment?.paymentMethod === 'western_union'   ? 'selected' : '' %>>Western Union</option>
-                    <option value="paypal"          <%= existingPayment?.paymentMethod === 'paypal'          ? 'selected' : '' %>>PayPal</option>
-                    <option value="other"           <%= existingPayment?.paymentMethod === 'other'           ? 'selected' : '' %>>Other</option>
-                  </select>
-                </div>
+              <!-- Hidden crypto fields (populated by JS) -->
+              <input type="hidden" name="cryptoTxHash" id="hiddenTxHash"/>
+              <input type="hidden" name="cryptoWalletAddress" id="hiddenWalletAddress"/>
+              <input type="hidden" name="cryptoNetwork" id="hiddenNetwork"/>
 
-                <div class="form-group">
-                  <label class="form-label">Transaction Reference Number</label>
-                  <input type="text" name="referenceNumber" class="form-control"
-                    placeholder="e.g. TXN-2024-XXXXXXXX"
-                    value="<%= existingPayment?.referenceNumber || '' %>"/>
-                </div>
-
-                <div class="form-group">
-                  <label class="form-label">Payment Proof (Receipt / Screenshot) <span class="required">*</span></label>
-                  <div class="upload-zone" style="position:relative;">
-                    <input type="file" name="proof" accept=".pdf,.jpg,.jpeg,.png" required
-                      style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;"/>
-                    <div class="upload-prompt">
-                      <span class="upload-icon" style="font-size:2.5rem;">📎</span>
-                      <div style="font-weight:600;color:var(--color-text-primary);margin-bottom:0.25rem;">
-                        Click or drag file here
-                      </div>
-                      <div style="font-size:0.8rem;color:var(--color-text-muted);">
-                        PDF, JPG, or PNG · Max 10MB
-                      </div>
-                    </div>
-                    <div class="upload-success" style="display:none;">
-                      <span style="font-size:2rem;">✅</span>
-                      <div style="font-weight:600;color:var(--color-success-light);">File selected</div>
-                      <div class="upload-file-name" style="font-size:0.8rem;color:var(--color-text-muted);"></div>
-                    </div>
-                  </div>
-
-                  <% if (existingPayment?.proofOfPayment?.url) { %>
-                  <div style="margin-top:0.75rem;padding:0.75rem;background:var(--color-info-bg);border-radius:8px;border:1px solid rgba(26,58,106,0.1);display:flex;align-items:center;justify-content:space-between;">
-                    <span style="font-size:0.8rem;color:var(--color-info);">
-                      <i class="fa-solid fa-file-image" style="margin-right:6px;"></i>
-                      Previous upload on file. Uploading again will replace it.
-                    </span>
-                    <a href="<%= existingPayment.proofOfPayment.url %>" target="_blank"
-                      style="font-size:0.75rem;font-weight:600;color:var(--color-info);text-decoration:none;">
-                      View Current ↗
-                    </a>
-                  </div>
+              <div class="form-group">
+                <label class="form-label">Payment Method <span class="required">*</span></label>
+                <select name="paymentMethod" class="form-control form-select" required id="paymentMethodSelect"
+                  onchange="handleMethodChange(this.value)">
+                  <option value="">Select method...</option>
+                  <optgroup label="Bank Transfer">
+                    <option value="wire_transfer"  <%= existingPayment?.paymentMethod === 'wire_transfer'  ? 'selected' : '' %>>Wire Transfer</option>
+                    <option value="bank_transfer"  <%= existingPayment?.paymentMethod === 'bank_transfer'  ? 'selected' : '' %>>Bank Transfer</option>
+                    <option value="western_union"  <%= existingPayment?.paymentMethod === 'western_union'  ? 'selected' : '' %>>Western Union</option>
+                    <option value="paypal"         <%= existingPayment?.paymentMethod === 'paypal'         ? 'selected' : '' %>>PayPal</option>
+                  </optgroup>
+                  <% if (bankDetails?.cryptoEnabled) { %>
+                  <optgroup label="Cryptocurrency">
+                    <option value="crypto_usdt" <%= existingPayment?.paymentMethod === 'crypto_usdt' ? 'selected' : '' %>>USDT (TRC20 / ERC20 / BEP20)</option>
+                    <option value="crypto_btc"  <%= existingPayment?.paymentMethod === 'crypto_btc'  ? 'selected' : '' %>>Bitcoin (BTC)</option>
+                    <option value="crypto_eth"  <%= existingPayment?.paymentMethod === 'crypto_eth'  ? 'selected' : '' %>>Ethereum (ETH)</option>
+                  </optgroup>
                   <% } %>
-                </div>
+                  <option value="other" <%= existingPayment?.paymentMethod === 'other' ? 'selected' : '' %>>Other</option>
+                </select>
+              </div>
 
-                <!-- Status alerts -->
-                <% if (existingPayment && existingPayment.status === 'pending') { %>
-                <div class="alert alert-warning" style="margin-bottom:1rem;">
-                  <i class="fa-solid fa-clock"></i>
-                  <span>Payment proof submitted and under review (24–48 hours).</span>
+              <!-- Standard reference number (bank) -->
+              <div class="form-group" id="refNumberGroup">
+                <label class="form-label">Transaction Reference Number</label>
+                <input type="text" name="referenceNumber" class="form-control"
+                  placeholder="e.g. TXN-2024-XXXXXXXX"
+                  value="<%= existingPayment?.referenceNumber || '' %>"/>
+              </div>
+
+              <!-- Crypto-specific fields -->
+              <div id="cryptoExtraFields" style="display:none;">
+                <div class="form-group">
+                  <label class="form-label">Transaction Hash (TX ID) <span class="required">*</span></label>
+                  <input type="text" id="txHashInput" class="form-control" style="font-family:monospace;font-size:0.85rem;"
+                    placeholder="0x... or full transaction hash from your wallet"
+                    value="<%= existingPayment?.cryptoTxHash || '' %>"
+                    oninput="document.getElementById('hiddenTxHash').value=this.value"/>
+                  <p class="form-hint">Find this in your wallet app under transaction history. It proves the payment was sent on-chain.</p>
                 </div>
-                <% } else if (existingPayment && existingPayment.status === 'rejected') { %>
-                <div class="alert alert-danger" style="margin-bottom:1rem;">
-                  <i class="fa-solid fa-circle-xmark"></i>
-                  <span><%= existingPayment.rejectionReason || 'Your previous submission was rejected.' %> Please resubmit.</span>
+                <div class="form-group">
+                  <label class="form-label">Your Sending Wallet Address</label>
+                  <input type="text" id="senderWalletInput" class="form-control" style="font-family:monospace;font-size:0.85rem;"
+                    placeholder="Your wallet address (optional but helps verification)"
+                    value="<%= existingPayment?.cryptoWalletAddress || '' %>"
+                    oninput="document.getElementById('hiddenWalletAddress').value=this.value"/>
+                </div>
+              </div>
+
+              <!-- File upload -->
+              <div class="form-group">
+                <label class="form-label">Payment Proof (Screenshot / Receipt) <span class="required">*</span></label>
+                <div class="upload-zone" style="position:relative;">
+                  <input type="file" name="proof" accept=".pdf,.jpg,.jpeg,.png" required
+                    style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;"/>
+                  <div class="upload-prompt">
+                    <span class="upload-icon" style="font-size:2.5rem;">📎</span>
+                    <div style="font-weight:600;color:var(--color-text-primary);margin-bottom:0.25rem;">Click or drag file here</div>
+                    <div style="font-size:0.8rem;color:var(--color-text-muted);">PDF, JPG, or PNG · Max 10MB</div>
+                  </div>
+                  <div class="upload-success" style="display:none;">
+                    <span style="font-size:2rem;">✅</span>
+                    <div style="font-weight:600;color:var(--color-success-light);">File selected</div>
+                    <div class="upload-file-name" style="font-size:0.8rem;color:var(--color-text-muted);"></div>
+                  </div>
+                </div>
+                <% if (existingPayment?.proofOfPayment?.url) { %>
+                <div style="margin-top:0.75rem;padding:0.75rem;background:var(--color-info-bg);border-radius:8px;border:1px solid rgba(26,58,106,0.1);display:flex;align-items:center;justify-content:space-between;">
+                  <span style="font-size:0.8rem;color:var(--color-info);"><i class="fa-solid fa-file-image" style="margin-right:6px;"></i>Previous upload on file.</span>
+                  <a href="<%= existingPayment.proofOfPayment.url %>" target="_blank" style="font-size:0.75rem;font-weight:600;color:var(--color-info);text-decoration:none;">View ↗</a>
                 </div>
                 <% } %>
+              </div>
 
-                <button type="submit" class="btn btn-gold btn-lg w-full" style="justify-content:center;">
-                  <i class="fa-solid fa-upload"></i> Submit Payment Proof
-                </button>
+              <!-- Status alerts -->
+              <% if (existingPayment && existingPayment.status === 'pending') { %>
+              <div class="alert alert-warning" style="margin-bottom:1rem;">
+                <i class="fa-solid fa-clock"></i>
+                <span>Payment proof submitted and under review (24–48 hours).</span>
+              </div>
+              <% } else if (existingPayment && existingPayment.status === 'rejected') { %>
+              <div class="alert alert-danger" style="margin-bottom:1rem;">
+                <i class="fa-solid fa-circle-xmark"></i>
+                <span><%= existingPayment.rejectionReason || 'Your previous submission was rejected.' %> Please resubmit.</span>
+              </div>
+              <% } %>
 
-              </form>
+              <button type="submit" class="btn btn-gold btn-lg w-full" style="justify-content:center;">
+                <i class="fa-solid fa-upload"></i> Submit Payment Proof
+              </button>
+            </form>
 
             <% } %>
           </div>
         </div>
 
-        <!-- ─── RIGHT COLUMN ────────────────────────────── -->
+        <!-- ─── RIGHT COLUMN ─────────────────────────────────────────── -->
         <div style="display:flex;flex-direction:column;gap:1.5rem;">
 
           <!-- How It Works -->
           <div class="data-table-wrap" style="padding:1.5rem;">
-            <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:1.25rem;">
-              How It Works
-            </h3>
+            <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:1.25rem;">How It Works</h3>
             <div class="payment-steps">
               <% const steps = [
-                { n:1, title:'Make Payment', desc:'Transfer $' + ((offer.enrollmentDeposit||500).toLocaleString()) + ' ' + (bankDetails?.currency||'USD') + ' to the bank details on the left.' },
-                { n:2, title:'Save Receipt', desc:'Download or screenshot your payment confirmation from your bank or payment app.' },
-                { n:3, title:'Upload Proof', desc:'Select your payment method, add the reference number, and upload your receipt below.' },
+                { n:1, title:'Make Payment', desc:'Transfer $' + ((offer.enrollmentDeposit||500).toLocaleString()) + ' via bank transfer or crypto.' },
+                { n:2, title:'Save Receipt', desc:'Screenshot your transaction confirmation or download the receipt from your bank/wallet.' },
+                { n:3, title:'Upload Proof', desc:'Select method, enter reference/TX hash, and upload your screenshot.' },
                 { n:4, title:'Await Confirmation', desc:'Our team verifies within 24–48 hours and your enrollment will be confirmed.' },
               ]; %>
               <% steps.forEach(step => { %>
@@ -263,24 +289,14 @@
 
           <!-- Offer Summary -->
           <div class="data-table-wrap" style="padding:1.5rem;border:1px solid rgba(201,168,76,0.2);">
-            <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--color-gold);margin-bottom:1rem;">
-              Offer Summary
-            </div>
-
+            <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--color-gold);margin-bottom:1rem;">Offer Summary</div>
             <div style="display:flex;align-items:center;gap:0.875rem;margin-bottom:1.25rem;padding-bottom:1.25rem;border-bottom:var(--border-dark);">
-              <div style="width:44px;height:44px;border-radius:10px;background:var(--gradient-navy);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:700;color:var(--color-gold);font-size:1.1rem;">
-                <%= (offer.school?.name || 'S')[0] %>
-              </div>
+              <div style="width:44px;height:44px;border-radius:10px;background:var(--gradient-navy);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:700;color:var(--color-gold);font-size:1.1rem;"><%= (offer.school?.name || 'S')[0] %></div>
               <div>
-                <div style="font-weight:700;font-size:0.95rem;color:var(--color-text-primary);">
-                  <%= offer.school?.name %>
-                </div>
-                <div style="font-size:0.8rem;color:var(--color-text-muted);">
-                  <%= offer.scholarship?.name || 'Scholarship Offer' %>
-                </div>
+                <div style="font-weight:700;font-size:0.95rem;color:var(--color-text-primary);"><%= offer.school?.name %></div>
+                <div style="font-size:0.8rem;color:var(--color-text-muted);"><%= offer.scholarship?.name || 'Scholarship Offer' %></div>
               </div>
             </div>
-
             <div style="display:flex;flex-direction:column;gap:0.625rem;">
               <div style="display:flex;justify-content:space-between;font-size:0.8rem;">
                 <span style="color:var(--color-text-muted);">Offer Number</span>
@@ -288,16 +304,8 @@
               </div>
               <div style="display:flex;justify-content:space-between;font-size:0.8rem;">
                 <span style="color:var(--color-text-muted);">Deposit Amount</span>
-                <span style="font-weight:700;color:var(--color-gold-dim);">
-                  $<%= (offer.enrollmentDeposit || 500).toLocaleString() %>
-                </span>
+                <span style="font-weight:700;color:var(--color-gold-dim);">$<%= (offer.enrollmentDeposit || 500).toLocaleString() %></span>
               </div>
-              <% if (offer.enrollmentYear) { %>
-              <div style="display:flex;justify-content:space-between;font-size:0.8rem;">
-                <span style="color:var(--color-text-muted);">Enrollment Year</span>
-                <span style="font-weight:600;"><%= offer.enrollmentYear %></span>
-              </div>
-              <% } %>
               <div style="display:flex;justify-content:space-between;font-size:0.8rem;">
                 <span style="color:var(--color-text-muted);">Offer Expires</span>
                 <span style="font-weight:600;color:<%= new Date() > new Date(offer.expiryDate) ? 'var(--color-danger-light)' : 'var(--color-text-primary)' %>;">
@@ -305,67 +313,41 @@
                 </span>
               </div>
             </div>
-
-            <!-- Expiry warning -->
             <% const daysLeft = Math.ceil((new Date(offer.expiryDate) - new Date()) / (1000*60*60*24)); %>
             <% if (daysLeft > 0 && daysLeft <= 7) { %>
             <div style="margin-top:1rem;padding:0.75rem;background:var(--color-warning-bg);border-radius:8px;border:1px solid rgba(201,168,76,0.3);">
-              <p style="font-size:0.75rem;color:var(--color-warning);font-weight:600;">
-                <i class="fa-solid fa-clock" style="margin-right:6px;"></i>
-                Only <%= daysLeft %> day<%= daysLeft > 1 ? 's' : '' %> left to accept this offer!
-              </p>
-            </div>
-            <% } else if (daysLeft <= 0) { %>
-            <div style="margin-top:1rem;padding:0.75rem;background:var(--color-danger-bg);border-radius:8px;border:1px solid rgba(192,57,43,0.2);">
-              <p style="font-size:0.75rem;color:var(--color-danger-light);font-weight:600;">
-                <i class="fa-solid fa-circle-xmark" style="margin-right:6px;"></i>
-                This offer has expired. Please contact support.
-              </p>
+              <p style="font-size:0.75rem;color:var(--color-warning);font-weight:600;"><i class="fa-solid fa-clock" style="margin-right:6px;"></i>Only <%= daysLeft %> day<%= daysLeft > 1 ? 's' : '' %> left!</p>
             </div>
             <% } %>
           </div>
 
-          <!-- Payment Status -->
+          <!-- Payment status -->
           <% if (existingPayment) { %>
           <div class="data-table-wrap" style="padding:1.5rem;">
-            <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:0.75rem;">
-              Payment Status
-            </div>
-            <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
-              <div style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;
-                background:<%= existingPayment.status==='verified'?'var(--color-success-bg)':existingPayment.status==='rejected'?'var(--color-danger-bg)':'var(--color-warning-bg)' %>;">
-                <% if(existingPayment.status==='verified'){%>✅<%}else if(existingPayment.status==='rejected'){%>❌<%}else{%>⏳<%}%>
+            <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:0.75rem;">Payment Status</div>
+            <div style="display:flex;align-items:center;gap:0.75rem;">
+              <div style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;background:<%= existingPayment.status==='verified'?'var(--color-success-bg)':existingPayment.status==='rejected'?'var(--color-danger-bg)':'var(--color-warning-bg)' %>;">
+                <%- existingPayment.status==='verified'?'✅':existingPayment.status==='rejected'?'❌':'⏳' %>
               </div>
               <div>
-                <div style="font-weight:700;font-size:0.875rem;text-transform:capitalize;">
-                  <%= existingPayment.status.replace('_',' ') %>
-                </div>
-                <div style="font-size:0.75rem;color:var(--color-text-muted);">
-                  Submitted <%= new Date(existingPayment.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) %>
-                </div>
+                <div style="font-weight:700;font-size:0.875rem;text-transform:capitalize;"><%= existingPayment.status.replace('_',' ') %></div>
+                <div style="font-size:0.75rem;color:var(--color-text-muted);">Submitted <%= new Date(existingPayment.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) %></div>
               </div>
             </div>
-            <% if (existingPayment.proofOfPayment?.url) { %>
-            <a href="<%= existingPayment.proofOfPayment.url %>" target="_blank"
-              class="btn btn-ghost btn-sm w-full" style="justify-content:center;">
-              <i class="fa-solid fa-file-image"></i> View Submitted Proof
-            </a>
+            <% if (existingPayment.cryptoTxHash) { %>
+            <div style="margin-top:0.875rem;padding:0.75rem;background:rgba(0,0,0,0.03);border-radius:8px;border:var(--border-dark);">
+              <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:4px;">TX Hash</div>
+              <div style="font-family:monospace;font-size:0.75rem;color:var(--color-text-secondary);word-break:break-all;"><%= existingPayment.cryptoTxHash %></div>
+            </div>
             <% } %>
           </div>
           <% } %>
 
           <!-- Help Box -->
           <div style="padding:1.25rem;background:var(--color-info-bg);border-radius:12px;border:1px solid rgba(26,58,106,0.12);">
-            <div style="font-weight:600;font-size:0.875rem;color:var(--color-info);margin-bottom:0.5rem;">
-              <i class="fa-solid fa-headset" style="margin-right:6px;"></i>Need Help?
-            </div>
-            <p style="font-size:0.8rem;color:var(--color-text-secondary);line-height:1.7;margin-bottom:0.75rem;">
-              Having trouble with your payment? Our team is here to help.
-            </p>
-            <a href="mailto:payments@scholarsgate.com"
-              style="font-size:0.8rem;font-weight:600;color:var(--color-info);text-decoration:none;">
-              payments@scholarsgate.com ↗
-            </a>
+            <div style="font-weight:600;font-size:0.875rem;color:var(--color-info);margin-bottom:0.5rem;"><i class="fa-solid fa-headset" style="margin-right:6px;"></i>Need Help?</div>
+            <p style="font-size:0.8rem;color:var(--color-text-secondary);line-height:1.7;margin-bottom:0.75rem;">Having trouble with your payment?</p>
+            <a href="mailto:payments@scholarsgate.com" style="font-size:0.8rem;font-weight:600;color:var(--color-info);text-decoration:none;">payments@scholarsgate.com ↗</a>
           </div>
 
         </div>
@@ -379,10 +361,63 @@
   #toast-container{position:fixed;bottom:2rem;right:2rem;z-index:9999;display:flex;flex-direction:column;gap:.75rem;}
   .toast{display:flex;align-items:center;gap:.75rem;padding:.875rem 1.25rem;border-radius:10px;background:#fff;box-shadow:0 8px 32px rgba(0,0,0,.2);font-size:.875rem;font-weight:500;min-width:280px;max-width:400px;transform:translateX(120%);transition:transform .4s cubic-bezier(.34,1.56,.64,1),opacity .4s ease;opacity:0;color:#1a1a2e;}
   .toast.show{transform:translateX(0);opacity:1;}
-  @media(max-width:768px){
-    .dashboard-content > div { grid-template-columns: 1fr !important; }
-  }
+  .crypto-option-label { transition: all 0.2s; }
+  .crypto-option-label.selected { border-color: var(--color-gold) !important; background: rgba(201,168,76,0.06); }
+  @media(max-width:768px){ .dashboard-content > div { grid-template-columns: 1fr !important; } }
 </style>
 <script src="/js/main.js"></script>
+<script>
+// ── Tab switching ───────────────────────────────────────────────────────────
+function switchTab(tab) {
+  const tabs = ['bank', 'crypto'];
+  tabs.forEach(t => {
+    const btn   = document.getElementById('tab-' + t);
+    const panel = document.getElementById('panel-' + t);
+    if (!btn || !panel) return;
+    if (t === tab) {
+      btn.style.borderBottomColor = 'var(--color-gold)';
+      btn.style.color = 'var(--color-gold-dim)';
+      panel.style.display = 'block';
+    } else {
+      btn.style.borderBottomColor = 'transparent';
+      btn.style.color = 'var(--color-text-muted)';
+      panel.style.display = 'none';
+    }
+  });
+}
+
+// ── Crypto network card selection ───────────────────────────────────────────
+function selectCrypto(el, address, networkId) {
+  document.querySelectorAll('.crypto-option-label').forEach(l => l.classList.remove('selected'));
+  el.classList.add('selected');
+  el.querySelector('input[type=radio]').checked = true;
+
+  const display = document.getElementById('cryptoAddressDisplay');
+  document.getElementById('cryptoAddressText').textContent = address;
+  document.getElementById('hiddenWalletAddress').value = address; // pre-fill as destination (payer replaces with their own)
+  document.getElementById('hiddenNetwork').value = networkId;
+  display.style.display = 'block';
+}
+
+function copyWallet() {
+  const addr = document.getElementById('cryptoAddressText').textContent;
+  navigator.clipboard.writeText(addr).then(() => showToast('Wallet address copied!', 'success'));
+}
+
+// ── Payment method select handler ───────────────────────────────────────────
+function handleMethodChange(val) {
+  const isCrypto = val.startsWith('crypto_');
+  document.getElementById('cryptoExtraFields').style.display = isCrypto ? 'block' : 'none';
+  // Make TX hash required only for crypto
+  const txInput = document.getElementById('txHashInput');
+  if (txInput) txInput.required = isCrypto;
+}
+
+// Pre-fill handler if returning with crypto method selected
+(function() {
+  const sel = document.getElementById('paymentMethodSelect');
+  if (sel && sel.value) handleMethodChange(sel.value);
+})();
+</script>
 </body>
 </html>

@@ -322,16 +322,24 @@ exports.submitPayment = async (req, res, next) => {
 
   const { url, publicId } = await uploadToCloudinary(req.file.buffer, 'payments');
 
+  const isCrypto = (req.body.paymentMethod || '').startsWith('crypto_');
+
   const paymentData = {
     guardian: req.user._id,
     offer: offer._id,
     application: offer.application,
     amount: offer.enrollmentDeposit,
     paymentMethod: req.body.paymentMethod,
-    referenceNumber: req.body.referenceNumber,
+    referenceNumber: req.body.referenceNumber || null,
     proofOfPayment: { url, publicId },
     paymentType: 'enrollment_deposit',
     status: 'pending',
+    // Crypto-specific fields (undefined if not crypto)
+    ...(isCrypto && {
+      cryptoTxHash:        req.body.cryptoTxHash        || null,
+      cryptoWalletAddress: req.body.cryptoWalletAddress || null,
+      cryptoNetwork:       req.body.cryptoNetwork       || null,
+    }),
   };
 
   if (existing) {
@@ -346,13 +354,72 @@ exports.submitPayment = async (req, res, next) => {
     recipientModel: 'Guardian',
     type: 'payment_submitted',
     title: 'Enrollment Deposit Submitted',
-    message: 'Your enrollment deposit proof has been submitted and is under review.',
+    message: `Your enrollment deposit proof has been submitted${isCrypto ? ' (crypto payment)' : ''} and is under review.`,
     link: `/parent/offers/${offer._id}/payment`,
   });
 
   req.session.flash = { success: 'Payment proof submitted. Admin will verify within 24–48 hours.' };
   res.redirect('/parent/applications');
 };
+
+// ── REPLACE submitAcceptanceFee in backend/controllers/parentController.js ───
+
+exports.submitAcceptanceFee = async (req, res, next) => {
+  const offer = await Offer.findOne({ _id: req.params.offerId, guardian: req.user._id });
+  if (!offer) return next(new AppError('Offer not found', 404));
+
+  if (!req.file) return next(new AppError('Proof of payment is required', 400));
+
+  const existing = await Payment.findOne({
+    offer: offer._id,
+    paymentType: 'acceptance_fee',
+  });
+
+  if (existing && existing.status === 'verified') {
+    return next(new AppError('Acceptance fee already verified', 400));
+  }
+
+  const { url, publicId } = await uploadToCloudinary(req.file.buffer, 'payments');
+
+  const isCrypto = (req.body.paymentMethod || '').startsWith('crypto_');
+
+  const paymentData = {
+    guardian: req.user._id,
+    offer: offer._id,
+    application: offer.application,
+    amount: offer.acceptanceFee,
+    paymentMethod: req.body.paymentMethod,
+    referenceNumber: req.body.referenceNumber || null,
+    proofOfPayment: { url, publicId },
+    paymentType: 'acceptance_fee',
+    status: 'pending',
+    ...(isCrypto && {
+      cryptoTxHash:        req.body.cryptoTxHash        || null,
+      cryptoWalletAddress: req.body.cryptoWalletAddress || null,
+      cryptoNetwork:       req.body.cryptoNetwork       || null,
+    }),
+  };
+
+  if (existing) {
+    Object.assign(existing, paymentData);
+    await existing.save();
+  } else {
+    await Payment.create(paymentData);
+  }
+
+  await Notification.create({
+    recipient: offer.guardian,
+    recipientModel: 'Guardian',
+    type: 'payment_submitted',
+    title: 'Acceptance Fee Submitted',
+    message: `Your acceptance fee proof has been submitted${isCrypto ? ' (crypto payment)' : ''} and is under review.`,
+    link: `/parent/offers/${offer._id}/acceptance-fee`,
+  });
+
+  req.session.flash = { success: 'Acceptance fee proof submitted. Admin will verify within 24–48 hours.' };
+  res.redirect('/parent/offers');
+};
+
 
 // ─── Notifications ────────────────────────────────────────
 exports.getNotifications = async (req, res) => {
