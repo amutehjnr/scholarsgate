@@ -455,6 +455,7 @@ exports.downloadOfferPdf = async (req, res, next) => {
   const Application = require('../models/Application');
   const pdfService  = require('../services/pdfService');
 
+  // 1. Fetch the offer — must belong to this guardian
   const offer = await Offer.findOne({ _id: req.params.id, guardian: req.user._id })
     .populate('school')
     .populate('scholarship')
@@ -463,6 +464,43 @@ exports.downloadOfferPdf = async (req, res, next) => {
 
   if (!offer) return next(new AppError('Offer not found', 404));
 
+  // 2. ── PAYMENT GATE ─────────────────────────────────────────────────────
+  //    The offer must be in "confirmed" status (set by admin when verifying
+  //    the enrollment deposit). We also do a direct Payment check as a
+  //    belt-and-braces fallback in case the offer status wasn't updated.
+  const isConfirmed = offer.status === 'confirmed';
+
+  if (!isConfirmed) {
+    // Check whether a verified enrollment-deposit payment exists for this offer
+    const verifiedPayment = await Payment.findOne({
+      offer:       offer._id,
+      paymentType: 'enrollment_deposit',
+      status:      'verified',
+    });
+
+    if (!verifiedPayment) {
+      // Distinguish between "no payment at all" and "payment pending review"
+      const pendingPayment = await Payment.findOne({
+        offer:       offer._id,
+        paymentType: 'enrollment_deposit',
+      });
+
+      if (pendingPayment) {
+        return next(new AppError(
+          'Your offer letter will be available for download once your enrollment deposit payment has been verified by our team.',
+          403
+        ));
+      }
+
+      return next(new AppError(
+        'Your offer letter will be available for download once your enrollment has been confirmed. Please submit your enrollment deposit first.',
+        403
+      ));
+    }
+  }
+  // ── End gate ──────────────────────────────────────────────────────────────
+
+  // 3. Fetch the linked application
   const application = await Application.findById(offer.application)
     .populate('school')
     .populate('scholarship')
@@ -470,7 +508,10 @@ exports.downloadOfferPdf = async (req, res, next) => {
     .populate('guardian');
 
   try {
-    const pdfBuffer = await pdfService.generateOfferLetter(offer.toObject(), application.toObject());
+    const pdfBuffer = await pdfService.generateOfferLetter(
+      offer.toObject(),
+      application ? application.toObject() : {}
+    );
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="offer-${offer.offerNumber}.pdf"`);
     res.setHeader('Content-Length', pdfBuffer.length);

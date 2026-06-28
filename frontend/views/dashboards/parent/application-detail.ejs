@@ -22,6 +22,8 @@
     <%- include('../../partials/flash') %>
     <div class="dashboard-content">
       <div style="display:grid;grid-template-columns:2fr 1fr;gap:1.5rem;">
+
+        <!-- ── LEFT ───────────────────────────────────────────────────────── -->
         <div style="display:flex;flex-direction:column;gap:1.5rem;">
 
           <!-- School & Scholarship -->
@@ -51,37 +53,40 @@
             </div>
           </div>
 
-          <!-- Timeline -->
+          <!-- Progress tracker -->
           <div class="data-table-wrap" style="padding:1.5rem;">
             <h3 style="font-family:'Playfair Display',serif;font-size:1.25rem;margin-bottom:1.5rem;">Application Progress</h3>
             <% const statusOrder=['submitted','under_review','shortlisted','interview_scheduled','interview_done','accepted']; %>
             <div style="display:flex;gap:0;overflow-x:auto;padding-bottom:0.5rem;">
               <% statusOrder.forEach((s,i)=>{
-                const isDone = statusOrder.indexOf(application.status) > i;
+                const isDone    = statusOrder.indexOf(application.status) > i;
                 const isCurrent = application.status === s;
-                const isRejected = application.status === 'rejected';
               %>
               <div style="flex:1;min-width:90px;text-align:center;position:relative;">
                 <% if(i < statusOrder.length-1){%>
                 <div style="position:absolute;top:18px;left:50%;right:-50%;height:2px;background:<%= isDone?'var(--color-gold)':'rgba(0,0,0,0.08)' %>;z-index:0;"></div>
                 <%}%>
-                <div style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;position:relative;z-index:1;background:<%= isCurrent?'linear-gradient(135deg,#c9a84c,#e8c96a)':isDone?'var(--color-success-bg)':'rgba(0,0,0,0.06)' %>;border:2px solid <%= isCurrent?'transparent':isDone?'var(--color-success-light)':'rgba(0,0,0,0.1)' %>;">
+                <div style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;position:relative;z-index:1;
+                  background:<%= isCurrent?'linear-gradient(135deg,#c9a84c,#e8c96a)':isDone?'var(--color-success-bg)':'rgba(0,0,0,0.06)' %>;
+                  border:2px solid <%= isCurrent?'transparent':isDone?'var(--color-success-light)':'rgba(0,0,0,0.1)' %>;">
                   <% if(isDone){%><i class="fa-solid fa-check" style="font-size:0.75rem;color:var(--color-success-light);"></i>
                   <%} else if(isCurrent){%><i class="fa-solid fa-circle" style="font-size:0.5rem;color:#0a0e1a;"></i>
                   <%} else {%><span style="font-size:0.65rem;font-weight:700;color:rgba(0,0,0,0.3);"><%= i+1 %></span><%}%>
                 </div>
-                <div style="font-size:0.6rem;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:<%= isCurrent?'var(--color-gold-dim)':isDone?'var(--color-success-light)':'var(--color-text-muted)' %>;line-height:1.3;"><%= s.replace(/_/g,' ') %></div>
+                <div style="font-size:0.6rem;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:<%= isCurrent?'var(--color-gold-dim)':isDone?'var(--color-success-light)':'var(--color-text-muted)' %>;line-height:1.3;">
+                  <%= s.replace(/_/g,' ') %>
+                </div>
               </div>
               <%})%>
             </div>
             <% if(application.status==='rejected'){%>
-            <div class="alert alert-danger" style="margin-top:1.25rem;"><i class="fa-solid fa-circle-xmark"></i><span>This application was not successful. You may apply for other scholarships.</span></div>
+            <div class="alert alert-danger" style="margin-top:1.25rem;"><i class="fa-solid fa-circle-xmark"></i><span>This application was not successful.</span></div>
             <%} else if(application.status==='waitlisted'){%>
-            <div class="alert alert-warning" style="margin-top:1.25rem;"><i class="fa-solid fa-clock"></i><span>You are on the waitlist. We will notify you if a spot becomes available.</span></div>
+            <div class="alert alert-warning" style="margin-top:1.25rem;"><i class="fa-solid fa-clock"></i><span>You are on the waitlist.</span></div>
             <%}%>
           </div>
 
-          <!-- Timeline Events -->
+          <!-- Timeline events -->
           <% if(application.timeline?.length){%>
           <div class="data-table-wrap" style="padding:1.5rem;">
             <h3 style="font-family:'Playfair Display',serif;font-size:1.25rem;margin-bottom:1.5rem;">Activity Log</h3>
@@ -98,48 +103,77 @@
           <%}%>
         </div>
 
-        <!-- Right: Offer & Payment -->
+        <!-- ── RIGHT ──────────────────────────────────────────────────────── -->
         <div style="display:flex;flex-direction:column;gap:1.5rem;">
 
-          <!-- Offer Card -->
-          <% if(offer){%>
-          <div class="data-table-wrap" style="padding:1.5rem;border:<%= offer.status==='confirmed'?'1px solid rgba(26,107,42,0.3)':'1px solid rgba(201,168,76,0.25)' %>;">
+          <!-- Offer card -->
+          <% if(offer){
+            const isConfirmed = offer.status === 'confirmed';
+            const isAccepted  = offer.status === 'accepted';
+            const isIssued    = offer.status === 'issued';
+          %>
+          <div class="data-table-wrap" style="padding:1.5rem;border:<%= isConfirmed?'1px solid rgba(26,107,42,0.3)':'1px solid rgba(201,168,76,0.25)' %>;">
             <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-gold);margin-bottom:0.75rem;">Offer Letter</div>
             <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:0.25rem;">Offer #<%= offer.offerNumber %></h3>
-            <span class="badge badge-<%= offer.status==='confirmed'?'success':offer.status==='accepted'?'info':'gold' %>" style="margin-bottom:1rem;"><%= offer.status %></span>
+            <span class="badge badge-<%= isConfirmed?'success':isAccepted?'info':'gold' %>" style="margin-bottom:1rem;"><%= offer.status %></span>
+
             <div style="display:flex;justify-content:space-between;padding:0.875rem;background:rgba(201,168,76,0.05);border-radius:10px;border:1px solid rgba(201,168,76,0.12);margin-bottom:1rem;">
-              <div><div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-muted);">Coverage</div><div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--color-gold-dim);"><%= offer.scholarshipDetails?.coveragePercentage||0 %>%</div></div>
-              <div style="text-align:right;"><div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-muted);">Deposit</div><div style="font-size:1.25rem;font-weight:700;">$<%= (offer.enrollmentDeposit||500).toLocaleString() %></div></div>
+              <div>
+                <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-muted);">Coverage</div>
+                <div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--color-gold-dim);"><%= offer.scholarshipDetails?.coveragePercentage||0 %>%</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-muted);">Deposit</div>
+                <div style="font-size:1.25rem;font-weight:700;">$<%= (offer.enrollmentDeposit||500).toLocaleString() %></div>
+              </div>
             </div>
+
             <div style="font-size:0.8rem;color:var(--color-text-muted);margin-bottom:1rem;">
               Expires: <%= new Date(offer.expiryDate).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) %>
             </div>
+
             <div style="display:flex;flex-direction:column;gap:0.625rem;">
-              <% if(offer.status==='issued'){%>
+
+              <!-- Primary CTA based on status -->
+              <% if(isIssued){%>
               <form action="/parent/offers/<%= offer._id %>/accept" method="POST">
-                <button type="submit" class="btn btn-gold w-full" style="justify-content:center;" onclick="return confirm('Accept this offer and proceed to payment?')">
+                <button type="submit" class="btn btn-gold w-full" style="justify-content:center;"
+                  onclick="return confirm('Accept this offer and proceed to payment?')">
                   <i class="fa-solid fa-check"></i> Accept Offer
                 </button>
               </form>
-              <%} else if(offer.status==='accepted'){%>
+              <%} else if(isAccepted){%>
               <a href="/parent/offers/<%= offer._id %>/payment" class="btn btn-gold w-full" style="justify-content:center;">
                 <i class="fa-solid fa-upload"></i> Submit Enrollment Deposit
               </a>
-              <%} else if(offer.status==='confirmed'){%>
+              <%} else if(isConfirmed){%>
               <div class="btn" style="background:var(--color-success-bg);color:var(--color-success);justify-content:center;cursor:default;font-size:0.875rem;">
                 <i class="fa-solid fa-circle-check"></i> Enrollment Confirmed!
               </div>
               <%}%>
-              <%if(offer.pdfUrl){%>
-              <a href="<%= offer.pdfUrl %>" target="_blank" class="btn btn-ghost btn-sm w-full" style="justify-content:center;">
+
+              <!-- PDF download — ONLY when confirmed -->
+              <% if(isConfirmed && offer.pdfUrl){ %>
+              <a href="/parent/offers/<%= offer._id %>/pdf"
+                class="btn btn-ghost btn-sm w-full"
+                style="justify-content:center;">
                 <i class="fa-solid fa-file-pdf"></i> Download Offer Letter
               </a>
-              <%}%>
+              <% } else if(!isConfirmed && offer.pdfUrl) { %>
+              <!-- Locked state — visible but not clickable, with tooltip -->
+              <div style="display:flex;align-items:center;gap:0.625rem;padding:0.625rem 1rem;border-radius:8px;background:rgba(0,0,0,0.04);border:var(--border-dark);">
+                <i class="fa-solid fa-lock" style="color:var(--color-text-muted);font-size:0.875rem;flex-shrink:0;"></i>
+                <span style="font-size:0.75rem;color:var(--color-text-muted);line-height:1.4;">
+                  Offer letter PDF unlocks after your enrollment deposit is verified.
+                </span>
+              </div>
+              <% } %>
+
             </div>
           </div>
           <%}%>
 
-          <!-- Payment Status -->
+          <!-- Payment status -->
           <% if(payment){%>
           <div class="data-table-wrap" style="padding:1.5rem;">
             <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:0.75rem;">Enrollment Deposit</div>
@@ -147,16 +181,18 @@
             <div style="font-size:0.875rem;color:var(--color-text-secondary);">
               <div style="margin-bottom:0.5rem;"><strong>Amount:</strong> $<%= (payment.amount||0).toLocaleString() %></div>
               <div style="margin-bottom:0.5rem;"><strong>Method:</strong> <%= (payment.paymentMethod||'—').replace(/_/g,' ') %></div>
-              <% if(payment.referenceNumber){%><div style="margin-bottom:0.5rem;"><strong>Reference:</strong> <%= payment.referenceNumber %></div><%}%>
+              <% if(payment.referenceNumber){%><div style="margin-bottom:0.5rem;"><strong>Ref:</strong> <%= payment.referenceNumber %></div><%}%>
+              <% if(payment.cryptoTxHash){%><div style="margin-bottom:0.5rem;word-break:break-all;"><strong>TX Hash:</strong> <span style="font-family:monospace;font-size:0.8rem;"><%= payment.cryptoTxHash %></span></div><%}%>
             </div>
             <% if(payment.status==='pending'){%>
-            <div class="alert alert-info" style="margin-top:0.75rem;font-size:0.8rem;"><i class="fa-solid fa-clock"></i><span>Payment proof under review (24–48 hours)</span></div>
+            <div class="alert alert-info" style="margin-top:0.75rem;font-size:0.8rem;"><i class="fa-solid fa-clock"></i><span>Under review — 24–48 hours</span></div>
             <%} else if(payment.status==='rejected'){%>
-            <div class="alert alert-danger" style="margin-top:0.75rem;font-size:0.8rem;"><i class="fa-solid fa-circle-xmark"></i><span><%= payment.rejectionReason||'Payment rejected. Please resubmit.' %></span></div>
+            <div class="alert alert-danger" style="margin-top:0.75rem;font-size:0.8rem;"><i class="fa-solid fa-circle-xmark"></i><span><%= payment.rejectionReason||'Rejected. Please resubmit.' %></span></div>
             <% if(offer){%><a href="/parent/offers/<%= offer._id %>/payment" class="btn btn-gold btn-sm w-full" style="margin-top:0.75rem;justify-content:center;">Resubmit Payment</a><%}%>
             <%}%>
           </div>
           <%}%>
+
         </div>
       </div>
     </div>

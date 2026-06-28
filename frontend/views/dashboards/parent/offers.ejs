@@ -1,4 +1,4 @@
-<!-- offers.ejs (parent) -->
+<!-- offers.ejs (parent) — PDF download gated behind confirmed status -->
 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Offer Letters | ScholarsGate</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
@@ -25,52 +25,103 @@
       </div>
       <%} else {%>
       <div class="grid-auto-fill-md">
-        <% offers.forEach(offer=>{%>
+        <% offers.forEach(offer=>{
+          const isConfirmed = offer.status === 'confirmed';
+          const isAccepted  = offer.status === 'accepted';
+          const isIssued    = offer.status === 'issued';
+          const isExpired   = offer.status === 'expired';
+        %>
         <div class="offer-card">
           <div class="offer-card-header">
             <span class="offer-card-number"><%= offer.offerNumber %></span>
-            <span class="badge badge-<%= offer.status==='confirmed'?'success':offer.status==='accepted'?'info':offer.status==='expired'?'danger':'gold' %>"><%= offer.status %></span>
+            <span class="badge badge-<%= isConfirmed?'success':isAccepted?'info':isExpired?'danger':'gold' %>">
+              <%= offer.status %>
+            </span>
           </div>
           <div class="offer-card-body">
             <div class="offer-school-name"><%= offer.school?.name %></div>
             <div class="offer-scholarship-name"><%= offer.scholarship?.name||'Scholarship Offer' %></div>
+
             <div class="offer-coverage-row">
-              <div><div class="offer-coverage-label">Coverage</div><div class="offer-coverage-pct"><%= offer.scholarshipDetails?.coveragePercentage||0 %>%</div></div>
-              <div style="text-align:right;"><div class="offer-coverage-label">Deposit Due</div><div style="font-size:1.25rem;font-weight:700;color:var(--color-text-primary);">$<%= (offer.enrollmentDeposit||500).toLocaleString() %></div></div>
+              <div>
+                <div class="offer-coverage-label">Coverage</div>
+                <div class="offer-coverage-pct"><%= offer.scholarshipDetails?.coveragePercentage||0 %>%</div>
+              </div>
+              <div style="text-align:right;">
+                <div class="offer-coverage-label">Deposit Due</div>
+                <div style="font-size:1.25rem;font-weight:700;color:var(--color-text-primary);">$<%= (offer.enrollmentDeposit||500).toLocaleString() %></div>
+              </div>
             </div>
+
             <% if(offer.scholarshipDetails?.benefits?.length){%>
             <div class="offer-benefits-preview">
               <% offer.scholarshipDetails.benefits.slice(0,4).forEach(b=>{%><span class="benefit-chip"><%= b %></span><%})%>
               <% if(offer.scholarshipDetails.benefits.length>4){%><span class="benefit-chip">+<%= offer.scholarshipDetails.benefits.length-4 %> more</span><%}%>
             </div>
             <%}%>
+
             <div class="offer-expiry <%= new Date(offer.expiryDate)<new Date(Date.now()+7*24*60*60*1000)?'urgent':'' %>">
               <i class="fa-regular fa-clock"></i>
-              <% if(new Date()>new Date(offer.expiryDate)){%>Expired <%= new Date(offer.expiryDate).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) %>
-              <%} else {%>Expires <%= new Date(offer.expiryDate).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) %><%}%>
+              <% if(new Date()>new Date(offer.expiryDate)){%>
+                Expired <%= new Date(offer.expiryDate).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) %>
+              <%} else {%>
+                Expires <%= new Date(offer.expiryDate).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) %>
+              <%}%>
             </div>
+
+            <!-- ── Action buttons ─────────────────────────────────────── -->
             <div class="offer-actions">
-              <% if(offer.status==='issued'){%>
+
+              <%# ── Issued: show Accept button ──────────────────────────── %>
+              <% if(isIssued){%>
               <form action="/parent/offers/<%= offer._id %>/accept" method="POST" style="flex:1;">
-                <button type="submit" class="btn btn-gold w-full" style="justify-content:center;" onclick="return confirm('Accept this offer?')">
+                <button type="submit" class="btn btn-gold w-full" style="justify-content:center;"
+                  onclick="return confirm('Accept this offer and proceed to payment?')">
                   <i class="fa-solid fa-check"></i> Accept Offer
                 </button>
               </form>
-              <%} else if(offer.status==='accepted'){%>
+
+              <%# ── Accepted: show deposit submission button ─────────────── %>
+              <%} else if(isAccepted){%>
               <a href="/parent/offers/<%= offer._id %>/payment" class="btn btn-gold" style="flex:1;justify-content:center;">
                 <i class="fa-solid fa-upload"></i> Submit Deposit
               </a>
-              <%} else if(offer.status==='confirmed'){%>
-              <div class="btn" style="flex:1;background:var(--color-success-bg);color:var(--color-success);border-color:transparent;justify-content:center;cursor:default;">
+
+              <%# ── Confirmed: enrollment locked in ────────────────────── %>
+              <%} else if(isConfirmed){%>
+              <div class="btn" style="flex:1;background:var(--color-success-bg);color:var(--color-success);border-color:transparent;justify-content:center;cursor:default;font-size:0.875rem;">
                 <i class="fa-solid fa-circle-check"></i> Enrollment Confirmed
               </div>
               <%}%>
-              <% if(offer.pdfUrl){%>
-              <a href="/parent/offers/<%= offer._id %>/pdf" class="btn btn-ghost btn-sm" title="Download Offer Letter PDF">
+
+              <%# ── PDF download — ONLY when confirmed ─────────────────── %>
+              <% if(isConfirmed && offer.pdfUrl){%>
+              <a href="/parent/offers/<%= offer._id %>/pdf"
+                class="btn btn-ghost btn-sm"
+                title="Download Offer Letter PDF"
+                style="flex-shrink:0;">
                 <i class="fa-solid fa-file-pdf"></i>
               </a>
-              <%}%>
+              <% } else if(!isConfirmed && offer.pdfUrl) { %>
+              <%# Show a locked indicator so the parent knows a PDF exists but isn't ready yet %>
+              <div class="btn btn-ghost btn-sm" title="PDF available after enrollment is confirmed"
+                style="flex-shrink:0;opacity:0.4;cursor:not-allowed;">
+                <i class="fa-solid fa-lock"></i>
+              </div>
+              <% } %>
+
             </div>
+
+            <%# ── Pending payment notice ──────────────────────────────── %>
+            <% if(isAccepted){ %>
+            <div style="margin-top:0.875rem;padding:0.75rem;background:rgba(201,168,76,0.06);border-radius:8px;border:1px solid rgba(201,168,76,0.2);">
+              <p style="font-size:0.75rem;color:var(--color-warning);line-height:1.6;margin:0;">
+                <i class="fa-solid fa-circle-info" style="margin-right:5px;"></i>
+                Your offer letter PDF will be available for download once your enrollment deposit is verified by our team.
+              </p>
+            </div>
+            <% } %>
+
           </div>
         </div>
         <%})%>
