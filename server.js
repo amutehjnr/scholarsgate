@@ -32,6 +32,7 @@ const paymentRoutes = require('./backend/routes/paymentRoutes');
 const adminRoutes = require('./backend/routes/adminRoutes');
 const notificationRoutes = require('./backend/routes/notificationRoutes');
 const pageRoutes = require('./backend/routes/pageRoutes');
+const emailCampaignRoutes = require('./backend/routes/emailCampaignRoutes');
 
 const app = express();
 const server = http.createServer(app);
@@ -124,6 +125,7 @@ app.use('/scholarships', scholarshipRoutes);
 app.use('/applications', applicationRoutes);
 app.use('/offers', offerRoutes);
 app.use('/payments', paymentRoutes);
+app.use('/admin/email-campaigns', emailCampaignRoutes);
 app.use('/admin', adminRoutes);
 app.use('/notifications', notificationRoutes);
 

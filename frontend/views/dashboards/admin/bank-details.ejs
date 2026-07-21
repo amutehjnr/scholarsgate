@@ -12,6 +12,7 @@
   <div class="sidebar-overlay"></div>
   <%- include('../../partials/sidebar') %>
   <div class="dashboard-main">
+
     <div class="dashboard-topbar">
       <div class="topbar-left">
         <button class="sidebar-toggle" style="width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.04);border:none;cursor:pointer;">
@@ -23,26 +24,32 @@
         </div>
       </div>
     </div>
+
     <%- include('../../partials/flash') %>
 
     <div class="dashboard-content">
-      <div style="max-width:860px;display:flex;flex-direction:column;gap:1.5rem;">
+      <div style="max-width:900px;display:flex;flex-direction:column;gap:1.5rem;">
 
-        <!-- Info Banner -->
+        <!-- Info banner -->
         <div style="padding:1.25rem 1.5rem;background:var(--color-info-bg);border-radius:12px;border:1px solid rgba(26,58,106,0.15);display:flex;align-items:flex-start;gap:1rem;">
           <i class="fa-solid fa-circle-info" style="color:var(--color-info);margin-top:2px;flex-shrink:0;"></i>
           <div>
-            <div style="font-weight:600;font-size:0.875rem;color:var(--color-info);margin-bottom:3px;">These details appear on parent payment pages</div>
-            <div style="font-size:0.8rem;color:var(--color-text-secondary);line-height:1.6;">Parents see this when submitting acceptance fees and enrollment deposits. Enable crypto to offer additional payment options.</div>
+            <div style="font-weight:600;font-size:0.875rem;color:var(--color-info);margin-bottom:3px;">These details are shown on parent payment pages</div>
+            <div style="font-size:0.8rem;color:var(--color-text-secondary);line-height:1.6;">
+              Parents see this when paying the acceptance fee or enrollment deposit. Enable cryptocurrency to offer additional payment options alongside bank transfer.
+            </div>
           </div>
         </div>
 
         <form action="/admin/bank-details" method="POST">
 
-          <!-- ─── Traditional Bank Details ──────────────────────────────── -->
+          <!-- ═══════════════════════════════════════════════════════════════
+               SECTION 1 — Traditional Bank Transfer
+          ════════════════════════════════════════════════════════════════ -->
           <div class="data-table-wrap" style="padding:2rem;margin-bottom:1.5rem;">
-            <h3 style="font-family:'Playfair Display',serif;font-size:1.25rem;margin-bottom:1.75rem;">
-              <i class="fa-solid fa-building-columns" style="color:var(--color-gold);margin-right:0.75rem;"></i>Bank Transfer Details
+            <h3 style="font-family:'Playfair Display',serif;font-size:1.25rem;margin-bottom:1.75rem;display:flex;align-items:center;gap:0.75rem;">
+              <i class="fa-solid fa-building-columns" style="color:var(--color-gold);"></i>
+              Bank Transfer Details
             </h3>
 
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;">
@@ -50,241 +57,374 @@
               <div class="form-group">
                 <label class="form-label">Account Name <span class="required">*</span></label>
                 <input type="text" name="accountName" class="form-control" required
-                  value="<%= bankDetails?.accountName || '' %>" placeholder="e.g. ScholarsGate LLC"/>
+                  value="<%= bankDetails?.accountName || '' %>"
+                  placeholder="e.g. ScholarsGate LLC"/>
               </div>
 
               <div class="form-group">
                 <label class="form-label">Bank Name <span class="required">*</span></label>
                 <input type="text" name="bankName" class="form-control" required
-                  value="<%= bankDetails?.bankName || '' %>" placeholder="e.g. JPMorgan Chase Bank N.A."/>
+                  value="<%= bankDetails?.bankName || '' %>"
+                  placeholder="e.g. JPMorgan Chase Bank N.A."/>
               </div>
 
               <div class="form-group">
                 <label class="form-label">Account Number <span class="required">*</span></label>
                 <input type="text" name="accountNumber" class="form-control" required
-                  value="<%= bankDetails?.accountNumber || '' %>" placeholder="e.g. 1234 5678 9012"/>
+                  value="<%= bankDetails?.accountNumber || '' %>"
+                  placeholder="e.g. 1234567890"/>
               </div>
 
               <div class="form-group">
                 <label class="form-label">Routing Number (ABA)</label>
                 <input type="text" name="routingNumber" class="form-control"
-                  value="<%= bankDetails?.routingNumber || '' %>" placeholder="e.g. 021 000 021"/>
+                  value="<%= bankDetails?.routingNumber || '' %>"
+                  placeholder="e.g. 021000021"/>
               </div>
 
               <div class="form-group">
                 <label class="form-label">SWIFT / BIC Code</label>
                 <input type="text" name="swiftCode" class="form-control"
-                  value="<%= bankDetails?.swiftCode || '' %>" placeholder="e.g. CHASUS33"/>
+                  value="<%= bankDetails?.swiftCode || '' %>"
+                  placeholder="e.g. CHASUS33"/>
               </div>
 
               <div class="form-group">
                 <label class="form-label">IBAN</label>
                 <input type="text" name="iban" class="form-control"
-                  value="<%= bankDetails?.iban || '' %>" placeholder="e.g. GB29 NWBK 6016 1331 9268 19"/>
+                  value="<%= bankDetails?.iban || '' %>"
+                  placeholder="e.g. GB29 NWBK 6016 1331 9268 19"/>
               </div>
 
               <div class="form-group">
                 <label class="form-label">PayPal Email</label>
                 <input type="email" name="paypalEmail" class="form-control"
-                  value="<%= bankDetails?.paypalEmail || '' %>" placeholder="payments@scholarsgate.com"/>
+                  value="<%= bankDetails?.paypalEmail || '' %>"
+                  placeholder="payments@scholarsgate.com"/>
               </div>
 
               <div class="form-group">
                 <label class="form-label">Currency</label>
                 <select name="currency" class="form-control form-select">
-                  <option value="USD" <%= bankDetails?.currency === 'USD' || !bankDetails ? 'selected' : '' %>>USD — US Dollar</option>
+                  <option value="USD" <%= (bankDetails?.currency === 'USD' || !bankDetails) ? 'selected' : '' %>>USD — US Dollar</option>
                   <option value="GBP" <%= bankDetails?.currency === 'GBP' ? 'selected' : '' %>>GBP — British Pound</option>
                   <option value="EUR" <%= bankDetails?.currency === 'EUR' ? 'selected' : '' %>>EUR — Euro</option>
                 </select>
               </div>
 
               <div class="form-group" style="grid-column:1/-1;">
-                <label class="form-label">Additional Payment Instructions</label>
+                <label class="form-label">Additional Bank Transfer Instructions</label>
                 <textarea name="instructions" class="form-control form-textarea" rows="3"
-                  placeholder="Any additional instructions for parents making the transfer..."><%= bankDetails?.instructions || '' %></textarea>
+                  placeholder="e.g. Include your offer number as the payment reference..."><%= bankDetails?.instructions || '' %></textarea>
               </div>
 
             </div>
           </div>
 
-          <!-- ─── Crypto Payment Details ─────────────────────────────────── -->
-          <div class="data-table-wrap" style="padding:2rem;margin-bottom:1.5rem;border:1px solid rgba(201,168,76,0.2);">
+          <!-- ═══════════════════════════════════════════════════════════════
+               SECTION 2 — Cryptocurrency Wallets
+          ════════════════════════════════════════════════════════════════ -->
+          <div class="data-table-wrap" style="padding:2rem;margin-bottom:1.5rem;border:2px solid rgba(201,168,76,0.25);">
+
+            <!-- Section header + enable toggle -->
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
-              <h3 style="font-family:'Playfair Display',serif;font-size:1.25rem;">
-                <i class="fa-solid fa-coins" style="color:var(--color-gold);margin-right:0.75rem;"></i>Cryptocurrency Payments
+              <h3 style="font-family:'Playfair Display',serif;font-size:1.25rem;display:flex;align-items:center;gap:0.75rem;margin:0;">
+                <i class="fa-solid fa-coins" style="color:var(--color-gold);"></i>
+                Cryptocurrency Wallets
               </h3>
-              <label style="display:flex;align-items:center;gap:0.75rem;cursor:pointer;padding:0.625rem 1rem;border-radius:8px;border:var(--border-dark);background:#fff;">
-                <input type="checkbox" name="cryptoEnabled" id="cryptoEnabled" value="on"
-                  <%= bankDetails?.cryptoEnabled ? 'checked' : '' %>
-                  style="accent-color:var(--color-gold);width:16px;height:16px;"
-                  onchange="toggleCrypto(this.checked)"/>
-                <span style="font-size:0.875rem;font-weight:600;color:var(--color-text-primary);">Enable Crypto Payments</span>
+
+              <!-- Toggle switch -->
+              <label style="display:flex;align-items:center;gap:0.875rem;cursor:pointer;user-select:none;">
+                <span style="font-size:0.875rem;font-weight:600;color:var(--color-text-secondary);">
+                  Enable crypto payments
+                </span>
+                <div style="position:relative;width:48px;height:26px;">
+                  <input type="checkbox"
+                    name="cryptoEnabled"
+                    id="cryptoEnabled"
+                    value="on"
+                    <%= bankDetails?.cryptoEnabled ? 'checked' : '' %>
+                    onchange="toggleCryptoSection(this.checked)"
+                    style="opacity:0;width:0;height:0;position:absolute;"/>
+                  <span id="cryptoToggleTrack"
+                    style="position:absolute;inset:0;border-radius:26px;cursor:pointer;transition:background 0.3s;
+                    background:<%= bankDetails?.cryptoEnabled ? '#c9a84c' : 'rgba(0,0,0,0.15)' %>;">
+                  </span>
+                  <span id="cryptoToggleThumb"
+                    style="position:absolute;top:3px;width:20px;height:20px;border-radius:50%;background:#fff;
+                    transition:transform 0.3s;box-shadow:0 1px 4px rgba(0,0,0,0.2);
+                    transform:<%= bankDetails?.cryptoEnabled ? 'translateX(25px)' : 'translateX(3px)' %>;">
+                  </span>
+                </div>
               </label>
             </div>
 
+            <!-- Crypto section body (shown/hidden by toggle) -->
             <div id="cryptoSection" style="display:<%= bankDetails?.cryptoEnabled ? 'block' : 'none' %>;">
 
-              <!-- Info notice -->
-              <div style="padding:1rem 1.25rem;background:rgba(201,168,76,0.06);border-radius:10px;border:1px solid rgba(201,168,76,0.2);margin-bottom:1.5rem;display:flex;align-items:flex-start;gap:0.875rem;">
+              <!-- Warning notice -->
+              <div style="padding:1rem 1.25rem;background:rgba(201,168,76,0.06);border-radius:10px;border:1px solid rgba(201,168,76,0.2);margin-bottom:1.75rem;display:flex;align-items:flex-start;gap:0.875rem;">
                 <i class="fa-solid fa-triangle-exclamation" style="color:var(--color-gold-dim);margin-top:2px;flex-shrink:0;"></i>
                 <div style="font-size:0.8rem;color:var(--color-text-secondary);line-height:1.7;">
-                  <strong>Important:</strong> Only enter wallet addresses you actively monitor. Crypto payments are irreversible. Always verify the transaction hash before confirming enrollment. Leave fields blank to hide unused networks from parents.
+                  <strong>Important:</strong> Only enter wallet addresses you actively monitor.
+                  Crypto transactions are irreversible — always verify the on-chain TX hash before confirming a parent's enrollment.
+                  Leave a field blank to hide that network from parents.
                 </div>
               </div>
 
-              <!-- USDT Wallets -->
-              <div style="margin-bottom:1.5rem;">
-                <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-gold-dim);margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:1px solid rgba(201,168,76,0.15);">
-                  <i class="fa-solid fa-dollar-sign"></i> USDT (Tether)
+              <!-- ── USDT ──────────────────────────────────────────────── -->
+              <div style="margin-bottom:2rem;">
+                <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;
+                  color:var(--color-gold-dim);margin-bottom:1rem;padding-bottom:0.5rem;
+                  border-bottom:1px solid rgba(201,168,76,0.2);display:flex;align-items:center;gap:0.5rem;">
+                  <span style="background:#26a17b;color:#fff;font-size:0.65rem;font-weight:700;padding:2px 8px;border-radius:99px;">USDT</span>
+                  Tether (USD Tether) — Enter wallet address for each network you support
                 </div>
-                <div style="display:flex;flex-direction:column;gap:0.875rem;">
+
+                <div style="display:flex;flex-direction:column;gap:1rem;">
+
+                  <!-- USDT TRC20 -->
                   <div class="form-group" style="margin:0;">
-                    <label class="form-label">USDT — TRC20 (TRON Network) <span style="background:rgba(201,168,76,0.1);color:var(--color-gold-dim);font-size:0.65rem;padding:2px 8px;border-radius:99px;margin-left:6px;">Recommended</span></label>
+                    <label class="form-label" style="display:flex;align-items:center;gap:0.5rem;">
+                      USDT — TRC20 (TRON Network)
+                      <span style="background:rgba(201,168,76,0.12);color:var(--color-gold-dim);font-size:0.65rem;font-weight:700;padding:2px 8px;border-radius:99px;letter-spacing:0.05em;">Lowest fees — Recommended</span>
+                    </label>
                     <div style="position:relative;">
-                      <span style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);font-size:0.7rem;font-weight:700;color:var(--color-text-muted);letter-spacing:0.1em;">TRC20</span>
-                      <input type="text" name="cryptoUsdtTrc20" class="form-control"
+                      <div style="position:absolute;left:0;top:0;bottom:0;width:52px;display:flex;align-items:center;justify-content:center;background:rgba(38,161,123,0.1);border-radius:8px 0 0 8px;border-right:1px solid rgba(0,0,0,0.08);">
+                        <span style="font-size:0.65rem;font-weight:700;color:#26a17b;letter-spacing:0.05em;">TRC20</span>
+                      </div>
+                      <input type="text"
+                        name="cryptoUsdtTrc20"
+                        class="form-control"
                         value="<%= bankDetails?.cryptoAddresses?.usdtTrc20 || '' %>"
-                        placeholder="T... (starts with T)"
-                        style="padding-left:4.5rem;font-family:monospace;font-size:0.85rem;"/>
+                        placeholder="T... (34 characters, starts with T)"
+                        style="padding-left:60px;font-family:monospace;font-size:0.85rem;letter-spacing:0.02em;"/>
                     </div>
+                    <p class="form-hint">TRON network USDT. Wallet addresses start with <strong>T</strong> and are 34 characters long.</p>
                   </div>
+
+                  <!-- USDT ERC20 -->
                   <div class="form-group" style="margin:0;">
-                    <label class="form-label">USDT — ERC20 (Ethereum Network)</label>
+                    <label class="form-label" style="display:flex;align-items:center;gap:0.5rem;">
+                      USDT — ERC20 (Ethereum Network)
+                    </label>
                     <div style="position:relative;">
-                      <span style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);font-size:0.7rem;font-weight:700;color:var(--color-text-muted);letter-spacing:0.1em;">ERC20</span>
-                      <input type="text" name="cryptoUsdtErc20" class="form-control"
+                      <div style="position:absolute;left:0;top:0;bottom:0;width:52px;display:flex;align-items:center;justify-content:center;background:rgba(98,126,234,0.1);border-radius:8px 0 0 8px;border-right:1px solid rgba(0,0,0,0.08);">
+                        <span style="font-size:0.65rem;font-weight:700;color:#627eea;letter-spacing:0.05em;">ERC20</span>
+                      </div>
+                      <input type="text"
+                        name="cryptoUsdtErc20"
+                        class="form-control"
                         value="<%= bankDetails?.cryptoAddresses?.usdtErc20 || '' %>"
-                        placeholder="0x... (starts with 0x)"
-                        style="padding-left:4.5rem;font-family:monospace;font-size:0.85rem;"/>
+                        placeholder="0x... (42 characters)"
+                        style="padding-left:60px;font-family:monospace;font-size:0.85rem;letter-spacing:0.02em;"/>
                     </div>
+                    <p class="form-hint">Ethereum network USDT. Wallet addresses start with <strong>0x</strong> and are 42 characters long.</p>
                   </div>
+
+                  <!-- USDT BEP20 -->
                   <div class="form-group" style="margin:0;">
-                    <label class="form-label">USDT — BEP20 (BNB Smart Chain)</label>
+                    <label class="form-label" style="display:flex;align-items:center;gap:0.5rem;">
+                      USDT — BEP20 (BNB Smart Chain)
+                    </label>
                     <div style="position:relative;">
-                      <span style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);font-size:0.7rem;font-weight:700;color:var(--color-text-muted);letter-spacing:0.1em;">BEP20</span>
-                      <input type="text" name="cryptoUsdtBep20" class="form-control"
+                      <div style="position:absolute;left:0;top:0;bottom:0;width:52px;display:flex;align-items:center;justify-content:center;background:rgba(240,185,11,0.1);border-radius:8px 0 0 8px;border-right:1px solid rgba(0,0,0,0.08);">
+                        <span style="font-size:0.65rem;font-weight:700;color:#d4a017;letter-spacing:0.05em;">BEP20</span>
+                      </div>
+                      <input type="text"
+                        name="cryptoUsdtBep20"
+                        class="form-control"
                         value="<%= bankDetails?.cryptoAddresses?.usdtBep20 || '' %>"
-                        placeholder="0x... (starts with 0x)"
-                        style="padding-left:4.5rem;font-family:monospace;font-size:0.85rem;"/>
+                        placeholder="0x... (42 characters)"
+                        style="padding-left:60px;font-family:monospace;font-size:0.85rem;letter-spacing:0.02em;"/>
                     </div>
+                    <p class="form-hint">BNB Smart Chain USDT. Wallet addresses start with <strong>0x</strong> and are 42 characters long.</p>
                   </div>
+
                 </div>
               </div>
 
-              <!-- BTC / ETH -->
-              <div style="margin-bottom:1.5rem;">
-                <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-gold-dim);margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:1px solid rgba(201,168,76,0.15);">
-                  <i class="fa-brands fa-bitcoin"></i> Bitcoin & Ethereum
+              <!-- ── Bitcoin ──────────────────────────────────────────── -->
+              <div style="margin-bottom:2rem;">
+                <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;
+                  color:var(--color-gold-dim);margin-bottom:1rem;padding-bottom:0.5rem;
+                  border-bottom:1px solid rgba(201,168,76,0.2);display:flex;align-items:center;gap:0.5rem;">
+                  <span style="background:#f7931a;color:#fff;font-size:0.65rem;font-weight:700;padding:2px 8px;border-radius:99px;">BTC</span>
+                  Bitcoin
                 </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-                  <div class="form-group" style="margin:0;">
-                    <label class="form-label">Bitcoin (BTC)</label>
-                    <div style="position:relative;">
-                      <span style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);font-size:0.7rem;font-weight:700;color:var(--color-text-muted);">BTC</span>
-                      <input type="text" name="cryptoBitcoin" class="form-control"
-                        value="<%= bankDetails?.cryptoAddresses?.bitcoin || '' %>"
-                        placeholder="bc1... or 1... or 3..."
-                        style="padding-left:3.5rem;font-family:monospace;font-size:0.85rem;"/>
+
+                <div class="form-group" style="margin:0;">
+                  <label class="form-label">Bitcoin (BTC) Wallet Address</label>
+                  <div style="position:relative;">
+                    <div style="position:absolute;left:0;top:0;bottom:0;width:44px;display:flex;align-items:center;justify-content:center;background:rgba(247,147,26,0.1);border-radius:8px 0 0 8px;border-right:1px solid rgba(0,0,0,0.08);">
+                      <span style="font-size:0.75rem;font-weight:700;color:#f7931a;">₿</span>
                     </div>
+                    <input type="text"
+                      name="cryptoBitcoin"
+                      class="form-control"
+                      value="<%= bankDetails?.cryptoAddresses?.bitcoin || '' %>"
+                      placeholder="bc1... or 1... or 3..."
+                      style="padding-left:52px;font-family:monospace;font-size:0.85rem;letter-spacing:0.02em;"/>
                   </div>
-                  <div class="form-group" style="margin:0;">
-                    <label class="form-label">Ethereum (ETH)</label>
-                    <div style="position:relative;">
-                      <span style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);font-size:0.7rem;font-weight:700;color:var(--color-text-muted);">ETH</span>
-                      <input type="text" name="cryptoEthereum" class="form-control"
-                        value="<%= bankDetails?.cryptoAddresses?.ethereum || '' %>"
-                        placeholder="0x..."
-                        style="padding-left:3.5rem;font-family:monospace;font-size:0.85rem;"/>
-                    </div>
-                  </div>
+                  <p class="form-hint">Supports legacy (1...), P2SH (3...), and SegWit (bc1...) addresses.</p>
                 </div>
               </div>
 
-              <!-- Crypto Instructions -->
+              <!-- ── Ethereum ─────────────────────────────────────────── -->
+              <div style="margin-bottom:2rem;">
+                <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;
+                  color:var(--color-gold-dim);margin-bottom:1rem;padding-bottom:0.5rem;
+                  border-bottom:1px solid rgba(201,168,76,0.2);display:flex;align-items:center;gap:0.5rem;">
+                  <span style="background:#627eea;color:#fff;font-size:0.65rem;font-weight:700;padding:2px 8px;border-radius:99px;">ETH</span>
+                  Ethereum
+                </div>
+
+                <div class="form-group" style="margin:0;">
+                  <label class="form-label">Ethereum (ETH) Wallet Address</label>
+                  <div style="position:relative;">
+                    <div style="position:absolute;left:0;top:0;bottom:0;width:44px;display:flex;align-items:center;justify-content:center;background:rgba(98,126,234,0.1);border-radius:8px 0 0 8px;border-right:1px solid rgba(0,0,0,0.08);">
+                      <span style="font-size:0.85rem;font-weight:700;color:#627eea;">Ξ</span>
+                    </div>
+                    <input type="text"
+                      name="cryptoEthereum"
+                      class="form-control"
+                      value="<%= bankDetails?.cryptoAddresses?.ethereum || '' %>"
+                      placeholder="0x... (42 characters)"
+                      style="padding-left:52px;font-family:monospace;font-size:0.85rem;letter-spacing:0.02em;"/>
+                  </div>
+                  <p class="form-hint">Standard Ethereum wallet address, 42 characters starting with 0x.</p>
+                </div>
+              </div>
+
+              <!-- ── Crypto-specific instructions ───────────────────── -->
               <div class="form-group" style="margin:0;">
-                <label class="form-label">Crypto Payment Instructions</label>
-                <textarea name="cryptoInstructions" class="form-control form-textarea" rows="3"
-                  placeholder="e.g. Send exact amount in USDT TRC20. Include your offer number in the memo/tag field if supported. Screenshot the transaction and upload as proof."
+                <label class="form-label">Crypto Payment Instructions <span style="font-size:0.75rem;color:var(--color-text-muted);font-weight:400;">(shown to parents)</span></label>
+                <textarea name="cryptoInstructions" class="form-control form-textarea" rows="4"
+                  placeholder="e.g. Send the exact USDT amount shown. Use your offer number as the memo/tag if your wallet supports it. Screenshot your transaction and upload it as payment proof on your dashboard."
                   ><%= bankDetails?.cryptoInstructions || '' %></textarea>
               </div>
 
-            </div><!-- /cryptoSection -->
+            </div>
+            <!-- /cryptoSection -->
+
+            <!-- When crypto is disabled — show a gentle prompt -->
+            <div id="cryptoDisabledMsg" style="display:<%= bankDetails?.cryptoEnabled ? 'none' : 'flex' %>;align-items:center;gap:1rem;padding:1.5rem;background:rgba(0,0,0,0.02);border-radius:10px;border:var(--border-dark);">
+              <i class="fa-solid fa-coins" style="font-size:1.5rem;color:var(--color-text-muted);opacity:0.4;"></i>
+              <div>
+                <div style="font-weight:600;font-size:0.875rem;color:var(--color-text-secondary);">Cryptocurrency payments are currently disabled</div>
+                <div style="font-size:0.8rem;color:var(--color-text-muted);margin-top:3px;">Toggle the switch above to add wallet addresses and enable crypto for parents.</div>
+              </div>
+            </div>
+
           </div>
 
-          <!-- ─── Save Button ────────────────────────────────────────────── -->
+          <!-- ═══════════════════════════════════════════════════════════════
+               SAVE BUTTON
+          ════════════════════════════════════════════════════════════════ -->
           <div style="display:flex;justify-content:space-between;align-items:center;padding:1.25rem 1.5rem;background:#fff;border-radius:12px;box-shadow:var(--shadow-sm);border:var(--border-dark);">
-            <% if (bankDetails?.updatedAt) { %>
-            <span style="font-size:0.75rem;color:var(--color-text-muted);">
-              <i class="fa-regular fa-clock" style="margin-right:4px;"></i>
-              Last updated: <%= new Date(bankDetails.updatedAt).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'}) %>
-            </span>
-            <% } else { %>
-            <span style="font-size:0.75rem;color:var(--color-warning);">
-              <i class="fa-solid fa-triangle-exclamation" style="margin-right:4px;"></i>
-              No payment details set yet
-            </span>
-            <% } %>
-            <button type="submit" class="btn btn-gold">
-              <i class="fa-solid fa-floppy-disk"></i> Save Payment Details
+            <div>
+              <% if (bankDetails?.updatedAt) { %>
+              <span style="font-size:0.75rem;color:var(--color-text-muted);">
+                <i class="fa-regular fa-clock" style="margin-right:4px;"></i>
+                Last saved: <%= new Date(bankDetails.updatedAt).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'}) %>
+              </span>
+              <% } else { %>
+              <span style="font-size:0.75rem;color:var(--color-warning);display:flex;align-items:center;gap:5px;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                No payment details saved yet — parents cannot complete payments
+              </span>
+              <% } %>
+            </div>
+            <button type="submit" class="btn btn-gold btn-lg">
+              <i class="fa-solid fa-floppy-disk"></i> Save All Payment Details
             </button>
           </div>
 
         </form>
 
-        <!-- ─── Preview ───────────────────────────────────────────────────── -->
+        <!-- ═══════════════════════════════════════════════════════════════
+             LIVE PREVIEW (read from saved bankDetails)
+        ════════════════════════════════════════════════════════════════ -->
         <% if (bankDetails) { %>
         <div class="data-table-wrap" style="padding:1.75rem;">
-          <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:1.25rem;">
-            <i class="fa-solid fa-eye" style="color:var(--color-gold);margin-right:0.75rem;"></i>Parent-Facing Preview
+          <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.75rem;">
+            <i class="fa-solid fa-eye" style="color:var(--color-gold);"></i>
+            What Parents See
           </h3>
 
           <!-- Bank preview -->
           <div style="background:var(--gradient-navy);border-radius:16px;padding:1.75rem;border:1px solid rgba(201,168,76,0.2);margin-bottom:1rem;">
-            <div style="font-family:'Playfair Display',serif;color:var(--color-gold);font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">Bank Transfer Details</div>
-            <% const bankRows = [
-              ['Bank Name',      bankDetails.bankName],
-              ['Account Name',   bankDetails.accountName],
-              ['Account Number', bankDetails.accountNumber],
-              ['Routing (ABA)',  bankDetails.routingNumber],
-              ['SWIFT / BIC',    bankDetails.swiftCode],
-              ['IBAN',           bankDetails.iban],
-              ['PayPal',         bankDetails.paypalEmail],
-              ['Currency',       bankDetails.currency],
+            <div style="font-family:'Playfair Display',serif;color:var(--color-gold);font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">
+              <i class="fa-solid fa-building-columns" style="margin-right:8px;"></i>Bank Transfer Details
+            </div>
+            <% const bankPreviewRows = [
+              ['Bank Name',       bankDetails.bankName],
+              ['Account Name',    bankDetails.accountName],
+              ['Account Number',  bankDetails.accountNumber],
+              ['Routing (ABA)',   bankDetails.routingNumber],
+              ['SWIFT / BIC',     bankDetails.swiftCode],
+              ['IBAN',            bankDetails.iban],
+              ['PayPal Email',    bankDetails.paypalEmail],
+              ['Currency',        bankDetails.currency],
             ]; %>
-            <% bankRows.forEach(([label, value]) => { if (value) { %>
-            <div style="display:flex;justify-content:space-between;padding:0.625rem 0;border-bottom:1px solid rgba(255,255,255,0.06);">
-              <span style="font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.35);"><%= label %></span>
-              <span style="font-size:0.875rem;font-weight:600;color:var(--color-ivory);"><%= value %></span>
+            <% bankPreviewRows.forEach(([label, value]) => { if (value) { %>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:0.625rem 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+              <span style="font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.35);flex-shrink:0;width:140px;"><%= label %></span>
+              <span style="font-size:0.875rem;font-weight:600;color:var(--color-ivory);text-align:right;word-break:break-all;"><%= value %></span>
             </div>
             <% } }); %>
+            <% if (bankDetails.instructions) { %>
+            <div style="margin-top:1rem;padding:0.875rem;background:rgba(201,168,76,0.08);border-radius:10px;border:1px solid rgba(201,168,76,0.15);">
+              <p style="font-size:0.8rem;color:rgba(255,255,255,0.5);line-height:1.7;margin:0;"><%= bankDetails.instructions %></p>
+            </div>
+            <% } %>
           </div>
 
-          <!-- Crypto preview (only if enabled and at least one address set) -->
-          <% const hasCrypto = bankDetails.cryptoEnabled && bankDetails.cryptoAddresses &&
-            (bankDetails.cryptoAddresses.usdtTrc20 || bankDetails.cryptoAddresses.usdtErc20 ||
-             bankDetails.cryptoAddresses.usdtBep20 || bankDetails.cryptoAddresses.bitcoin ||
-             bankDetails.cryptoAddresses.ethereum); %>
+          <!-- Crypto preview (only if enabled and at least one address saved) -->
+          <%
+            const ca = bankDetails.cryptoAddresses || {};
+            const hasCrypto = bankDetails.cryptoEnabled && (
+              ca.usdtTrc20 || ca.usdtErc20 || ca.usdtBep20 || ca.bitcoin || ca.ethereum
+            );
+          %>
           <% if (hasCrypto) { %>
           <div style="background:linear-gradient(135deg,#0f1524,#1a2240);border-radius:16px;padding:1.75rem;border:1px solid rgba(201,168,76,0.2);">
-            <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;">
-              <i class="fa-solid fa-coins" style="color:var(--color-gold);font-size:1.1rem;"></i>
-              <span style="font-family:'Playfair Display',serif;color:var(--color-gold);font-size:1.1rem;font-weight:700;">Cryptocurrency Payment</span>
+            <div style="font-family:'Playfair Display',serif;color:var(--color-gold);font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;">
+              <i class="fa-solid fa-coins" style="margin-right:8px;"></i>Cryptocurrency Payment Options
             </div>
-            <% const cryptoRows = [
-              ['USDT TRC20', bankDetails.cryptoAddresses.usdtTrc20],
-              ['USDT ERC20', bankDetails.cryptoAddresses.usdtErc20],
-              ['USDT BEP20', bankDetails.cryptoAddresses.usdtBep20],
-              ['Bitcoin (BTC)', bankDetails.cryptoAddresses.bitcoin],
-              ['Ethereum (ETH)', bankDetails.cryptoAddresses.ethereum],
+
+            <% const cryptoPreviewRows = [
+              { label: 'USDT TRC20 (TRON)',    value: ca.usdtTrc20, color: '#26a17b', tag: 'TRC20' },
+              { label: 'USDT ERC20 (ETH)',     value: ca.usdtErc20, color: '#627eea', tag: 'ERC20' },
+              { label: 'USDT BEP20 (BNB)',     value: ca.usdtBep20, color: '#f0b90b', tag: 'BEP20' },
+              { label: 'Bitcoin (BTC)',         value: ca.bitcoin,   color: '#f7931a', tag: 'BTC'   },
+              { label: 'Ethereum (ETH)',        value: ca.ethereum,  color: '#627eea', tag: 'ETH'   },
             ]; %>
-            <% cryptoRows.forEach(([label, value]) => { if (value) { %>
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:0.75rem 0;border-bottom:1px solid rgba(255,255,255,0.06);">
-              <span style="font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.35);"><%= label %></span>
-              <span style="font-size:0.8rem;font-weight:600;color:var(--color-ivory);font-family:monospace;word-break:break-all;max-width:340px;text-align:right;"><%= value %></span>
+
+            <% cryptoPreviewRows.forEach(row => { if (row.value) { %>
+            <div style="display:flex;align-items:center;gap:0.875rem;padding:0.75rem 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+              <span style="background:<%= row.color %>22;color:<%= row.color %>;font-size:0.65rem;font-weight:700;padding:3px 8px;border-radius:99px;flex-shrink:0;border:1px solid <%= row.color %>44;">
+                <%= row.tag %>
+              </span>
+              <span style="font-size:0.7rem;color:rgba(255,255,255,0.4);flex-shrink:0;width:130px;"><%= row.label %></span>
+              <span style="font-family:monospace;font-size:0.8rem;color:var(--color-ivory);word-break:break-all;"><%= row.value %></span>
             </div>
             <% } }); %>
+
+            <% if (bankDetails.cryptoInstructions) { %>
+            <div style="margin-top:1rem;padding:0.875rem;background:rgba(201,168,76,0.08);border-radius:10px;border:1px solid rgba(201,168,76,0.15);">
+              <p style="font-size:0.8rem;color:rgba(255,255,255,0.5);line-height:1.7;margin:0;"><%= bankDetails.cryptoInstructions %></p>
+            </div>
+            <% } %>
+          </div>
+          <% } else if (bankDetails.cryptoEnabled) { %>
+          <!-- Crypto enabled but no addresses saved yet -->
+          <div style="padding:1.5rem;background:rgba(201,168,76,0.04);border-radius:12px;border:1px dashed rgba(201,168,76,0.3);text-align:center;">
+            <i class="fa-solid fa-coins" style="font-size:1.5rem;color:rgba(201,168,76,0.3);margin-bottom:0.5rem;display:block;"></i>
+            <p style="font-size:0.8rem;color:var(--color-text-muted);">Crypto payments enabled but no wallet addresses saved yet.<br/>Add at least one address above and save.</p>
           </div>
           <% } %>
+
         </div>
         <% } %>
 
@@ -301,8 +441,12 @@
 </style>
 <script src="/js/main.js"></script>
 <script>
-function toggleCrypto(enabled) {
-  document.getElementById('cryptoSection').style.display = enabled ? 'block' : 'none';
+function toggleCryptoSection(enabled) {
+  document.getElementById('cryptoSection').style.display      = enabled ? 'block' : 'none';
+  document.getElementById('cryptoDisabledMsg').style.display  = enabled ? 'none'  : 'flex';
+  // Animate the toggle UI
+  document.getElementById('cryptoToggleTrack').style.background  = enabled ? '#c9a84c' : 'rgba(0,0,0,0.15)';
+  document.getElementById('cryptoToggleThumb').style.transform   = enabled ? 'translateX(25px)' : 'translateX(3px)';
 }
 </script>
 </body>

@@ -70,6 +70,12 @@
       <a href="/admin/scholarships" class="sidebar-nav-item <%= currentPath.startsWith('/admin/scholarships') ? 'active' : '' %>">
         <span class="nav-icon"><i class="fa-solid fa-star"></i></span>Scholarships
       </a>
+
+      <span class="sidebar-section-label">Communication</span>
+      <a href="/admin/email-campaigns" class="sidebar-nav-item <%= currentPath.startsWith('/admin/email-campaigns') ? 'active' : '' %>">
+        <span class="nav-icon"><i class="fa-solid fa-bullhorn"></i></span>Email Campaigns
+      </a>
+
       <% if (user && user.role === 'platform_admin') { %>
       <a href="/admin/users" class="sidebar-nav-item <%= currentPath === '/admin/users' ? 'active' : '' %>">
         <span class="nav-icon"><i class="fa-solid fa-users"></i></span>Users

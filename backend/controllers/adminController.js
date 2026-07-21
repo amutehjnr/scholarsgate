@@ -476,54 +476,130 @@ exports.getAuditLogs = async (req, res) => {
 // ─── Bank Details ─────────────────────────────────────────
 const { BankDetails } = require('../models/index');
 
+// ─── Get Bank Details ─────────────────────────────────────────────────────────
 exports.getBankDetails = async (req, res) => {
   const bankDetails = await BankDetails.findOne({ isActive: true }).lean();
-  res.render('dashboards/admin/bank-details', { title: 'Bank Account Details', bankDetails });
+  res.render('dashboards/admin/bank-details', {
+    title: 'Bank & Payment Details',
+    bankDetails,
+  });
 };
 
+// ─── Save Bank Details (bank + crypto) ───────────────────────────────────────
 exports.saveBankDetails = async (req, res, next) => {
   const {
-    accountName, bankName, accountNumber, routingNumber,
-    swiftCode, iban, paypalEmail, currency, instructions,
-    // crypto fields
+    // ── Traditional bank fields ──────────────────────────────────────────────
+    accountName,
+    bankName,
+    accountNumber,
+    routingNumber,
+    swiftCode,
+    iban,
+    paypalEmail,
+    currency,
+    instructions,
+
+    // ── Crypto toggle & wallet addresses ────────────────────────────────────
+    // The checkbox sends 'on' when checked; nothing when unchecked.
     cryptoEnabled,
-    cryptoUsdtTrc20, cryptoUsdtErc20, cryptoUsdtBep20,
-    cryptoBitcoin, cryptoEthereum,
+    cryptoUsdtTrc20,
+    cryptoUsdtErc20,
+    cryptoUsdtBep20,
+    cryptoBitcoin,
+    cryptoEthereum,
     cryptoInstructions,
   } = req.body;
 
-  const existing = await BankDetails.findOne({ isActive: true });
+  // Normalise the checkbox value — a missing checkbox key means unchecked
+  const cryptoIsEnabled = cryptoEnabled === 'on' || cryptoEnabled === 'true';
 
-  const updateData = {
-    accountName, bankName, accountNumber, routingNumber,
-    swiftCode, iban, paypalEmail, currency, instructions,
-    cryptoEnabled: cryptoEnabled === 'on' || cryptoEnabled === 'true',
-    cryptoAddresses: {
-      usdtTrc20:  cryptoUsdtTrc20  || '',
-      usdtErc20:  cryptoUsdtErc20  || '',
-      usdtBep20:  cryptoUsdtBep20  || '',
-      bitcoin:    cryptoBitcoin    || '',
-      ethereum:   cryptoEthereum   || '',
-    },
-    cryptoInstructions: cryptoInstructions || '',
+  // Build the full update payload
+  const payload = {
+    // Bank
+    accountName:    accountName    || '',
+    bankName:       bankName       || '',
+    accountNumber:  accountNumber  || '',
+    routingNumber:  routingNumber  || '',
+    swiftCode:      swiftCode      || '',
+    iban:           iban           || '',
+    paypalEmail:    paypalEmail    || '',
+    currency:       currency       || 'USD',
+    instructions:   instructions   || '',
+
+    // Crypto — top-level flag
+    cryptoEnabled: cryptoIsEnabled,
+
+    // Crypto wallet addresses sub-document
+    // We set each field explicitly so Mongoose marks them as modified
+    'cryptoAddresses.usdtTrc20': cryptoUsdtTrc20 ? cryptoUsdtTrc20.trim() : '',
+    'cryptoAddresses.usdtErc20': cryptoUsdtErc20 ? cryptoUsdtErc20.trim() : '',
+    'cryptoAddresses.usdtBep20': cryptoUsdtBep20 ? cryptoUsdtBep20.trim() : '',
+    'cryptoAddresses.bitcoin':   cryptoBitcoin   ? cryptoBitcoin.trim()   : '',
+    'cryptoAddresses.ethereum':  cryptoEthereum  ? cryptoEthereum.trim()  : '',
+
+    cryptoInstructions: cryptoInstructions ? cryptoInstructions.trim() : '',
+
     updatedBy: req.user._id,
   };
 
+  const existing = await BankDetails.findOne({ isActive: true });
+
   if (existing) {
-    Object.assign(existing, updateData);
-    await existing.save();
+    // Use $set so nested cryptoAddresses fields are updated individually
+    // instead of being replaced wholesale (which Object.assign would break)
+    await BankDetails.findByIdAndUpdate(
+      existing._id,
+      { $set: payload },
+      { new: true, runValidators: true }
+    );
   } else {
-    await BankDetails.create(updateData);
+    // First-time creation — build a clean object (dot notation not valid for create)
+    await BankDetails.create({
+      accountName:        accountName    || '',
+      bankName:           bankName       || '',
+      accountNumber:      accountNumber  || '',
+      routingNumber:      routingNumber  || '',
+      swiftCode:          swiftCode      || '',
+      iban:               iban           || '',
+      paypalEmail:        paypalEmail    || '',
+      currency:           currency       || 'USD',
+      instructions:       instructions   || '',
+      cryptoEnabled:      cryptoIsEnabled,
+      cryptoAddresses: {
+        usdtTrc20: cryptoUsdtTrc20 ? cryptoUsdtTrc20.trim() : '',
+        usdtErc20: cryptoUsdtErc20 ? cryptoUsdtErc20.trim() : '',
+        usdtBep20: cryptoUsdtBep20 ? cryptoUsdtBep20.trim() : '',
+        bitcoin:   cryptoBitcoin   ? cryptoBitcoin.trim()   : '',
+        ethereum:  cryptoEthereum  ? cryptoEthereum.trim()  : '',
+      },
+      cryptoInstructions: cryptoInstructions ? cryptoInstructions.trim() : '',
+      updatedBy:          req.user._id,
+    });
   }
 
   await AuditLog.create({
-    actor: req.user._id, actorModel: 'Admin', actorEmail: req.user.email,
-    action: 'UPDATE_BANK_DETAILS', resource: 'BankDetails', ipAddress: req.ip,
+    actor:      req.user._id,
+    actorModel: 'Admin',
+    actorEmail: req.user.email,
+    action:     'UPDATE_BANK_DETAILS',
+    resource:   'BankDetails',
+    details: {
+      cryptoEnabled: cryptoIsEnabled,
+      walletsProvided: [
+        cryptoUsdtTrc20 ? 'USDT-TRC20' : null,
+        cryptoUsdtErc20 ? 'USDT-ERC20' : null,
+        cryptoUsdtBep20 ? 'USDT-BEP20' : null,
+        cryptoBitcoin   ? 'BTC'         : null,
+        cryptoEthereum  ? 'ETH'         : null,
+      ].filter(Boolean),
+    },
+    ipAddress: req.ip,
   });
 
-  req.session.flash = { success: 'Bank & payment details updated successfully.' };
+  req.session.flash = { success: 'Bank & payment details saved successfully.' };
   res.redirect('/admin/bank-details');
 };
+
 
 exports.downloadOfferPdf = async (req, res, next) => {
   const offer = await Offer.findById(req.params.id)
