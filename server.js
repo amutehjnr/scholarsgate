@@ -56,6 +56,7 @@ app.use(helmet({
       fontSrc: ["'self'", 'fonts.gstatic.com', 'cdnjs.cloudflare.com'],
       imgSrc: ["'self'", 'data:', 'res.cloudinary.com', '*.cloudinary.com'],
       scriptSrc: ["'self'", "'unsafe-inline'", 'cdnjs.cloudflare.com'],
+      scriptSrcAttr: ["'unsafe-inline'"],
       connectSrc: ["'self'"],
     },
   },
