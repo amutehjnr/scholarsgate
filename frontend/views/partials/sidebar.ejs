@@ -5,10 +5,8 @@
       <span class="sidebar-logo-text">ScholarsGate</span>
     </a>
   </div>
-
   <nav class="sidebar-nav">
     <% if (user && (user.role === 'guardian' || user.userType === 'guardian')) { %>
-
       <span class="sidebar-section-label">Main</span>
       <a href="/parent/dashboard" class="sidebar-nav-item <%= currentPath === '/parent/dashboard' ? 'active' : '' %>">
         <span class="nav-icon"><i class="fa-solid fa-house"></i></span>Dashboard
@@ -22,7 +20,6 @@
       <a href="/parent/offers" class="sidebar-nav-item <%= currentPath.startsWith('/parent/offers') ? 'active' : '' %>">
         <span class="nav-icon"><i class="fa-solid fa-envelope-open-text"></i></span>Offer Letters
       </a>
-
       <span class="sidebar-section-label">Explore</span>
       <a href="/scholarships" class="sidebar-nav-item">
         <span class="nav-icon"><i class="fa-solid fa-star"></i></span>Scholarships
@@ -30,7 +27,6 @@
       <a href="/schools" class="sidebar-nav-item">
         <span class="nav-icon"><i class="fa-solid fa-school"></i></span>Schools
       </a>
-
       <span class="sidebar-section-label">Account</span>
       <a href="/parent/notifications" class="sidebar-nav-item <%= currentPath === '/parent/notifications' ? 'active' : '' %>">
         <span class="nav-icon"><i class="fa-solid fa-bell"></i></span>Notifications
@@ -41,15 +37,11 @@
       <a href="/parent/settings" class="sidebar-nav-item <%= currentPath === '/parent/settings' ? 'active' : '' %>">
         <span class="nav-icon"><i class="fa-solid fa-gear"></i></span>Settings
       </a>
-
     <% } else { %>
-      <%-- ── Admin Navigation ───────────────────────────────────────────── --%>
-
       <span class="sidebar-section-label">Overview</span>
       <a href="/admin/dashboard" class="sidebar-nav-item <%= currentPath === '/admin/dashboard' ? 'active' : '' %>">
         <span class="nav-icon"><i class="fa-solid fa-chart-line"></i></span>Analytics
       </a>
-
       <span class="sidebar-section-label">Applications</span>
       <a href="/admin/applications" class="sidebar-nav-item <%= currentPath.startsWith('/admin/applications') ? 'active' : '' %>">
         <span class="nav-icon"><i class="fa-solid fa-file-lines"></i></span>Applications
@@ -63,7 +55,6 @@
       <a href="/admin/payments" class="sidebar-nav-item <%= currentPath.startsWith('/admin/payments') ? 'active' : '' %>">
         <span class="nav-icon"><i class="fa-solid fa-circle-check"></i></span>Payments
       </a>
-
       <span class="sidebar-section-label">Manage</span>
       <a href="/admin/schools" class="sidebar-nav-item <%= currentPath.startsWith('/admin/schools') ? 'active' : '' %>">
         <span class="nav-icon"><i class="fa-solid fa-school"></i></span>Schools
@@ -71,12 +62,10 @@
       <a href="/admin/scholarships" class="sidebar-nav-item <%= currentPath.startsWith('/admin/scholarships') ? 'active' : '' %>">
         <span class="nav-icon"><i class="fa-solid fa-star"></i></span>Scholarships
       </a>
-
       <span class="sidebar-section-label">Communication</span>
       <a href="/admin/email-campaigns" class="sidebar-nav-item <%= currentPath.startsWith('/admin/email-campaigns') ? 'active' : '' %>">
         <span class="nav-icon"><i class="fa-solid fa-bullhorn"></i></span>Email Campaigns
       </a>
-
       <% if (user && user.role === 'platform_admin') { %>
       <span class="sidebar-section-label">System</span>
       <a href="/admin/users" class="sidebar-nav-item <%= currentPath === '/admin/users' ? 'active' : '' %>">
@@ -86,10 +75,8 @@
         <span class="nav-icon"><i class="fa-solid fa-list-check"></i></span>Audit Logs
       </a>
       <% } %>
-
     <% } %>
   </nav>
-
   <div class="sidebar-footer">
     <div class="sidebar-user">
       <div class="sidebar-avatar">
