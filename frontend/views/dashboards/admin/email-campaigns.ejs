@@ -25,577 +25,819 @@
       </div>
       <div class="topbar-right">
         <span style="font-size:0.75rem;color:var(--color-text-muted);">
-          From: <strong style="color:var(--color-text-secondary);">supports@schoolgatess.com</strong>
+          Sending from: <strong style="color:var(--color-text-secondary);">supports@schoolgatess.com</strong>
         </span>
       </div>
     </div>
-
     <%- include('../../partials/flash') %>
 
     <div class="dashboard-content">
-      <div style="display:grid;grid-template-columns:1fr 1.6fr;gap:1.75rem;align-items:start;">
 
-        <!-- ═══════════════════════════════════════════════════════════════
-             LEFT — Segment cards + send history
-        ════════════════════════════════════════════════════════════════ -->
-        <div style="display:flex;flex-direction:column;gap:1.25rem;">
+      <!-- Tab bar -->
+      <div style="display:flex;gap:0.5rem;border-bottom:2px solid rgba(0,0,0,0.08);margin-bottom:1.75rem;">
+        <button class="tab-btn active" data-tab="segment">
+          <i class="fa-solid fa-users"></i> Send by Segment
+        </button>
+        <button class="tab-btn" data-tab="individual">
+          <i class="fa-solid fa-user"></i> Send to Individual
+        </button>
+        <button class="tab-btn" data-tab="history">
+          <i class="fa-solid fa-clock-rotate-left"></i> Send History
+        </button>
+      </div>
 
-          <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--color-text-muted);">
-            Choose Audience Segment
-          </div>
+      <!-- ═══ TAB 1 — SEGMENT ═══════════════════════════════════════════════ -->
+      <div id="tab-segment" class="tab-panel">
+        <div style="display:grid;grid-template-columns:1fr 1.7fr;gap:1.75rem;align-items:start;">
 
-          <% segments.forEach(seg => { %>
-          <div class="segment-card"
-            id="seg-<%= seg.id %>"
-            onclick="selectSegment('<%= seg.id %>', '<%= seg.label %>', <%= seg.count %>)"
-            style="padding:1.25rem 1.5rem;background:#fff;border-radius:14px;box-shadow:var(--shadow-sm);
-            border:2px solid transparent;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;">
-
-            <!-- Left accent bar -->
-            <div style="position:absolute;left:0;top:0;bottom:0;width:4px;
-              background:<%= seg.color==='warning'?'#c9a84c':seg.color==='info'?'#1a3a6a':seg.color==='danger'?'#c0392b':'linear-gradient(180deg,#c9a84c,#e8c96a)' %>;">
+          <!-- LEFT: segment cards -->
+          <div style="display:flex;flex-direction:column;gap:1rem;">
+            <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--color-text-muted);">
+              Step 1 — Select Your Audience
             </div>
 
-            <div style="display:flex;align-items:center;gap:1rem;padding-left:0.5rem;">
-              <div style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
-                background:<%= seg.color==='warning'?'rgba(201,168,76,0.1)':seg.color==='info'?'var(--color-info-bg)':seg.color==='danger'?'var(--color-danger-bg)':'rgba(201,168,76,0.12)' %>;">
-                <i class="fa-solid <%= seg.icon %>"
-                  style="font-size:1.1rem;color:<%= seg.color==='warning'?'#8a6000':seg.color==='info'?'var(--color-info)':seg.color==='danger'?'var(--color-danger-light)':'var(--color-gold-dim)' %>;"></i>
-              </div>
-              <div style="flex:1;min-width:0;">
-                <div style="font-weight:700;font-size:0.875rem;color:var(--color-text-primary);margin-bottom:3px;">
-                  <%= seg.label %>
-                </div>
-                <div style="font-size:0.775rem;color:var(--color-text-muted);line-height:1.4;">
-                  <%= seg.description %>
-                </div>
-              </div>
-              <div style="text-align:right;flex-shrink:0;">
-                <div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;
-                  color:<%= seg.color==='danger'?'var(--color-danger-light)':seg.color==='warning'?'#8a6000':'var(--color-text-primary)' %>;">
-                  <%= seg.count %>
-                </div>
-                <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-muted);">
-                  recipients
-                </div>
-              </div>
-            </div>
-          </div>
-          <% }) %>
+            <% segments.forEach(seg => { %>
+            <div class="segment-card"
+              data-id="<%= seg.id %>"
+              data-label="<%= seg.label %>"
+              data-count="<%= seg.count %>"
+              style="padding:1.25rem 1.5rem;background:#fff;border-radius:14px;box-shadow:var(--shadow-sm);
+              border:2px solid transparent;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;">
 
-          <!-- ── Send history ───────────────────────────────────────── -->
-          <% if (history.length > 0) { %>
-          <div class="data-table-wrap" style="padding:1.25rem;margin-top:0.5rem;">
-            <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:1rem;">
-              Recent Campaigns
-            </div>
-            <div style="display:flex;flex-direction:column;gap:0;">
-              <% history.forEach(h => { %>
-              <div style="padding:0.75rem 0;border-bottom:1px solid rgba(0,0,0,0.04);">
-                <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;">
-                  <div style="flex:1;min-width:0;">
-                    <div style="font-size:0.8rem;font-weight:600;color:var(--color-text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                      <%= h.details?.subject || 'Campaign' %>
-                    </div>
-                    <div style="font-size:0.7rem;color:var(--color-text-muted);margin-top:2px;">
-                      <%= h.details?.segment %> ·
-                      <span style="color:var(--color-success-light);">✓ <%= h.details?.sent || 0 %> sent</span>
-                      <% if(h.details?.failed > 0) { %> · <span style="color:var(--color-danger-light);">✗ <%= h.details.failed %> failed</span><% } %>
-                    </div>
+              <div style="position:absolute;left:0;top:0;bottom:0;width:4px;background:
+                <%= seg.color==='warning'?'#c9a84c':seg.color==='info'?'#1a3a6a':seg.color==='danger'?'#c0392b':'linear-gradient(180deg,#c9a84c,#e8c96a)' %>;"></div>
+
+              <div style="display:flex;align-items:center;gap:1rem;padding-left:0.5rem;">
+                <div style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+                  background:<%= seg.color==='warning'?'rgba(201,168,76,0.1)':seg.color==='info'?'var(--color-info-bg)':seg.color==='danger'?'var(--color-danger-bg)':'rgba(201,168,76,0.12)' %>;">
+                  <i class="fa-solid <%= seg.icon %>" style="font-size:1.1rem;color:
+                    <%= seg.color==='warning'?'#8a6000':seg.color==='info'?'var(--color-info)':seg.color==='danger'?'var(--color-danger-light)':'var(--color-gold-dim)' %>;"></i>
+                </div>
+                <div style="flex:1;min-width:0;">
+                  <div style="font-weight:700;font-size:0.875rem;color:var(--color-text-primary);margin-bottom:3px;">
+                    <%= seg.label %>
                   </div>
-                  <div style="font-size:0.7rem;color:var(--color-text-muted);flex-shrink:0;text-align:right;">
-                    <%= new Date(h.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) %>
+                  <div style="font-size:0.775rem;color:var(--color-text-muted);line-height:1.4;">
+                    <%= seg.description %>
                   </div>
                 </div>
+                <div style="text-align:right;flex-shrink:0;">
+                  <div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;
+                    color:<%= seg.color==='danger'?'var(--color-danger-light)':seg.color==='warning'?'#8a6000':'var(--color-text-primary)' %>;">
+                    <%= seg.count %>
+                  </div>
+                  <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-muted);">parents</div>
+                </div>
               </div>
-              <% }) %>
             </div>
+            <% }) %>
+          </div>
+
+          <!-- RIGHT: compose panel -->
+          <div style="position:sticky;top:80px;display:flex;flex-direction:column;gap:1.25rem;">
+
+            <!-- No segment selected state -->
+            <div id="noSegmentPrompt" class="data-table-wrap" style="padding:3rem;text-align:center;">
+              <i class="fa-solid fa-arrow-left" style="font-size:2rem;color:var(--color-text-muted);opacity:0.25;margin-bottom:1rem;display:block;"></i>
+              <div style="font-size:0.9rem;font-weight:600;color:var(--color-text-secondary);margin-bottom:0.375rem;">No segment selected</div>
+              <div style="font-size:0.8rem;color:var(--color-text-muted);">Click a segment card on the left to begin composing.</div>
+            </div>
+
+            <!-- Audience indicator -->
+            <div id="audienceIndicator" style="display:none;padding:1rem 1.25rem;background:rgba(201,168,76,0.06);border-radius:12px;border:1px solid rgba(201,168,76,0.2);">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.5rem;">
+                <div>
+                  <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:3px;">Sending To</div>
+                  <div id="audienceLabel" style="font-size:0.9rem;font-weight:700;color:var(--color-text-primary);">—</div>
+                </div>
+                <div style="text-align:right;">
+                  <div id="audienceCount" style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--color-gold-dim);">—</div>
+                  <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-muted);">recipients</div>
+                </div>
+              </div>
+              <div id="sampleList" style="display:none;padding-top:0.75rem;border-top:1px solid rgba(201,168,76,0.15);">
+                <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:0.5rem;">Sample recipients</div>
+                <div id="sampleNames" style="font-size:0.775rem;color:var(--color-text-secondary);display:flex;flex-wrap:wrap;gap:0.375rem;"></div>
+              </div>
+              <button id="previewBtn" class="btn btn-ghost btn-sm" style="margin-top:0.75rem;font-size:0.75rem;">
+                <i class="fa-solid fa-eye"></i> Preview audience list
+              </button>
+            </div>
+
+            <!-- Compose form -->
+            <div id="segmentComposeForm" class="data-table-wrap" style="display:none;padding:1.75rem;">
+              <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:1.25rem;">
+                Step 2 — Compose Email
+              </div>
+              <input type="hidden" id="selectedSegment" value=""/>
+
+              <!-- HOW firstName WORKS — explanation -->
+              <div style="padding:1rem;background:#e8f0ff;border-radius:8px;border:1px solid rgba(26,58,106,0.15);margin-bottom:1.25rem;">
+                <div style="font-size:0.75rem;font-weight:700;color:#1a3a6a;margin-bottom:0.5rem;">
+                  <i class="fa-solid fa-circle-info" style="margin-right:5px;"></i>
+                  How personalisation works
+                </div>
+                <div style="font-size:0.78rem;color:#4a4a6a;line-height:1.7;">
+                  The greeting <strong>"Dear James,"</strong> is added <em>automatically</em> at the top — you do not write it.<br/>
+                  Use <code style="background:rgba(0,0,0,0.08);padding:1px 6px;border-radius:3px;">{{firstName}}</code> inside your body text to insert the parent's first name anywhere you want.<br/>
+                  <span style="color:#8a8aaa;font-size:0.72rem;">
+                    e.g. "We noticed that you have not onboarded yet, {{firstName}}." →<br/>
+                    James receives: "We noticed that you have not onboarded yet, James."<br/>
+                    Amina receives: "We noticed that you have not onboarded yet, Amina."
+                  </span>
+                </div>
+              </div>
+
+              <!-- Quick templates -->
+              <div class="form-group" style="margin-bottom:1rem;">
+                <label class="form-label">Quick Templates</label>
+                <div style="display:flex;flex-wrap:wrap;gap:0.5rem;">
+                  <button type="button" class="btn btn-ghost btn-sm tpl-btn" data-template="no_children" data-prefix="seg"><i class="fa-solid fa-user-clock"></i> No Profile</button>
+                  <button type="button" class="btn btn-ghost btn-sm tpl-btn" data-template="no_application" data-prefix="seg"><i class="fa-solid fa-file-circle-xmark"></i> Never Applied</button>
+                  <button type="button" class="btn btn-ghost btn-sm tpl-btn" data-template="offer_expired" data-prefix="seg"><i class="fa-solid fa-clock"></i> Offer Expired</button>
+                  <button type="button" class="btn btn-ghost btn-sm tpl-btn" data-template="all_guardians" data-prefix="seg"><i class="fa-solid fa-bullhorn"></i> General</button>
+                </div>
+              </div>
+
+              <!-- Subject -->
+              <div class="form-group" style="margin-bottom:1rem;">
+                <label class="form-label">Subject Line <span class="required">*</span></label>
+                <input type="text" id="seg-subject" data-field="seg-subject" class="form-control" placeholder="e.g. Complete your child's profile today!" required/>
+              </div>
+
+              <!-- Preview text -->
+              <div class="form-group" style="margin-bottom:1rem;">
+                <label class="form-label">
+                  Preview Text
+                  <span style="font-size:0.7rem;font-weight:400;color:var(--color-text-muted);margin-left:4px;">(grey text shown in inbox before opening)</span>
+                </label>
+                <input type="text" id="seg-preview" data-field="seg-preview" class="form-control" placeholder="e.g. Scholarships are waiting — takes 5 minutes"/>
+              </div>
+
+              <!-- Editor toolbar -->
+              <div class="form-group" style="margin-bottom:0;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.375rem;">
+                  <label class="form-label" style="margin:0;">Email Body <span class="required">*</span></label>
+                  <button type="button" class="btn btn-ghost btn-sm live-preview-toggle" data-prefix="seg" style="font-size:0.7rem;padding:3px 10px;">
+                    <i class="fa-solid fa-eye"></i> Live Preview
+                  </button>
+                </div>
+                <div style="display:flex;flex-wrap:wrap;gap:0.25rem;padding:0.5rem;background:rgba(0,0,0,0.03);border:1.5px solid rgba(0,0,0,0.12);border-bottom:none;border-radius:8px 8px 0 0;">
+                  <button type="button" class="toolbar-btn" data-fmt="bold"                 data-prefix="seg" title="Bold"><b>B</b></button>
+                  <button type="button" class="toolbar-btn" data-fmt="italic"               data-prefix="seg" title="Italic"><i>I</i></button>
+                  <button type="button" class="toolbar-btn" data-fmt="underline"            data-prefix="seg" title="Underline"><u>U</u></button>
+                  <div style="width:1px;background:rgba(0,0,0,0.1);margin:2px 4px;"></div>
+                  <button type="button" class="toolbar-btn" data-fmt="heading2"             data-prefix="seg" title="Heading 2">H2</button>
+                  <button type="button" class="toolbar-btn" data-fmt="heading3"             data-prefix="seg" title="Heading 3">H3</button>
+                  <div style="width:1px;background:rgba(0,0,0,0.1);margin:2px 4px;"></div>
+                  <button type="button" class="toolbar-btn" data-fmt="insertUnorderedList"  data-prefix="seg" title="Bullet list"><i class="fa-solid fa-list-ul"></i></button>
+                  <button type="button" class="toolbar-btn" data-fmt="insertOrderedList"    data-prefix="seg" title="Numbered list"><i class="fa-solid fa-list-ol"></i></button>
+                  <div style="width:1px;background:rgba(0,0,0,0.1);margin:2px 4px;"></div>
+                  <button type="button" class="toolbar-btn" data-fmt="link"                 data-prefix="seg" title="Insert link"><i class="fa-solid fa-link"></i></button>
+                  <button type="button" class="toolbar-btn insert-tag-btn"                  data-prefix="seg"
+                    title="Insert {{firstName}} tag"
+                    style="font-size:0.65rem;padding:0 8px;white-space:nowrap;background:#e8f0ff;color:#1a3a6a;border-color:#1a3a6a33;">
+                    + {{firstName}}
+                  </button>
+                  <div style="width:1px;background:rgba(0,0,0,0.1);margin:2px 4px;"></div>
+                  <button type="button" class="toolbar-btn clear-editor-btn" data-prefix="seg" title="Clear body" style="color:var(--color-danger-light);">
+                    <i class="fa-solid fa-trash-can"></i>
+                  </button>
+                </div>
+                <div id="seg-body" data-field="seg-body" contenteditable="true" spellcheck="true" class="email-editor"></div>
+              </div>
+
+              <!-- Live preview panel -->
+              <div id="seg-live-preview" style="display:none;margin-top:1.25rem;">
+                <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:0.5rem;">
+                  Live Preview — exactly what the parent will receive
+                </div>
+                <div style="border:1.5px solid rgba(0,0,0,0.1);border-radius:10px;overflow:hidden;font-family:Georgia,serif;">
+                  <!-- Fake email client bar -->
+                  <div style="background:#f0f0f0;padding:0.5rem 1rem;border-bottom:1px solid rgba(0,0,0,0.1);display:flex;align-items:center;gap:0.5rem;">
+                    <div style="width:10px;height:10px;border-radius:50%;background:#ff5f56;"></div>
+                    <div style="width:10px;height:10px;border-radius:50%;background:#febc2e;"></div>
+                    <div style="width:10px;height:10px;border-radius:50%;background:#27c93f;"></div>
+                    <span style="font-size:0.7rem;color:#888;margin-left:0.5rem;font-family:'Jost',sans-serif;">Inbox Preview</span>
+                  </div>
+                  <!-- Headers -->
+                  <div style="background:#fafafa;padding:0.875rem 1rem;border-bottom:1px solid rgba(0,0,0,0.08);font-family:'Jost',sans-serif;">
+                    <div style="font-size:0.72rem;color:#888;margin-bottom:3px;"><strong style="color:#333;">From:</strong> ScholarsGate &lt;supports@schoolgatess.com&gt;</div>
+                    <div style="font-size:0.72rem;color:#888;margin-bottom:3px;"><strong style="color:#333;">To:</strong> <span id="seg-preview-to" style="color:#1a3a6a;">James Okafor &lt;james.okafor@email.com&gt;</span></div>
+                    <div style="font-size:0.875rem;font-weight:700;color:#1a1a2e;margin-bottom:2px;" id="seg-preview-subject">(subject will appear here)</div>
+                    <div style="font-size:0.72rem;color:#aaa;" id="seg-preview-previewtext">(preview text will appear here)</div>
+                  </div>
+                  <!-- Email body render -->
+                  <div style="background:#f5f4f0;padding:1rem;">
+                    <div style="max-width:500px;margin:0 auto;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.08);">
+                      <div style="background:linear-gradient(135deg,#0a0e1a,#141c35);padding:18px 24px 14px;">
+                        <div style="font-family:Georgia,serif;font-size:18px;font-weight:700;color:#c9a84c;">ScholarsGate</div>
+                        <div style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#888;margin-top:3px;">Elite USA Admissions</div>
+                      </div>
+                      <div style="height:2px;background:linear-gradient(90deg,#c9a84c,#e8c96a,#c9a84c);"></div>
+                      <!-- Auto greeting -->
+                      <div style="padding:18px 24px 0;">
+                        <p style="font-size:14px;color:#1a1a2e;margin:0 0 6px;">
+                          Dear <strong id="seg-preview-name" style="color:#c9a84c;">James</strong>,
+                        </p>
+                      </div>
+                      <!-- Body mirror -->
+                      <div id="seg-preview-body" style="padding:6px 24px 18px;font-size:13px;color:#4a4a6a;line-height:1.85;"></div>
+                      <!-- CTA button -->
+                      <div style="padding:0 24px 18px;text-align:center;">
+                        <div style="display:inline-block;background:linear-gradient(135deg,#c9a84c,#e8c96a);color:#0a0e1a;padding:10px 28px;border-radius:6px;font-weight:700;font-size:11px;letter-spacing:2px;text-transform:uppercase;font-family:'Jost',sans-serif;">
+                          Go to My Dashboard
+                        </div>
+                      </div>
+                      <!-- Signature -->
+                      <div style="padding:0 24px 18px;border-top:1px solid #f0f0f0;padding-top:12px;margin-top:4px;">
+                        <p style="font-size:12px;color:#4a4a6a;margin:0 0 3px;">Warm regards,</p>
+                        <p style="font-size:12px;font-weight:700;color:#1a1a2e;margin:0;">The ScholarsGate Admissions Team</p>
+                        <p style="font-size:11px;color:#c9a84c;margin:3px 0 0;">supports@schoolgatess.com</p>
+                      </div>
+                      <div style="background:#0a0e1a;padding:12px 24px;text-align:center;">
+                        <p style="font-size:10px;color:#444;margin:0;">© ScholarsGate — Elite USA Admissions</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Sample name switcher -->
+                <div style="margin-top:0.625rem;display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+                  <span style="font-size:0.72rem;color:var(--color-text-muted);">Preview as:</span>
+                  <button type="button" class="sample-name-btn btn btn-ghost btn-sm" data-prefix="seg" data-first="James"  data-last="Okafor"    data-email="james.okafor@email.com"  style="font-size:0.72rem;padding:2px 10px;">James Okafor</button>
+                  <button type="button" class="sample-name-btn btn btn-ghost btn-sm" data-prefix="seg" data-first="Amina"  data-last="Ibrahim"   data-email="amina.ibrahim@email.com" style="font-size:0.72rem;padding:2px 10px;">Amina Ibrahim</button>
+                  <button type="button" class="sample-name-btn btn btn-ghost btn-sm" data-prefix="seg" data-first="Fatima" data-last="Al-Hassan" data-email="fatima@email.com"         style="font-size:0.72rem;padding:2px 10px;">Fatima Al-Hassan</button>
+                </div>
+              </div>
+
+              <!-- Send button -->
+              <div style="display:flex;gap:0.875rem;margin-top:1.5rem;">
+                <button id="sendSegmentBtn" class="btn btn-gold btn-lg" style="flex:1;justify-content:center;">
+                  <i class="fa-solid fa-paper-plane"></i> Send Campaign
+                </button>
+              </div>
+              <p style="font-size:0.72rem;color:var(--color-text-muted);text-align:center;margin-top:0.625rem;">
+                A confirmation dialog appears before sending. Sent from <strong>supports@schoolgatess.com</strong>.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ TAB 2 — INDIVIDUAL ════════════════════════════════════════════ -->
+      <div id="tab-individual" class="tab-panel" style="display:none;">
+        <div style="display:grid;grid-template-columns:1fr 1.7fr;gap:1.75rem;align-items:start;">
+
+          <!-- Search panel -->
+          <div class="data-table-wrap" style="padding:1.5rem;position:sticky;top:80px;">
+            <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:1rem;">Find Parent</h3>
+            <div style="position:relative;margin-bottom:1rem;">
+              <i class="fa-solid fa-magnifying-glass" style="position:absolute;left:0.875rem;top:50%;transform:translateY(-50%);color:var(--color-text-muted);pointer-events:none;font-size:0.85rem;"></i>
+              <input type="text" id="guardianSearch" class="form-control" placeholder="Search by name or email..." style="padding-left:2.5rem;"/>
+            </div>
+            <div id="guardianResults" style="max-height:380px;overflow-y:auto;display:flex;flex-direction:column;gap:0.375rem;">
+              <div style="padding:1.5rem;text-align:center;color:var(--color-text-muted);font-size:0.875rem;">Type at least 2 characters to search</div>
+            </div>
+            <!-- Selected recipient chip -->
+            <div id="selectedRecipient" style="display:none;margin-top:1rem;padding:1rem;background:rgba(201,168,76,0.06);border-radius:10px;border:1px solid rgba(201,168,76,0.2);">
+              <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:0.5rem;">Selected Recipient</div>
+              <div style="display:flex;align-items:center;gap:0.75rem;">
+                <div id="recipientAvatar" style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#c9a84c,#e8c96a);display:flex;align-items:center;justify-content:center;font-weight:700;color:#0a0e1a;font-size:0.875rem;flex-shrink:0;"></div>
+                <div style="flex:1;min-width:0;">
+                  <div id="recipientName"  style="font-weight:700;font-size:0.875rem;color:var(--color-text-primary);"></div>
+                  <div id="recipientEmail" style="font-size:0.775rem;color:var(--color-text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
+                </div>
+                <button id="clearRecipient" style="background:none;border:none;cursor:pointer;color:var(--color-text-muted);font-size:0.9rem;flex-shrink:0;padding:4px;">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Compose panel -->
+          <div class="data-table-wrap" style="padding:1.75rem;">
+            <div id="noRecipientPrompt" style="padding:2.5rem;text-align:center;background:rgba(0,0,0,0.02);border-radius:10px;border:var(--border-dark);margin-bottom:1rem;">
+              <i class="fa-solid fa-arrow-left" style="font-size:1.5rem;color:var(--color-text-muted);opacity:0.3;margin-bottom:0.75rem;display:block;"></i>
+              <div style="font-size:0.875rem;color:var(--color-text-muted);">Search and select a parent on the left to compose an email.</div>
+            </div>
+
+            <div id="individualComposeForm" style="display:none;">
+              <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:1.25rem;">Compose Email</div>
+              <input type="hidden" id="individualRecipientId"    value=""/>
+              <input type="hidden" id="individualRecipientEmail" value=""/>
+
+              <!-- Same personalisation explanation -->
+              <div style="padding:1rem;background:#e8f0ff;border-radius:8px;border:1px solid rgba(26,58,106,0.15);margin-bottom:1.25rem;">
+                <div style="font-size:0.75rem;font-weight:700;color:#1a3a6a;margin-bottom:0.5rem;">
+                  <i class="fa-solid fa-circle-info" style="margin-right:5px;"></i>How personalisation works
+                </div>
+                <div style="font-size:0.78rem;color:#4a4a6a;line-height:1.7;">
+                  The greeting <strong>"Dear [Name],"</strong> is added automatically. Use <code style="background:rgba(0,0,0,0.08);padding:1px 6px;border-radius:3px;">{{firstName}}</code> in your body to insert the parent's name anywhere.
+                </div>
+              </div>
+
+              <!-- Subject -->
+              <div class="form-group" style="margin-bottom:1rem;">
+                <label class="form-label">Subject Line <span class="required">*</span></label>
+                <input type="text" id="ind-subject" data-field="ind-subject" class="form-control" placeholder="Your subject..." required/>
+              </div>
+
+              <!-- Preview text -->
+              <div class="form-group" style="margin-bottom:1rem;">
+                <label class="form-label">Preview Text</label>
+                <input type="text" id="ind-preview" data-field="ind-preview" class="form-control" placeholder="Short preview shown in inbox..."/>
+              </div>
+
+              <!-- Editor -->
+              <div class="form-group" style="margin-bottom:0;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.375rem;">
+                  <label class="form-label" style="margin:0;">Email Body <span class="required">*</span></label>
+                  <button type="button" class="btn btn-ghost btn-sm live-preview-toggle" data-prefix="ind" style="font-size:0.7rem;padding:3px 10px;">
+                    <i class="fa-solid fa-eye"></i> Live Preview
+                  </button>
+                </div>
+                <div style="display:flex;flex-wrap:wrap;gap:0.25rem;padding:0.5rem;background:rgba(0,0,0,0.03);border:1.5px solid rgba(0,0,0,0.12);border-bottom:none;border-radius:8px 8px 0 0;">
+                  <button type="button" class="toolbar-btn" data-fmt="bold"                data-prefix="ind"><b>B</b></button>
+                  <button type="button" class="toolbar-btn" data-fmt="italic"              data-prefix="ind"><i>I</i></button>
+                  <button type="button" class="toolbar-btn" data-fmt="underline"           data-prefix="ind"><u>U</u></button>
+                  <div style="width:1px;background:rgba(0,0,0,0.1);margin:2px 4px;"></div>
+                  <button type="button" class="toolbar-btn" data-fmt="insertUnorderedList" data-prefix="ind"><i class="fa-solid fa-list-ul"></i></button>
+                  <button type="button" class="toolbar-btn" data-fmt="insertOrderedList"   data-prefix="ind"><i class="fa-solid fa-list-ol"></i></button>
+                  <div style="width:1px;background:rgba(0,0,0,0.1);margin:2px 4px;"></div>
+                  <button type="button" class="toolbar-btn insert-tag-btn"                 data-prefix="ind" style="font-size:0.65rem;padding:0 8px;white-space:nowrap;background:#e8f0ff;color:#1a3a6a;border-color:#1a3a6a33;">+ {{firstName}}</button>
+                  <button type="button" class="toolbar-btn clear-editor-btn"               data-prefix="ind" style="color:var(--color-danger-light);"><i class="fa-solid fa-trash-can"></i></button>
+                </div>
+                <div id="ind-body" data-field="ind-body" contenteditable="true" spellcheck="true" class="email-editor"></div>
+              </div>
+
+              <!-- Ind live preview panel (same structure as seg) -->
+              <div id="ind-live-preview" style="display:none;margin-top:1.25rem;">
+                <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:0.5rem;">Live Preview</div>
+                <div style="border:1.5px solid rgba(0,0,0,0.1);border-radius:10px;overflow:hidden;font-family:Georgia,serif;">
+                  <div style="background:#f0f0f0;padding:0.5rem 1rem;border-bottom:1px solid rgba(0,0,0,0.1);display:flex;gap:0.5rem;">
+                    <div style="width:10px;height:10px;border-radius:50%;background:#ff5f56;"></div>
+                    <div style="width:10px;height:10px;border-radius:50%;background:#febc2e;"></div>
+                    <div style="width:10px;height:10px;border-radius:50%;background:#27c93f;"></div>
+                    <span style="font-size:0.7rem;color:#888;margin-left:0.5rem;font-family:'Jost',sans-serif;">Inbox Preview</span>
+                  </div>
+                  <div style="background:#fafafa;padding:0.875rem 1rem;border-bottom:1px solid rgba(0,0,0,0.08);font-family:'Jost',sans-serif;">
+                    <div style="font-size:0.72rem;color:#888;margin-bottom:3px;"><strong style="color:#333;">From:</strong> ScholarsGate &lt;supports@schoolgatess.com&gt;</div>
+                    <div style="font-size:0.72rem;color:#888;margin-bottom:3px;"><strong style="color:#333;">To:</strong> <span id="ind-preview-to"></span></div>
+                    <div style="font-size:0.875rem;font-weight:700;color:#1a1a2e;margin-bottom:2px;" id="ind-preview-subject">(subject)</div>
+                    <div style="font-size:0.72rem;color:#aaa;" id="ind-preview-previewtext">(preview text)</div>
+                  </div>
+                  <div style="background:#f5f4f0;padding:1rem;">
+                    <div style="max-width:500px;margin:0 auto;background:#fff;border-radius:10px;overflow:hidden;">
+                      <div style="background:linear-gradient(135deg,#0a0e1a,#141c35);padding:18px 24px 14px;">
+                        <div style="font-family:Georgia,serif;font-size:18px;font-weight:700;color:#c9a84c;">ScholarsGate</div>
+                      </div>
+                      <div style="height:2px;background:linear-gradient(90deg,#c9a84c,#e8c96a,#c9a84c);"></div>
+                      <div style="padding:18px 24px 0;">
+                        <p style="font-size:14px;color:#1a1a2e;margin:0 0 6px;">Dear <strong id="ind-preview-name" style="color:#c9a84c;">Parent</strong>,</p>
+                      </div>
+                      <div id="ind-preview-body" style="padding:6px 24px 18px;font-size:13px;color:#4a4a6a;line-height:1.85;"></div>
+                      <div style="padding:0 24px 14px;text-align:center;">
+                        <div style="display:inline-block;background:linear-gradient(135deg,#c9a84c,#e8c96a);color:#0a0e1a;padding:10px 28px;border-radius:6px;font-weight:700;font-size:11px;letter-spacing:2px;text-transform:uppercase;font-family:'Jost',sans-serif;">Go to My Dashboard</div>
+                      </div>
+                      <div style="background:#0a0e1a;padding:12px 24px;text-align:center;">
+                        <p style="font-size:10px;color:#444;margin:0;">© ScholarsGate — Elite USA Admissions</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <button id="sendIndividualBtn" class="btn btn-gold btn-lg" style="width:100%;justify-content:center;margin-top:1.5rem;">
+                <i class="fa-solid fa-paper-plane"></i> Send Email
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ TAB 3 — HISTORY ═══════════════════════════════════════════════ -->
+      <div id="tab-history" class="tab-panel" style="display:none;">
+        <div class="data-table-wrap">
+          <div class="data-table-header"><h3>Campaign Send History</h3></div>
+          <% if (history.length === 0) { %>
+          <div style="padding:3rem;text-align:center;color:var(--color-text-muted);">No campaigns sent yet.</div>
+          <% } else { %>
+          <div style="overflow-x:auto;">
+            <table class="data-table">
+              <thead>
+                <tr><th>Date</th><th>Sent By</th><th>Type</th><th>Segment / Recipient</th><th>Subject</th><th>Total</th><th>Delivered</th><th>Failed</th></tr>
+              </thead>
+              <tbody>
+                <% history.forEach(h => { %>
+                <tr>
+                  <td style="font-size:0.72rem;white-space:nowrap;color:var(--color-text-muted);">
+                    <%= new Date(h.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'}) %>
+                  </td>
+                  <td style="font-size:0.78rem;"><%= h.actorEmail || '—' %></td>
+                  <td>
+                    <span class="badge badge-<%= h.details?.type==='individual'?'info':'gold' %>" style="font-size:10px;">
+                      <%= h.details?.type || 'segment' %>
+                    </span>
+                  </td>
+                  <td style="font-size:0.78rem;">
+                    <% if (h.details?.type === 'individual') { %>
+                      <%= h.details?.recipientName || h.details?.recipientEmail || '—' %>
+                    <% } else { %>
+                      <%= (h.details?.segment || '—').replace(/_/g,' ') %>
+                    <% } %>
+                  </td>
+                  <td style="font-size:0.8rem;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                    <%= h.details?.subject || '—' %>
+                  </td>
+                  <td style="font-weight:700;"><%= h.details?.totalRecipients || 1 %></td>
+                  <td style="color:var(--color-success-light);font-weight:700;"><%= h.details?.sent || 0 %></td>
+                  <td style="color:<%= (h.details?.failed||0)>0?'var(--color-danger-light)':'var(--color-text-muted)' %>;font-weight:700;"><%= h.details?.failed || 0 %></td>
+                </tr>
+                <% }) %>
+              </tbody>
+            </table>
           </div>
           <% } %>
-
         </div>
-
-        <!-- ═══════════════════════════════════════════════════════════════
-             RIGHT — Compose panel
-        ════════════════════════════════════════════════════════════════ -->
-        <div class="data-table-wrap" style="padding:2rem;position:sticky;top:80px;">
-
-          <!-- Selected audience indicator -->
-          <div id="audienceIndicator"
-            style="display:none;padding:0.875rem 1.25rem;background:rgba(201,168,76,0.06);
-            border-radius:10px;border:1px solid rgba(201,168,76,0.2);margin-bottom:1.5rem;">
-            <div style="display:flex;align-items:center;justify-content:space-between;">
-              <div>
-                <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:3px;">Sending To</div>
-                <div style="font-size:0.875rem;font-weight:700;color:var(--color-text-primary);" id="audienceLabel">—</div>
-              </div>
-              <div style="text-align:right;">
-                <div id="audienceCount" style="font-family:'Playfair Display',serif;font-size:1.75rem;font-weight:700;color:var(--color-gold-dim);">—</div>
-                <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-muted);">recipients</div>
-              </div>
-            </div>
-            <!-- Sample names preview -->
-            <div id="sampleList" style="margin-top:0.75rem;display:none;">
-              <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:0.375rem;">Sample recipients</div>
-              <div id="sampleNames" style="font-size:0.775rem;color:var(--color-text-secondary);"></div>
-            </div>
-          </div>
-
-          <!-- No segment selected prompt -->
-          <div id="noSegmentPrompt" style="padding:2rem;text-align:center;background:rgba(0,0,0,0.02);border-radius:10px;border:var(--border-dark);margin-bottom:1.5rem;">
-            <i class="fa-solid fa-arrow-left" style="font-size:1.5rem;color:var(--color-text-muted);opacity:0.4;margin-bottom:0.75rem;display:block;"></i>
-            <div style="font-size:0.875rem;color:var(--color-text-muted);">Select an audience segment on the left to begin composing your email.</div>
-          </div>
-
-          <!-- Compose form -->
-          <form id="campaignForm" style="display:none;" onsubmit="return false;">
-            <input type="hidden" id="selectedSegment" name="segment" value=""/>
-
-            <!-- Subject line -->
-            <div class="form-group">
-              <label class="form-label">Email Subject <span class="required">*</span></label>
-              <input type="text" id="emailSubject" name="subject" class="form-control" required
-                placeholder="e.g. Complete your child's profile — exclusive scholarships await!"/>
-            </div>
-
-            <!-- Preview text -->
-            <div class="form-group">
-              <label class="form-label">
-                Preview Text
-                <span style="font-size:0.7rem;font-weight:400;color:var(--color-text-muted);margin-left:6px;">(shown in inbox before opening)</span>
-              </label>
-              <input type="text" id="emailPreview" name="previewText" class="form-control"
-                placeholder="e.g. Don't miss out — hundreds of scholarships are waiting for your child."/>
-            </div>
-
-            <!-- Template quick-fill buttons -->
-            <div class="form-group">
-              <label class="form-label">Quick Templates</label>
-              <div style="display:flex;flex-wrap:wrap;gap:0.5rem;">
-                <button type="button" class="btn btn-ghost btn-sm" onclick="loadTemplate('no_children')">
-                  <i class="fa-solid fa-user-clock"></i> No Profile Yet
-                </button>
-                <button type="button" class="btn btn-ghost btn-sm" onclick="loadTemplate('no_application')">
-                  <i class="fa-solid fa-file-circle-xmark"></i> Never Applied
-                </button>
-                <button type="button" class="btn btn-ghost btn-sm" onclick="loadTemplate('offer_expired')">
-                  <i class="fa-solid fa-clock"></i> Offer Expired
-                </button>
-                <button type="button" class="btn btn-ghost btn-sm" onclick="loadTemplate('general')">
-                  <i class="fa-solid fa-bullhorn"></i> General Broadcast
-                </button>
-              </div>
-            </div>
-
-            <!-- Personalization hint -->
-            <div style="padding:0.75rem 1rem;background:var(--color-info-bg);border-radius:8px;border:1px solid rgba(26,58,106,0.12);margin-bottom:1.25rem;">
-              <div style="font-size:0.75rem;color:var(--color-info);font-weight:600;margin-bottom:3px;">
-                <i class="fa-solid fa-wand-magic-sparkles" style="margin-right:5px;"></i>Personalisation Tags
-              </div>
-              <div style="font-size:0.75rem;color:var(--color-text-secondary);line-height:1.6;">
-                Use <code style="background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:3px;">{{firstName}}</code>,
-                <code style="background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:3px;">{{lastName}}</code>, or
-                <code style="background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:3px;">{{fullName}}</code> — these are automatically replaced with each parent's real name.
-              </div>
-            </div>
-
-            <!-- Rich body -->
-            <div class="form-group">
-              <label class="form-label">Email Body <span class="required">*</span></label>
-
-              <!-- Toolbar -->
-              <div style="display:flex;flex-wrap:wrap;gap:0.25rem;padding:0.5rem;background:rgba(0,0,0,0.03);border:1.5px solid rgba(0,0,0,0.12);border-bottom:none;border-radius:8px 8px 0 0;">
-                <button type="button" onclick="fmt('bold')"          class="toolbar-btn" title="Bold"><b>B</b></button>
-                <button type="button" onclick="fmt('italic')"        class="toolbar-btn" title="Italic"><i>I</i></button>
-                <button type="button" onclick="fmt('underline')"     class="toolbar-btn" title="Underline"><u>U</u></button>
-                <div style="width:1px;background:rgba(0,0,0,0.1);margin:2px 4px;"></div>
-                <button type="button" onclick="fmtHeading('h2')"     class="toolbar-btn" title="Heading">H2</button>
-                <button type="button" onclick="fmtHeading('h3')"     class="toolbar-btn" title="Sub-heading">H3</button>
-                <div style="width:1px;background:rgba(0,0,0,0.1);margin:2px 4px;"></div>
-                <button type="button" onclick="fmt('insertUnorderedList')" class="toolbar-btn" title="Bullet list"><i class="fa-solid fa-list-ul"></i></button>
-                <button type="button" onclick="fmt('insertOrderedList')"   class="toolbar-btn" title="Numbered list"><i class="fa-solid fa-list-ol"></i></button>
-                <div style="width:1px;background:rgba(0,0,0,0.1);margin:2px 4px;"></div>
-                <button type="button" onclick="insertLink()"         class="toolbar-btn" title="Insert link"><i class="fa-solid fa-link"></i></button>
-                <button type="button" onclick="insertTag('firstName')" class="toolbar-btn" title="Insert first name" style="font-size:0.65rem;padding:0 8px;">{{firstName}}</button>
-                <div style="width:1px;background:rgba(0,0,0,0.1);margin:2px 4px;"></div>
-                <button type="button" onclick="document.getElementById('emailEditor').innerHTML=''" class="toolbar-btn" title="Clear" style="color:var(--color-danger-light);">
-                  <i class="fa-solid fa-trash-can"></i>
-                </button>
-              </div>
-
-              <!-- Contenteditable editor -->
-              <div id="emailEditor"
-                contenteditable="true"
-                spellcheck="true"
-                style="min-height:280px;max-height:460px;overflow-y:auto;
-                padding:1.25rem;border:1.5px solid rgba(0,0,0,0.12);border-top:none;
-                border-radius:0 0 8px 8px;font-size:0.9rem;line-height:1.8;
-                color:var(--color-text-primary);outline:none;background:#fff;">
-              </div>
-              <p class="form-hint">This is what parents will read. Keep it warm, clear and actionable.</p>
-            </div>
-
-            <!-- Send button -->
-            <div style="display:flex;align-items:center;gap:1rem;">
-              <button type="button" onclick="previewAudience()" class="btn btn-ghost" id="previewBtn">
-                <i class="fa-solid fa-eye"></i> Preview Audience
-              </button>
-              <button type="button" onclick="sendCampaign()" class="btn btn-gold btn-lg" id="sendBtn" style="flex:1;justify-content:center;">
-                <i class="fa-solid fa-paper-plane"></i> Send Campaign
-              </button>
-            </div>
-
-            <!-- Confirm modal trigger note -->
-            <p style="font-size:0.75rem;color:var(--color-text-muted);text-align:center;margin-top:0.75rem;">
-              A confirmation dialog will appear before sending. Emails are sent from <strong>supports@schoolgatess.com</strong>.
-            </p>
-
-          </form>
-        </div>
-
       </div>
+
     </div>
   </div>
 </div>
 
-<!-- ── Confirmation Modal ──────────────────────────────────────────────────── -->
+<!-- Confirm modal -->
 <div class="modal-overlay" id="confirmModal">
   <div class="modal" style="max-width:480px;">
     <div class="modal-header">
       <h3 style="font-family:'Playfair Display',serif;font-size:1.25rem;">Confirm Send</h3>
-      <button onclick="closeModal('confirmModal')" style="background:none;border:none;cursor:pointer;font-size:1.25rem;color:var(--color-text-muted);">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
+      <button id="closeConfirmBtn" style="background:none;border:none;cursor:pointer;font-size:1.25rem;color:var(--color-text-muted);"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div class="modal-body">
       <div style="background:rgba(201,168,76,0.06);border-radius:12px;border:1px solid rgba(201,168,76,0.2);padding:1.25rem;margin-bottom:1.25rem;">
-        <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:0.75rem;">Summary</div>
         <table style="width:100%;border-collapse:collapse;">
-          <tr>
-            <td style="font-size:0.8rem;color:var(--color-text-muted);padding:5px 0;width:120px;">Segment</td>
-            <td style="font-size:0.8rem;font-weight:600;color:var(--color-text-primary);" id="confirmSegment">—</td>
-          </tr>
-          <tr>
-            <td style="font-size:0.8rem;color:var(--color-text-muted);padding:5px 0;">Recipients</td>
-            <td style="font-size:0.8rem;font-weight:700;color:var(--color-gold-dim);" id="confirmCount">—</td>
-          </tr>
-          <tr>
-            <td style="font-size:0.8rem;color:var(--color-text-muted);padding:5px 0;">Subject</td>
-            <td style="font-size:0.8rem;font-weight:600;color:var(--color-text-primary);" id="confirmSubject">—</td>
-          </tr>
-          <tr>
-            <td style="font-size:0.8rem;color:var(--color-text-muted);padding:5px 0;">From</td>
-            <td style="font-size:0.8rem;color:var(--color-text-primary);">supports@schoolgatess.com</td>
-          </tr>
+          <tr><td style="font-size:0.8rem;color:var(--color-text-muted);padding:5px 0;width:80px;">To</td><td id="confirmTo" style="font-size:0.8rem;font-weight:600;color:var(--color-text-primary);">—</td></tr>
+          <tr><td style="font-size:0.8rem;color:var(--color-text-muted);padding:5px 0;">Subject</td><td id="confirmSubject" style="font-size:0.8rem;font-weight:600;color:var(--color-text-primary);">—</td></tr>
+          <tr><td style="font-size:0.8rem;color:var(--color-text-muted);padding:5px 0;">From</td><td style="font-size:0.8rem;color:var(--color-text-primary);">supports@schoolgatess.com</td></tr>
         </table>
       </div>
       <div class="alert alert-warning" style="font-size:0.8rem;">
         <i class="fa-solid fa-triangle-exclamation"></i>
-        <span>This action will send emails immediately to all recipients. It cannot be undone.</span>
+        <span>Emails are sent immediately and cannot be recalled.</span>
       </div>
     </div>
-    <div class="modal-footer" style="gap:0.75rem;">
-      <button onclick="closeModal('confirmModal')" class="btn btn-ghost">Cancel</button>
-      <button onclick="confirmSend()" class="btn btn-gold" id="confirmSendBtn">
-        <i class="fa-solid fa-paper-plane"></i> Yes, Send Now
-      </button>
+    <div class="modal-footer">
+      <button id="cancelConfirmBtn" class="btn btn-ghost">Cancel</button>
+      <button id="confirmSendBtn" class="btn btn-gold"><i class="fa-solid fa-paper-plane"></i> Yes, Send Now</button>
     </div>
   </div>
 </div>
 
-<!-- ── Result Modal ───────────────────────────────────────────────────────── -->
+<!-- Result modal -->
 <div class="modal-overlay" id="resultModal">
-  <div class="modal" style="max-width:420px;">
+  <div class="modal" style="max-width:400px;">
     <div class="modal-body" style="text-align:center;padding:2.5rem 2rem;">
       <div id="resultIcon" style="font-size:3rem;margin-bottom:1rem;"></div>
       <h3 id="resultTitle" style="font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:0.5rem;"></h3>
-      <p id="resultMessage" style="font-size:0.9rem;color:var(--color-text-muted);line-height:1.7;"></p>
-      <div id="resultStats" style="display:none;margin-top:1.25rem;padding:1rem;background:rgba(0,0,0,0.03);border-radius:10px;display:flex;gap:1.5rem;justify-content:center;">
-        <div style="text-align:center;">
-          <div id="statSent" style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--color-success-light);"></div>
-          <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-muted);">Delivered</div>
-        </div>
-        <div style="text-align:center;">
-          <div id="statFailed" style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--color-danger-light);"></div>
-          <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-muted);">Failed</div>
-        </div>
+      <p id="resultMessage" style="font-size:0.875rem;color:var(--color-text-muted);line-height:1.7;"></p>
+      <div id="resultStats" style="display:none;margin-top:1.25rem;padding:1rem;background:rgba(0,0,0,0.03);border-radius:10px;gap:1.5rem;justify-content:center;">
+        <div style="text-align:center;"><div id="statSent" style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--color-success-light);"></div><div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-muted);">Delivered</div></div>
+        <div style="text-align:center;"><div id="statFailed" style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--color-danger-light);"></div><div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-muted);">Failed</div></div>
       </div>
-      <button onclick="closeModal('resultModal');location.reload();" class="btn btn-gold" style="margin-top:1.5rem;">
-        Done
-      </button>
+      <button id="resultDoneBtn" class="btn btn-gold" style="margin-top:1.5rem;">Done</button>
     </div>
   </div>
 </div>
 
 <div id="toast-container"></div>
-
 <style>
-/* ── Local styles ──────────────────────────────────────────────────────────── */
 #toast-container{position:fixed;bottom:2rem;right:2rem;z-index:9999;display:flex;flex-direction:column;gap:.75rem;}
 .toast{display:flex;align-items:center;gap:.75rem;padding:.875rem 1.25rem;border-radius:10px;background:#fff;box-shadow:0 8px 32px rgba(0,0,0,.2);font-size:.875rem;font-weight:500;min-width:280px;max-width:400px;transform:translateX(120%);transition:transform .4s cubic-bezier(.34,1.56,.64,1),opacity .4s ease;opacity:0;color:#1a1a2e;}
 .toast.show{transform:translateX(0);opacity:1;}
-
-.segment-card:hover {
-  border-color: rgba(201,168,76,0.35) !important;
-  box-shadow: var(--shadow-md) !important;
-  transform: translateY(-2px);
-}
-.segment-card.selected {
-  border-color: var(--color-gold) !important;
-  box-shadow: var(--shadow-gold-sm) !important;
-  background: rgba(201,168,76,0.03) !important;
-}
-
-.toolbar-btn {
-  padding: 4px 10px;
-  border: 1px solid rgba(0,0,0,0.1);
-  border-radius: 5px;
-  background: #fff;
-  cursor: pointer;
-  font-size: 0.8rem;
-  color: var(--color-text-secondary);
-  transition: all 0.15s;
-  height: 28px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 28px;
-}
-.toolbar-btn:hover {
-  background: var(--color-gold);
-  color: var(--color-obsidian);
-  border-color: var(--color-gold);
-}
-
-#emailEditor:focus { border-color: var(--color-gold); box-shadow: 0 0 0 3px rgba(201,168,76,0.12); }
-#emailEditor p, #emailEditor div { margin: 0 0 12px; }
-#emailEditor h2 { font-size:1.3rem;font-weight:700;margin:16px 0 8px;color:var(--color-text-primary); }
-#emailEditor h3 { font-size:1.1rem;font-weight:700;margin:14px 0 6px;color:var(--color-text-primary); }
-#emailEditor ul, #emailEditor ol { padding-left:1.5rem;margin:0 0 12px; }
-#emailEditor a { color: var(--color-gold); }
+.tab-btn{padding:0.625rem 1.25rem;font-size:0.8rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;color:var(--color-text-muted);transition:all 0.2s;display:inline-flex;align-items:center;gap:0.5rem;}
+.tab-btn:hover{color:var(--color-text-secondary);}
+.tab-btn.active{color:var(--color-gold-dim);border-bottom-color:var(--color-gold);}
+.segment-card:hover{border-color:rgba(201,168,76,0.35)!important;box-shadow:var(--shadow-md)!important;transform:translateY(-2px);}
+.segment-card.selected{border-color:var(--color-gold)!important;background:rgba(201,168,76,0.03)!important;box-shadow:var(--shadow-gold-sm)!important;}
+.guardian-result-item{display:flex;align-items:center;gap:0.75rem;padding:0.75rem 0.875rem;border-radius:10px;cursor:pointer;transition:background 0.15s;border:1.5px solid transparent;}
+.guardian-result-item:hover{background:rgba(201,168,76,0.05);border-color:rgba(201,168,76,0.2);}
+.guardian-result-item.selected-item{background:rgba(201,168,76,0.08);border-color:var(--color-gold);}
+.toolbar-btn{padding:4px 10px;border:1px solid rgba(0,0,0,0.1);border-radius:5px;background:#fff;cursor:pointer;font-size:0.8rem;color:var(--color-text-secondary);transition:all 0.15s;height:28px;display:inline-flex;align-items:center;justify-content:center;min-width:28px;}
+.toolbar-btn:hover{background:var(--color-gold);color:var(--color-obsidian);border-color:var(--color-gold);}
+.email-editor{min-height:240px;max-height:380px;overflow-y:auto;padding:1.25rem;border:1.5px solid rgba(0,0,0,0.12);border-top:none;border-radius:0 0 8px 8px;font-size:0.9rem;line-height:1.85;color:var(--color-text-primary);outline:none;background:#fff;}
+.email-editor:focus{border-color:var(--color-gold);box-shadow:0 0 0 3px rgba(201,168,76,0.12);}
+.email-editor p,.email-editor div{margin:0 0 10px;}
+.email-editor h2{font-size:1.2rem;font-weight:700;margin:14px 0 6px;}
+.email-editor h3{font-size:1rem;font-weight:700;margin:12px 0 5px;}
+.email-editor ul,.email-editor ol{padding-left:1.4rem;margin:0 0 10px;}
 </style>
-
 <script src="/js/main.js"></script>
 <script>
-// ── State ────────────────────────────────────────────────────────────────────
-let activeSegment  = null;
-let activeCount    = 0;
-let activeLabel    = '';
+(function(){
+'use strict';
 
-// ── Email templates ──────────────────────────────────────────────────────────
-const TEMPLATES = {
-  no_children: {
-    subject: 'Complete your child\'s profile — exclusive USA scholarships are waiting!',
-    preview: 'Hundreds of fully-funded scholarships are available. It only takes 5 minutes to get started.',
-    body: `<p>We noticed that you haven't yet added a student profile to your ScholarsGate account.</p>
-
-<p>Creating a profile for <strong>{{firstName}}</strong>'s child is the first step toward accessing <strong>fully-funded scholarships</strong> at elite USA boarding schools — and it takes less than 5 minutes.</p>
-
-<p><strong>Here's what you can access once your child's profile is complete:</strong></p>
-<ul>
-  <li>Hundreds of merit-based and full scholarships</li>
-  <li>Partner schools offering up to 100% tuition coverage</li>
-  <li>A simple, guided application process</li>
-</ul>
-
-<p>Don't let this opportunity pass. Log in now and add your child's profile to get started.</p>
-
-<p>If you need any assistance, our admissions team is always happy to help at <a href="mailto:supports@schoolgatess.com">supports@schoolgatess.com</a>.</p>`,
+// ── Templates ─────────────────────────────────────────────────────────────────
+// {{firstName}} in the body = replaced with each parent's real first name at send time.
+// The "Dear [Name]," greeting is added AUTOMATICALLY by the server — do not write it.
+const T = {
+  no_children:{
+    subject:"Complete your child's profile — exclusive USA scholarships are waiting!",
+    preview:"Hundreds of fully-funded scholarships available. Takes less than 5 minutes.",
+    body:"<p>We noticed that you haven't yet added a student profile to your ScholarsGate account, {{firstName}}.</p><p>Adding your child's profile is the <strong>first step</strong> toward accessing fully-funded scholarships at elite USA boarding schools — and it takes less than 5 minutes to complete.</p><p><strong>Once the profile is complete, you unlock:</strong></p><ul><li>Hundreds of merit-based and fully-funded scholarships</li><li>Partner schools offering up to 100% tuition coverage</li><li>A simple, guided application process</li></ul><p>Don't let this opportunity pass. Log in now and add your child's profile to get started.</p><p>If you need any assistance, our admissions team is always happy to help at <a href='mailto:supports@schoolgatess.com'>supports@schoolgatess.com</a>.</p>"
   },
-
-  no_application: {
-    subject: 'Your child\'s profile is ready — apply for a scholarship today!',
-    preview: 'You\'re one step away — submit your scholarship application before deadlines close.',
-    body: `<p>Great news — your child's profile on ScholarsGate is set up and ready to go!</p>
-
-<p>However, we noticed that <strong>you haven't yet submitted a scholarship application</strong>. Scholarship slots are limited and deadlines are approaching fast.</p>
-
-<p><strong>Why apply now?</strong></p>
-<ul>
-  <li>Fully-funded scholarships covering tuition, boarding, meals and more</li>
-  <li>Your child's profile is already complete — the application takes just minutes</li>
-  <li>Some scholarships have only a few slots remaining</li>
-</ul>
-
-<p>Log in to your dashboard, browse available scholarships, and submit your application today. Our team reviews every application personally.</p>
-
-<p>Questions? We're here at <a href="mailto:supports@schoolgatess.com">supports@schoolgatess.com</a>.</p>`,
+  no_application:{
+    subject:"Your child's profile is ready — apply for a scholarship today!",
+    preview:"You are one step away — submit your application before deadlines close.",
+    body:"<p>Your child's profile on ScholarsGate is all set — great work getting this far, {{firstName}}!</p><p>However, we noticed that <strong>you haven't yet submitted a scholarship application</strong>. Scholarship slots are limited and some deadlines are approaching fast.</p><p><strong>Why you should apply right now:</strong></p><ul><li>Fully-funded scholarships covering tuition, boarding, meals and more</li><li>Your child's profile is already complete — the application takes just minutes</li><li>Some scholarships have only a few slots remaining</li></ul><p>Log in to your dashboard, browse the available scholarships, and submit your application today.</p><p>Questions? Our team is here at <a href='mailto:supports@schoolgatess.com'>supports@schoolgatess.com</a>.</p>"
   },
-
-  offer_expired: {
-    subject: 'Your offer letter has expired — we can help you reapply',
-    preview: 'Don\'t worry — new scholarship opportunities are available. Let us help you get back on track.',
-    body: `<p>We noticed that an offer letter we issued for your child has unfortunately expired without being accepted.</p>
-
-<p>We understand that circumstances can change, and we want you to know that <strong>new scholarship opportunities are available</strong> on the platform.</p>
-
-<p><strong>Here's what you can do right now:</strong></p>
-<ul>
-  <li>Browse new scholarships currently open for applications</li>
-  <li>Apply to multiple schools to maximise your chances</li>
-  <li>Contact our admissions team if you need guidance or have questions about a previous offer</li>
-</ul>
-
-<p>Your child's future is still bright — and we are here to help every step of the way.</p>
-
-<p>Please reach out directly at <a href="mailto:supports@schoolgatess.com">supports@schoolgatess.com</a> and we will do our best to assist you.</p>`,
+  offer_expired:{
+    subject:"Your offer letter has expired — new opportunities are still available",
+    preview:"New scholarships are open. We are here to help you get back on track.",
+    body:"<p>We noticed that an offer letter we issued for your child has unfortunately expired without being accepted, {{firstName}}.</p><p>We understand that circumstances can change, and we want you to know that <strong>new scholarship opportunities are available</strong> on the platform right now.</p><p><strong>Here is what you can do today:</strong></p><ul><li>Browse new scholarships that are currently open for applications</li><li>Apply to multiple schools to maximise your child's chances</li><li>Contact our admissions team if you need guidance about a previous offer</li></ul><p>Your child's future is still bright — and we are here to help every step of the way.</p><p>Reach out anytime at <a href='mailto:supports@schoolgatess.com'>supports@schoolgatess.com</a>.</p>"
   },
-
-  general: {
-    subject: 'An important update from ScholarsGate',
-    preview: 'Log in to your ScholarsGate dashboard for the latest scholarship opportunities.',
-    body: `<p>We hope this message finds you well.</p>
-
-<p>We're reaching out with an important update regarding scholarship opportunities available on <strong>ScholarsGate</strong>.</p>
-
-<p>Log in to your parent dashboard to explore the latest scholarships, check your application status, and take the next steps toward securing your child's future at an elite USA school.</p>
-
-<p>As always, our admissions team is available to assist you at any stage. Simply email us at <a href="mailto:supports@schoolgatess.com">supports@schoolgatess.com</a>.</p>`,
-  },
+  all_guardians:{
+    subject:"An important update from ScholarsGate",
+    preview:"Log in to your dashboard for the latest scholarship opportunities.",
+    body:"<p>We hope this message finds you well, {{firstName}}.</p><p>We are reaching out with an important update regarding scholarship opportunities currently available on <strong>ScholarsGate</strong>.</p><p>Log in to your parent dashboard to:</p><ul><li>Explore the latest open scholarships</li><li>Check your application status</li><li>Take the next steps toward securing your child's future at an elite USA school</li></ul><p>Our admissions team is always available to assist you at <a href='mailto:supports@schoolgatess.com'>supports@schoolgatess.com</a>.</p>"
+  }
 };
 
-// ── Select a segment card ────────────────────────────────────────────────────
-function selectSegment(id, label, count) {
-  activeSegment = id;
-  activeCount   = count;
-  activeLabel   = label;
+// ── State ─────────────────────────────────────────────────────────────────────
+var activeSegment=null,activeCount=0,activeLabel='',pendingPayload=null,searchTimer=null,selectedGuardian=null;
+var sample={first:'James',last:'Okafor',email:'james.okafor@email.com'};
+var g=function(id){return document.getElementById(id);};
 
-  // Update card highlight
-  document.querySelectorAll('.segment-card').forEach(c => c.classList.remove('selected'));
-  document.getElementById('seg-' + id)?.classList.add('selected');
+// ── Tabs ──────────────────────────────────────────────────────────────────────
+document.querySelectorAll('.tab-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+    document.querySelectorAll('.tab-panel').forEach(function(p){p.style.display='none';});
+    btn.classList.add('active');
+    g('tab-'+btn.dataset.tab).style.display='block';
+  });
+});
 
-  // Update audience indicator
-  document.getElementById('audienceLabel').textContent  = label;
-  document.getElementById('audienceCount').textContent  = count;
-  document.getElementById('noSegmentPrompt').style.display = 'none';
-  document.getElementById('audienceIndicator').style.display = 'block';
-  document.getElementById('campaignForm').style.display = 'block';
-  document.getElementById('selectedSegment').value = id;
+// ── Segment cards ─────────────────────────────────────────────────────────────
+document.querySelectorAll('.segment-card').forEach(function(card){
+  card.addEventListener('click',function(){
+    document.querySelectorAll('.segment-card').forEach(function(c){c.classList.remove('selected');});
+    card.classList.add('selected');
+    activeSegment=card.dataset.id; activeCount=parseInt(card.dataset.count,10); activeLabel=card.dataset.label;
+    g('audienceLabel').textContent=activeLabel; g('audienceCount').textContent=activeCount;
+    g('noSegmentPrompt').style.display='none'; g('audienceIndicator').style.display='block'; g('segmentComposeForm').style.display='block';
+    g('selectedSegment').value=activeSegment; g('sampleList').style.display='none';
+    var tpl=T[activeSegment]; if(tpl) loadInto('seg',tpl);
+  });
+});
 
-  // Reset sample list
-  document.getElementById('sampleList').style.display = 'none';
-  document.getElementById('sampleNames').textContent  = '';
+// ── Load template ─────────────────────────────────────────────────────────────
+function loadInto(p,tpl){
+  var sub=document.querySelector('[data-field="'+p+'-subject"]');
+  var pre=document.querySelector('[data-field="'+p+'-preview"]');
+  var bod=document.querySelector('[data-field="'+p+'-body"]');
+  if(sub) sub.value=tpl.subject;
+  if(pre) pre.value=tpl.preview;
+  if(bod) bod.innerHTML=tpl.body;
+  refreshPreview(p);
 }
 
-// ── Preview audience (fetch sample) ─────────────────────────────────────────
-async function previewAudience() {
-  if (!activeSegment) { showToast('Select a segment first.', 'error'); return; }
-  const btn = document.getElementById('previewBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span> Loading...';
+// ── Quick template buttons ────────────────────────────────────────────────────
+document.querySelectorAll('.tpl-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var tpl=T[btn.dataset.template];
+    if(tpl){loadInto(btn.dataset.prefix,tpl);showToast('Template loaded.','success');}
+  });
+});
 
-  try {
-    const res  = await fetch(`/admin/email-campaigns/preview?segment=${activeSegment}`);
-    const data = await res.json();
-    if (data.success) {
-      document.getElementById('audienceCount').textContent      = data.count;
-      document.getElementById('sampleNames').innerHTML =
-        data.sample.map(s => `<span style="display:inline-block;background:rgba(0,0,0,0.06);border-radius:99px;padding:2px 10px;font-size:0.75rem;margin:2px;">${s.name} &lt;${s.email}&gt;</span>`).join('');
-      document.getElementById('sampleList').style.display = 'block';
-      showToast(`${data.count} recipients found.`, 'success');
-    }
-  } catch(e) {
-    showToast('Failed to load preview.', 'error');
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '<i class="fa-solid fa-eye"></i> Preview Audience';
-  }
-}
+// ── Toolbar buttons ───────────────────────────────────────────────────────────
+document.querySelectorAll('[data-fmt]').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var p=btn.dataset.prefix;
+    var editor=document.querySelector('[data-field="'+p+'-body"]');
+    if(!editor) return; editor.focus();
+    var cmd=btn.dataset.fmt;
+    if(cmd==='heading2') document.execCommand('formatBlock',false,'h2');
+    else if(cmd==='heading3') document.execCommand('formatBlock',false,'h3');
+    else if(cmd==='link'){var url=prompt('Enter URL:','https://');if(url)document.execCommand('createLink',false,url);}
+    else document.execCommand(cmd,false,null);
+    refreshPreview(p);
+  });
+});
 
-// ── Load a template ──────────────────────────────────────────────────────────
-function loadTemplate(key) {
-  const tpl = TEMPLATES[key];
-  if (!tpl) return;
-  document.getElementById('emailSubject').value  = tpl.subject;
-  document.getElementById('emailPreview').value  = tpl.preview;
-  document.getElementById('emailEditor').innerHTML = tpl.body;
-  showToast('Template loaded.', 'success');
-}
+document.querySelectorAll('.insert-tag-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var p=btn.dataset.prefix;
+    var editor=document.querySelector('[data-field="'+p+'-body"]');
+    if(!editor) return; editor.focus();
+    document.execCommand('insertText',false,'{{firstName}}');
+    refreshPreview(p);
+  });
+});
 
-// ── Toolbar helpers ──────────────────────────────────────────────────────────
-function fmt(cmd) {
-  document.getElementById('emailEditor').focus();
-  document.execCommand(cmd, false, null);
-}
-function fmtHeading(tag) {
-  document.getElementById('emailEditor').focus();
-  document.execCommand('formatBlock', false, tag);
-}
-function insertLink() {
-  const url = prompt('Enter URL:', 'https://');
-  if (url) {
-    document.getElementById('emailEditor').focus();
-    document.execCommand('createLink', false, url);
-  }
-}
-function insertTag(tag) {
-  document.getElementById('emailEditor').focus();
-  document.execCommand('insertText', false, `{{${tag}}}`);
-}
+document.querySelectorAll('.clear-editor-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var p=btn.dataset.prefix;
+    var editor=document.querySelector('[data-field="'+p+'-body"]');
+    if(!editor) return;
+    if(confirm('Clear the email body?')){editor.innerHTML='';refreshPreview(p);}
+  });
+});
 
-// ── Send — open confirm modal ────────────────────────────────────────────────
-function sendCampaign() {
-  const subject  = document.getElementById('emailSubject').value.trim();
-  const bodyHtml = document.getElementById('emailEditor').innerHTML.trim();
+// Auto-refresh preview on input
+document.addEventListener('input',function(e){
+  var el=e.target;
+  if(!el.dataset.field) return;
+  var p=el.dataset.field.split('-')[0];
+  refreshPreview(p);
+});
 
-  if (!activeSegment)    { showToast('Please select an audience segment.', 'error'); return; }
-  if (!subject)          { showToast('Please enter a subject line.', 'error'); return; }
-  if (!bodyHtml || bodyHtml === '<br>') { showToast('Please write the email body.', 'error'); return; }
-  if (activeCount === 0) { showToast('This segment has 0 recipients.', 'error'); return; }
+// ── Live preview toggle ───────────────────────────────────────────────────────
+document.querySelectorAll('.live-preview-toggle').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var p=btn.dataset.prefix;
+    var panel=g(p+'-live-preview');
+    if(!panel) return;
+    var showing=panel.style.display!=='none';
+    panel.style.display=showing?'none':'block';
+    btn.innerHTML=showing?'<i class="fa-solid fa-eye"></i> Live Preview':'<i class="fa-solid fa-eye-slash"></i> Hide Preview';
+    if(!showing) refreshPreview(p);
+  });
+});
 
-  document.getElementById('confirmSegment').textContent = activeLabel;
-  document.getElementById('confirmCount').textContent   = `${activeCount} parents`;
-  document.getElementById('confirmSubject').textContent = subject;
-  openModal('confirmModal');
-}
-
-// ── Confirmed — fire the API ─────────────────────────────────────────────────
-async function confirmSend() {
-  const btn = document.getElementById('confirmSendBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span> Sending...';
-
-  const payload = {
-    segment:     activeSegment,
-    subject:     document.getElementById('emailSubject').value.trim(),
-    previewText: document.getElementById('emailPreview').value.trim(),
-    bodyHtml:    document.getElementById('emailEditor').innerHTML.trim(),
-  };
-
-  try {
-    const res  = await fetch('/admin/email-campaigns/send', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+// ── Sample name switcher ──────────────────────────────────────────────────────
+document.querySelectorAll('.sample-name-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var p=btn.dataset.prefix;
+    sample.first=btn.dataset.first; sample.last=btn.dataset.last; sample.email=btn.dataset.email;
+    document.querySelectorAll('.sample-name-btn[data-prefix="'+p+'"]').forEach(function(b){
+      b.style.background=''; b.style.borderColor=''; b.style.color='';
     });
-    const data = await res.json();
+    btn.style.background='rgba(201,168,76,0.1)'; btn.style.borderColor='var(--color-gold)'; btn.style.color='var(--color-gold-dim)';
+    refreshPreview(p);
+  });
+});
 
-    closeModal('confirmModal');
-
-    // Show result modal
-    if (data.success) {
-      document.getElementById('resultIcon').textContent    = '✅';
-      document.getElementById('resultTitle').textContent   = 'Campaign Sent!';
-      document.getElementById('resultMessage').textContent = data.message;
-      document.getElementById('statSent').textContent      = data.sent   ?? '—';
-      document.getElementById('statFailed').textContent    = data.failed ?? '0';
-      document.getElementById('resultStats').style.display = 'flex';
-    } else {
-      document.getElementById('resultIcon').textContent    = '⚠️';
-      document.getElementById('resultTitle').textContent   = 'Not Sent';
-      document.getElementById('resultMessage').textContent = data.message || 'Something went wrong.';
-      document.getElementById('resultStats').style.display = 'none';
-    }
-    openModal('resultModal');
-
-  } catch(e) {
-    closeModal('confirmModal');
-    showToast('Network error. Please try again.', 'error');
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Yes, Send Now';
-  }
+// ── Refresh live preview ──────────────────────────────────────────────────────
+function refreshPreview(p){
+  var panel=g(p+'-live-preview');
+  if(!panel||panel.style.display==='none') return;
+  var subEl=document.querySelector('[data-field="'+p+'-subject"]');
+  var preEl=document.querySelector('[data-field="'+p+'-preview"]');
+  var bodEl=document.querySelector('[data-field="'+p+'-body"]');
+  var subj=subEl?subEl.value:'';
+  var prev=preEl?preEl.value:'';
+  var body=bodEl?bodEl.innerHTML:'';
+  // Replace {{firstName}} with highlighted sample name for preview only
+  var personalised=body
+    .replace(/\{\{firstName\}\}/g,'<strong style="color:#c9a84c;">'+sample.first+'</strong>')
+    .replace(/\{\{lastName\}\}/g,sample.last)
+    .replace(/\{\{fullName\}\}/g,sample.first+' '+sample.last);
+  var subjEl=g(p+'-preview-subject');
+  var prevtEl=g(p+'-preview-previewtext');
+  var nameEl=g(p+'-preview-name');
+  var bodyEl=g(p+'-preview-body');
+  var toEl=g(p+'-preview-to');
+  if(subjEl) subjEl.textContent=subj||'(subject will appear here)';
+  if(prevtEl) prevtEl.textContent=prev||'(preview text will appear here)';
+  if(nameEl) nameEl.textContent=sample.first;
+  if(bodyEl) bodyEl.innerHTML=personalised||'<em style="color:#aaa;">Body will appear here...</em>';
+  if(toEl) toEl.textContent=sample.first+' '+sample.last+' <'+sample.email+'>';
 }
+
+// ── Preview audience ──────────────────────────────────────────────────────────
+g('previewBtn').addEventListener('click',async function(){
+  if(!activeSegment){showToast('Select a segment first.','error');return;}
+  var btn=g('previewBtn'); btn.disabled=true; btn.innerHTML='<span class="spinner"></span>';
+  try{
+    var res=await fetch('/admin/email-campaigns/preview?segment='+activeSegment);
+    var data=await res.json();
+    if(data.success){
+      g('audienceCount').textContent=data.count; activeCount=data.count;
+      g('sampleNames').innerHTML=data.sample.map(function(s){
+        return '<span style="background:rgba(0,0,0,0.06);border-radius:99px;padding:2px 10px;font-size:0.72rem;display:inline-block;">'+s.name+' &lt;'+s.email+'&gt;</span>';
+      }).join('');
+      g('sampleList').style.display='block';
+      showToast(data.count+' recipients found.','success');
+    }
+  }catch(e){showToast('Preview failed.','error');}
+  finally{btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-eye"></i> Preview audience list';}
+});
+
+// ── Segment send button ───────────────────────────────────────────────────────
+g('sendSegmentBtn').addEventListener('click',function(){
+  var subEl=document.querySelector('[data-field="seg-subject"]');
+  var bodEl=document.querySelector('[data-field="seg-body"]');
+  var subject=subEl?subEl.value.trim():'';
+  var bodyHtml=bodEl?bodEl.innerHTML.trim():'';
+  if(!activeSegment){showToast('Select a segment.','error');return;}
+  if(!subject){showToast('Enter a subject line.','error');return;}
+  if(!bodyHtml||bodyHtml==='<br>'){showToast('Write the email body.','error');return;}
+  if(activeCount===0){showToast('No recipients in this segment.','error');return;}
+  pendingPayload={type:'segment',segment:activeSegment,subject:subject,
+    previewText:(document.querySelector('[data-field="seg-preview"]')||{}).value||'',bodyHtml:bodyHtml};
+  g('confirmTo').textContent=activeLabel+' — '+activeCount+' parents';
+  g('confirmSubject').textContent=subject;
+  openModal('confirmModal');
+});
+
+// ── Guardian search ───────────────────────────────────────────────────────────
+g('guardianSearch').addEventListener('input',function(){
+  clearTimeout(searchTimer);
+  var q=g('guardianSearch').value.trim();
+  if(q.length<2){
+    g('guardianResults').innerHTML='<div style="padding:1.5rem;text-align:center;color:var(--color-text-muted);font-size:0.875rem;">Type at least 2 characters to search</div>';
+    return;
+  }
+  searchTimer=setTimeout(function(){doSearch(q);},300);
+});
+
+async function doSearch(q){
+  g('guardianResults').innerHTML='<div style="padding:1rem;text-align:center;"><span class="spinner"></span></div>';
+  try{
+    var res=await fetch('/admin/email-campaigns/search-guardians?q='+encodeURIComponent(q));
+    var data=await res.json();
+    if(!data.guardians||data.guardians.length===0){
+      g('guardianResults').innerHTML='<div style="padding:1.5rem;text-align:center;color:var(--color-text-muted);font-size:0.875rem;">No parents found.</div>';
+      return;
+    }
+    g('guardianResults').innerHTML=data.guardians.map(function(gu){
+      return '<div class="guardian-result-item" data-id="'+gu._id+'" data-name="'+gu.firstName+' '+gu.lastName+'" data-email="'+gu.email+'" data-first="'+gu.firstName+'" data-last="'+gu.lastName+'">'+
+        '<div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#c9a84c,#e8c96a);display:flex;align-items:center;justify-content:center;font-weight:700;color:#0a0e1a;font-size:0.875rem;flex-shrink:0;">'+(gu.firstName||'?')[0].toUpperCase()+'</div>'+
+        '<div style="min-width:0;flex:1;"><div style="font-weight:600;font-size:0.875rem;color:var(--color-text-primary);">'+gu.firstName+' '+gu.lastName+'</div>'+
+        '<div style="font-size:0.775rem;color:var(--color-text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+gu.email+'</div>'+
+        (gu.country?'<div style="font-size:0.7rem;color:var(--color-text-muted);">'+gu.country+'</div>':'')+'</div>'+
+        '<i class="fa-solid fa-chevron-right" style="color:var(--color-text-muted);font-size:0.75rem;flex-shrink:0;margin-left:auto;"></i></div>';
+    }).join('');
+    g('guardianResults').querySelectorAll('.guardian-result-item').forEach(function(item){
+      item.addEventListener('click',function(){pickGuardian(item);});
+    });
+  }catch(e){g('guardianResults').innerHTML='<div style="padding:1rem;text-align:center;color:var(--color-danger-light);">Search failed.</div>';}
+}
+
+function pickGuardian(item){
+  g('guardianResults').querySelectorAll('.guardian-result-item').forEach(function(i){i.classList.remove('selected-item');});
+  item.classList.add('selected-item');
+  selectedGuardian={id:item.dataset.id,name:item.dataset.name,email:item.dataset.email,first:item.dataset.first,last:item.dataset.last};
+  g('recipientAvatar').textContent=selectedGuardian.name[0].toUpperCase();
+  g('recipientName').textContent=selectedGuardian.name;
+  g('recipientEmail').textContent=selectedGuardian.email;
+  g('selectedRecipient').style.display='block';
+  g('noRecipientPrompt').style.display='none';
+  g('individualComposeForm').style.display='block';
+  g('individualRecipientId').value=selectedGuardian.id;
+  g('individualRecipientEmail').value=selectedGuardian.email;
+  // Update preview sample to match this specific parent
+  sample.first=selectedGuardian.first||'Parent';
+  sample.last=selectedGuardian.last||'';
+  sample.email=selectedGuardian.email;
+  // Load general template pre-filled
+  loadInto('ind',T['all_guardians']);
+}
+
+g('clearRecipient').addEventListener('click',function(){
+  selectedGuardian=null;
+  g('selectedRecipient').style.display='none';
+  g('noRecipientPrompt').style.display='block';
+  g('individualComposeForm').style.display='none';
+  g('guardianResults').querySelectorAll('.guardian-result-item').forEach(function(i){i.classList.remove('selected-item');});
+});
+
+// ── Individual send button ────────────────────────────────────────────────────
+g('sendIndividualBtn').addEventListener('click',function(){
+  if(!selectedGuardian){showToast('Select a recipient first.','error');return;}
+  var subEl=document.querySelector('[data-field="ind-subject"]');
+  var bodEl=document.querySelector('[data-field="ind-body"]');
+  var subject=subEl?subEl.value.trim():'';
+  var bodyHtml=bodEl?bodEl.innerHTML.trim():'';
+  if(!subject){showToast('Enter a subject line.','error');return;}
+  if(!bodyHtml||bodyHtml==='<br>'){showToast('Write the email body.','error');return;}
+  pendingPayload={type:'individual',recipientId:selectedGuardian.id,recipientEmail:selectedGuardian.email,
+    subject:subject,previewText:(document.querySelector('[data-field="ind-preview"]')||{}).value||'',bodyHtml:bodyHtml};
+  g('confirmTo').textContent=selectedGuardian.name+' <'+selectedGuardian.email+'>';
+  g('confirmSubject').textContent=subject;
+  openModal('confirmModal');
+});
+
+// ── Confirm modal ─────────────────────────────────────────────────────────────
+g('closeConfirmBtn').addEventListener('click',function(){closeModal('confirmModal');});
+g('cancelConfirmBtn').addEventListener('click',function(){closeModal('confirmModal');});
+
+g('confirmSendBtn').addEventListener('click',async function(){
+  var btn=g('confirmSendBtn'); btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Sending...';
+  try{
+    var res=await fetch('/admin/email-campaigns/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(pendingPayload)});
+    var data=await res.json();
+    closeModal('confirmModal');
+    g('resultIcon').textContent=data.success?'✅':'⚠️';
+    g('resultTitle').textContent=data.success?'Email Sent!':'Not Sent';
+    g('resultMessage').textContent=data.message||'';
+    if(data.sent!==undefined){g('statSent').textContent=data.sent;g('statFailed').textContent=data.failed||0;g('resultStats').style.display='flex';}
+    else{g('resultStats').style.display='none';}
+    openModal('resultModal');
+  }catch(e){closeModal('confirmModal');showToast('Network error. Please try again.','error');}
+  finally{btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-paper-plane"></i> Yes, Send Now';}
+});
+
+g('resultDoneBtn').addEventListener('click',function(){closeModal('resultModal');location.reload();});
+
+})();
 </script>
-</body>
-</html>

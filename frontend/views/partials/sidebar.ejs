@@ -1,3 +1,4 @@
+<%-- FILE: frontend/views/partials/sidebar.ejs — FULL REPLACEMENT --%>
 <aside class="dashboard-sidebar" id="dashboard-sidebar">
   <div class="sidebar-header">
     <a href="/" class="sidebar-logo">
@@ -43,7 +44,8 @@
       </a>
 
     <% } else { %>
-      <!-- Admin Navigation -->
+      <%-- ── Admin Navigation ───────────────────────────────────────────── --%>
+
       <span class="sidebar-section-label">Overview</span>
       <a href="/admin/dashboard" class="sidebar-nav-item <%= currentPath === '/admin/dashboard' ? 'active' : '' %>">
         <span class="nav-icon"><i class="fa-solid fa-chart-line"></i></span>Analytics
@@ -77,6 +79,7 @@
       </a>
 
       <% if (user && user.role === 'platform_admin') { %>
+      <span class="sidebar-section-label">System</span>
       <a href="/admin/users" class="sidebar-nav-item <%= currentPath === '/admin/users' ? 'active' : '' %>">
         <span class="nav-icon"><i class="fa-solid fa-users"></i></span>Users
       </a>
@@ -84,6 +87,7 @@
         <span class="nav-icon"><i class="fa-solid fa-list-check"></i></span>Audit Logs
       </a>
       <% } %>
+
     <% } %>
   </nav>
 
@@ -98,11 +102,12 @@
       </div>
       <div class="sidebar-user-info">
         <div class="user-name"><%= user ? `${user.firstName} ${user.lastName}` : 'User' %></div>
-        <div class="user-role"><%= user ? (user.role || 'guardian').replace('_',' ') : '' %></div>
+        <div class="user-role"><%= user ? (user.role || 'guardian').replace(/_/g,' ') : '' %></div>
       </div>
     </div>
     <form action="/auth/logout" method="POST">
-      <button type="submit" class="sidebar-nav-item w-full" style="width:100%;text-align:left;border:none;cursor:pointer;background:none;margin-top:8px;">
+      <button type="submit" class="sidebar-nav-item w-full"
+        style="width:100%;text-align:left;border:none;cursor:pointer;background:none;margin-top:8px;">
         <span class="nav-icon"><i class="fa-solid fa-right-from-bracket"></i></span>Sign Out
       </button>
     </form>
