@@ -56,6 +56,19 @@ const resolveSegment = async (segment) => {
 // Wraps the admin-written body inside the ScholarsGate HTML email template.
 // The greeting "Dear [firstName]," is added here automatically.
 // ─────────────────────────────────────────────────────────────────────────────
+// ── Sanitize body — strips markdown artifacts that sneak in from copy-paste ──
+const sanitizeBody = (html) => {
+  return html
+    // Fix markdown links inside href: href="[text](url)" → href="url"
+    .replace(/href="\[([^\]]+)\]\(([^)]+)\)"/g, 'href="$2"')
+    // Fix markdown links as text content: [text](url) → text
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    // Strip any remaining markdown bold **text** → text
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    // Strip markdown italic *text* → text
+    .replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>');
+};
+
 const wrapInTemplate = ({ firstName, subject, previewText, bodyHtml }) => `
 <!DOCTYPE html>
 <html lang="en">
@@ -271,7 +284,8 @@ exports.sendCampaign = async (req, res, next) => {
     if (!guardian) return next(new AppError('Recipient not found.', 404));
 
     // Replace {{firstName}} with the actual parent name
-    const personalised = bodyHtml
+    const cleanBody  = sanitizeBody(bodyHtml);
+    const personalised = cleanBody
       .replace(/\{\{firstName\}\}/g, guardian.firstName || 'Parent')
       .replace(/\{\{lastName\}\}/g,  guardian.lastName  || '')
       .replace(/\{\{fullName\}\}/g,  `${guardian.firstName || 'Parent'} ${guardian.lastName || ''}`.trim());
@@ -327,7 +341,8 @@ exports.sendCampaign = async (req, res, next) => {
   for (const guardian of guardians) {
     try {
       // Replace {{firstName}} {{lastName}} {{fullName}} per recipient
-      const personalised = bodyHtml
+      const cleanBody  = sanitizeBody(bodyHtml);
+      const personalised = cleanBody
         .replace(/\{\{firstName\}\}/g, guardian.firstName || 'Parent')
         .replace(/\{\{lastName\}\}/g,  guardian.lastName  || '')
         .replace(/\{\{fullName\}\}/g,  `${guardian.firstName || 'Parent'} ${guardian.lastName || ''}`.trim());

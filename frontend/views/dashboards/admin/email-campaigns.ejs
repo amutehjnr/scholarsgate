@@ -839,5 +839,23 @@ g('confirmSendBtn').addEventListener('click',async function(){
 
 g('resultDoneBtn').addEventListener('click',function(){closeModal('resultModal');location.reload();});
 
+// ── Paste sanitizer — strips markdown when pasting into any editor ────────────
+// Prevents [text](url) markdown from appearing as literal text in emails
+document.querySelectorAll('.email-editor').forEach(function(editor){
+  editor.addEventListener('paste',function(e){
+    e.preventDefault();
+    var text = (e.clipboardData||window.clipboardData).getData('text/html')
+            || (e.clipboardData||window.clipboardData).getData('text/plain');
+    // Convert markdown links to HTML links
+    text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2">$1</a>');
+    // Convert markdown bold to HTML
+    text = text.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
+    document.execCommand('insertHTML',false,text);
+    // Refresh live preview
+    var p=editor.dataset.field?editor.dataset.field.split('-')[0]:'seg';
+    refreshPreview(p);
+  });
+});
+
 })();
 </script>
