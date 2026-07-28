@@ -58,15 +58,24 @@ const resolveSegment = async (segment) => {
 // ─────────────────────────────────────────────────────────────────────────────
 // ── Sanitize body — strips markdown artifacts that sneak in from copy-paste ──
 const sanitizeBody = (html) => {
-  return html
-    // Fix markdown links inside href: href="[text](url)" → href="url"
-    .replace(/href="\[([^\]]+)\]\(([^)]+)\)"/g, 'href="$2"')
-    // Fix markdown links as text content: [text](url) → text
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-    // Strip any remaining markdown bold **text** → text
-    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-    // Strip markdown italic *text* → text
-    .replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>');
+  // Step 1: decode HTML entities — fixes tags that were typed as text
+  // e.g. browser sends &lt;p&gt;Hello&lt;/p&gt; instead of <p>Hello</p>
+  let out = html
+    .replace(/&lt;/g,   '<')
+    .replace(/&gt;/g,   '>')
+    .replace(/&amp;/g,  '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g,  "'")
+    .replace(/&nbsp;/g, ' ');
+
+  // Step 2: fix markdown links that sneak in via copy-paste
+  // [text](url) → <a href="url">text</a>
+  out = out.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+
+  // Step 3: fix corrupted href attributes like href="[text](url)"
+  out = out.replace(/href="[^"]*\[([^\]]+)\]\(([^)]+)\)[^"]*"/g, 'href="$2"');
+
+  return out;
 };
 
 const wrapInTemplate = ({ firstName, subject, previewText, bodyHtml }) => `
