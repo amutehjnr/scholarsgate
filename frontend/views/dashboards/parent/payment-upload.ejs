@@ -42,10 +42,10 @@
 
             <!-- Tab selector -->
             <div style="display:flex;gap:0.5rem;margin-bottom:1.5rem;border-bottom:2px solid rgba(0,0,0,0.08);padding-bottom:0;">
-              <button type="button" onclick="switchTab('bank')" id="tab-bank"
+              <!-- <button type="button" onclick="switchTab('bank')" id="tab-bank"
                 style="padding:0.625rem 1.25rem;font-size:0.8rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;border:none;background:none;cursor:pointer;border-bottom:2px solid var(--color-gold);margin-bottom:-2px;color:var(--color-gold-dim);">
                 <i class="fa-solid fa-building-columns" style="margin-right:6px;"></i>Bank Transfer
-              </button>
+              </button> -->
               <% if (bankDetails?.cryptoEnabled) { %>
               <button type="button" onclick="switchTab('crypto')" id="tab-crypto"
                 style="padding:0.625rem 1.25rem;font-size:0.8rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;color:var(--color-text-muted);">
@@ -55,7 +55,7 @@
             </div>
 
             <!-- ─── Bank Tab ─────────────────────────────────────────── -->
-            <div id="panel-bank">
+            <!-- <div id="panel-bank">
               <% if (bankDetails) { %>
               <div class="bank-details-card">
                 <h3>Bank Transfer Details</h3>
@@ -90,7 +90,7 @@
                 <p style="font-size:0.875rem;color:rgba(255,255,255,0.5);">At this time, we accept cryptocurrency payments only to better accomodate our international students and simplify cross-border transaction. Contact <a href="mailto:supports@schoolgatess.com" style="color:var(--color-gold);">payments@scholarsgate.com</a></p>
               </div>
               <% } %>
-            </div>
+            </div> -->
 
             <!-- ─── Crypto Tab ────────────────────────────────────────── -->
             <% if (bankDetails?.cryptoEnabled) { %>
