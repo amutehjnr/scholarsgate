@@ -11,8 +11,8 @@
 <div class="dashboard-layout">
   <div class="sidebar-overlay"></div>
   <%- include('../../partials/sidebar') %>
-
   <div class="dashboard-main">
+
     <div class="dashboard-topbar">
       <div class="topbar-left">
         <button class="sidebar-toggle" style="width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.04);border:none;cursor:pointer;">
@@ -29,78 +29,98 @@
         </span>
       </div>
     </div>
+
     <%- include('../../partials/flash') %>
 
     <div class="dashboard-content">
 
       <!-- Tab bar -->
       <div style="display:flex;gap:0.5rem;border-bottom:2px solid rgba(0,0,0,0.08);margin-bottom:1.75rem;">
-        <button class="tab-btn active" data-tab="segment">
-          <i class="fa-solid fa-users"></i> Send by Segment
-        </button>
-        <button class="tab-btn" data-tab="individual">
-          <i class="fa-solid fa-user"></i> Send to Individual
-        </button>
-        <button class="tab-btn" data-tab="history">
-          <i class="fa-solid fa-clock-rotate-left"></i> Send History
-        </button>
+        <button class="tab-btn active" data-tab="segment"><i class="fa-solid fa-users"></i> Send by Segment</button>
+        <button class="tab-btn" data-tab="individual"><i class="fa-solid fa-user"></i> Send to Individual</button>
+        <button class="tab-btn" data-tab="history"><i class="fa-solid fa-clock-rotate-left"></i> Send History</button>
       </div>
 
       <!-- ═══ TAB 1 — SEGMENT ═══════════════════════════════════════════════ -->
       <div id="tab-segment" class="tab-panel">
         <div style="display:grid;grid-template-columns:1fr 1.7fr;gap:1.75rem;align-items:start;">
 
-          <!-- LEFT: segment cards -->
-          <div style="display:flex;flex-direction:column;gap:1rem;">
-            <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--color-text-muted);">
-              Step 1 — Select Your Audience
-            </div>
+          <!-- LEFT: segment cards grouped -->
+          <div style="display:flex;flex-direction:column;gap:1.5rem;">
 
-            <% segments.forEach(seg => { %>
-            <div class="segment-card"
-              data-id="<%= seg.id %>"
-              data-label="<%= seg.label %>"
-              data-count="<%= seg.count %>"
-              style="padding:1.25rem 1.5rem;background:#fff;border-radius:14px;box-shadow:var(--shadow-sm);
-              border:2px solid transparent;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;">
+            <%
+              const groups = [...new Set(segments.map(s => s.group))];
+              const groupColors = {
+                Onboarding:   { bar:'#c9a84c', icon:'rgba(201,168,76,0.1)',    text:'#8a6000'  },
+                Applications: { bar:'#1a6b2a', icon:'rgba(26,107,42,0.1)',     text:'var(--color-success-light)' },
+                Payments:     { bar:'#1a3a6a', icon:'var(--color-info-bg)',    text:'var(--color-info)' },
+                Broadcast:    { bar:'#0a0e1a', icon:'rgba(0,0,0,0.06)',        text:'var(--color-text-secondary)' },
+              };
+            %>
 
-              <div style="position:absolute;left:0;top:0;bottom:0;width:4px;background:
-                <%= seg.color==='warning'?'#c9a84c':seg.color==='info'?'#1a3a6a':seg.color==='danger'?'#c0392b':'linear-gradient(180deg,#c9a84c,#e8c96a)' %>;"></div>
+            <% groups.forEach(group => { %>
+            <div>
+              <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;
+                color:var(--color-text-muted);margin-bottom:0.75rem;padding-bottom:0.5rem;
+                border-bottom:2px solid rgba(0,0,0,0.06);display:flex;align-items:center;gap:0.5rem;">
+                <% if(group==='Onboarding')   { %><i class="fa-solid fa-door-open" style="color:#c9a84c;"></i><% } %>
+                <% if(group==='Applications') { %><i class="fa-solid fa-file-lines" style="color:var(--color-success-light);"></i><% } %>
+                <% if(group==='Payments')     { %><i class="fa-solid fa-credit-card" style="color:var(--color-info);"></i><% } %>
+                <% if(group==='Broadcast')    { %><i class="fa-solid fa-bullhorn" style="color:var(--color-text-muted);"></i><% } %>
+                <%= group %>
+              </div>
 
-              <div style="display:flex;align-items:center;gap:1rem;padding-left:0.5rem;">
-                <div style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
-                  background:<%= seg.color==='warning'?'rgba(201,168,76,0.1)':seg.color==='info'?'var(--color-info-bg)':seg.color==='danger'?'var(--color-danger-bg)':'rgba(201,168,76,0.12)' %>;">
-                  <i class="fa-solid <%= seg.icon %>" style="font-size:1.1rem;color:
-                    <%= seg.color==='warning'?'#8a6000':seg.color==='info'?'var(--color-info)':seg.color==='danger'?'var(--color-danger-light)':'var(--color-gold-dim)' %>;"></i>
-                </div>
-                <div style="flex:1;min-width:0;">
-                  <div style="font-weight:700;font-size:0.875rem;color:var(--color-text-primary);margin-bottom:3px;">
-                    <%= seg.label %>
+              <div style="display:flex;flex-direction:column;gap:0.625rem;">
+                <% segments.filter(s => s.group === group).forEach(seg => {
+                  const gc = groupColors[group] || groupColors.Broadcast;
+                %> 
+                <div class="segment-card"
+                  data-id="<%= seg.id %>"
+                  data-label="<%= seg.label %>"
+                  data-count="<%= seg.count %>"
+                  data-group="<%= seg.group %>"
+                  style="padding:1rem 1.25rem;background:#fff;border-radius:12px;box-shadow:var(--shadow-sm);
+                  border:2px solid transparent;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;">
+
+                  <div style="position:absolute;left:0;top:0;bottom:0;width:4px;background:<%= gc.bar %>;"></div>
+
+                  <div style="display:flex;align-items:center;gap:0.875rem;padding-left:0.375rem;">
+                    <div style="width:38px;height:38px;border-radius:10px;display:flex;align-items:center;
+                      justify-content:center;flex-shrink:0;background:<%= gc.icon %>;">
+                      <i class="fa-solid <%= seg.icon %>" style="font-size:0.95rem;color:<%= gc.text %>;"></i>
+                    </div>
+                    <div style="flex:1;min-width:0;">
+                      <div style="font-weight:700;font-size:0.825rem;color:var(--color-text-primary);margin-bottom:2px;">
+                        <%= seg.label %>
+                      </div>
+                      <div style="font-size:0.72rem;color:var(--color-text-muted);line-height:1.35;">
+                        <%= seg.description %>
+                      </div>
+                    </div>
+                    <div style="text-align:right;flex-shrink:0;min-width:44px;">
+                      <div style="font-family:'Playfair Display',serif;font-size:1.375rem;font-weight:700;
+                        color:<%= seg.color==='danger'?'var(--color-danger-light)':seg.color==='success'?'var(--color-success-light)':'var(--color-text-primary)' %>;">
+                        <%= seg.count %>
+                      </div>
+                      <div style="font-size:0.6rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-muted);">parents</div>
+                    </div>
                   </div>
-                  <div style="font-size:0.775rem;color:var(--color-text-muted);line-height:1.4;">
-                    <%= seg.description %>
-                  </div>
                 </div>
-                <div style="text-align:right;flex-shrink:0;">
-                  <div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;
-                    color:<%= seg.color==='danger'?'var(--color-danger-light)':seg.color==='warning'?'#8a6000':'var(--color-text-primary)' %>;">
-                    <%= seg.count %>
-                  </div>
-                  <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-muted);">parents</div>
-                </div>
+                <% }) %>
               </div>
             </div>
             <% }) %>
+
           </div>
 
           <!-- RIGHT: compose panel -->
           <div style="position:sticky;top:80px;display:flex;flex-direction:column;gap:1.25rem;">
 
-            <!-- No segment selected state -->
+            <!-- No segment selected -->
             <div id="noSegmentPrompt" class="data-table-wrap" style="padding:3rem;text-align:center;">
-              <i class="fa-solid fa-arrow-left" style="font-size:2rem;color:var(--color-text-muted);opacity:0.25;margin-bottom:1rem;display:block;"></i>
+              <i class="fa-solid fa-arrow-left" style="font-size:2rem;color:var(--color-text-muted);opacity:0.2;margin-bottom:1rem;display:block;"></i>
               <div style="font-size:0.9rem;font-weight:600;color:var(--color-text-secondary);margin-bottom:0.375rem;">No segment selected</div>
-              <div style="font-size:0.8rem;color:var(--color-text-muted);">Click a segment card on the left to begin composing.</div>
+              <div style="font-size:0.8rem;color:var(--color-text-muted);">Click a segment card on the left to begin.</div>
             </div>
 
             <!-- Audience indicator -->
@@ -108,7 +128,7 @@
               <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.5rem;">
                 <div>
                   <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:3px;">Sending To</div>
-                  <div id="audienceLabel" style="font-size:0.9rem;font-weight:700;color:var(--color-text-primary);">—</div>
+                  <div id="audienceLabel" style="font-size:0.875rem;font-weight:700;color:var(--color-text-primary);">—</div>
                 </div>
                 <div style="text-align:right;">
                   <div id="audienceCount" style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--color-gold-dim);">—</div>
@@ -127,54 +147,40 @@
             <!-- Compose form -->
             <div id="segmentComposeForm" class="data-table-wrap" style="display:none;padding:1.75rem;">
               <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:1.25rem;">
-                Step 2 — Compose Email
+                Compose Email
               </div>
               <input type="hidden" id="selectedSegment" value=""/>
 
-              <!-- HOW firstName WORKS — explanation -->
+              <!-- Personalisation explanation -->
               <div style="padding:1rem;background:#e8f0ff;border-radius:8px;border:1px solid rgba(26,58,106,0.15);margin-bottom:1.25rem;">
                 <div style="font-size:0.75rem;font-weight:700;color:#1a3a6a;margin-bottom:0.5rem;">
-                  <i class="fa-solid fa-circle-info" style="margin-right:5px;"></i>
-                  How personalisation works
+                  <i class="fa-solid fa-circle-info" style="margin-right:5px;"></i>How personalisation works
                 </div>
                 <div style="font-size:0.78rem;color:#4a4a6a;line-height:1.7;">
-                  The greeting <strong>"Dear James,"</strong> is added <em>automatically</em> at the top — you do not write it.<br/>
-                  Use <code style="background:rgba(0,0,0,0.08);padding:1px 6px;border-radius:3px;">{{firstName}}</code> inside your body text to insert the parent's first name anywhere you want.<br/>
-                  <span style="color:#8a8aaa;font-size:0.72rem;">
-                    e.g. "We noticed that you have not onboarded yet, {{firstName}}." →<br/>
-                    James receives: "We noticed that you have not onboarded yet, James."<br/>
-                    Amina receives: "We noticed that you have not onboarded yet, Amina."
-                  </span>
-                </div>
-              </div>
-
-              <!-- Quick templates -->
-              <div class="form-group" style="margin-bottom:1rem;">
-                <label class="form-label">Quick Templates</label>
-                <div style="display:flex;flex-wrap:wrap;gap:0.5rem;">
-                  <button type="button" class="btn btn-ghost btn-sm tpl-btn" data-template="no_children" data-prefix="seg"><i class="fa-solid fa-user-clock"></i> No Profile</button>
-                  <button type="button" class="btn btn-ghost btn-sm tpl-btn" data-template="no_application" data-prefix="seg"><i class="fa-solid fa-file-circle-xmark"></i> Never Applied</button>
-                  <button type="button" class="btn btn-ghost btn-sm tpl-btn" data-template="offer_expired" data-prefix="seg"><i class="fa-solid fa-clock"></i> Offer Expired</button>
-                  <button type="button" class="btn btn-ghost btn-sm tpl-btn" data-template="all_guardians" data-prefix="seg"><i class="fa-solid fa-bullhorn"></i> General</button>
+                  The greeting <strong>"Dear James,"</strong> is added automatically — you do not write it.<br/>
+                  Use <code style="background:rgba(0,0,0,0.08);padding:1px 6px;border-radius:3px;">{{firstName}}</code> in the body to insert each parent's real name anywhere.<br/>
+                  <span style="color:#8a8aaa;font-size:0.72rem;">e.g. "Congratulations, {{firstName}}!" → James receives "Congratulations, James!"</span>
                 </div>
               </div>
 
               <!-- Subject -->
               <div class="form-group" style="margin-bottom:1rem;">
                 <label class="form-label">Subject Line <span class="required">*</span></label>
-                <input type="text" id="seg-subject" data-field="seg-subject" class="form-control" placeholder="e.g. Complete your child's profile today!" required/>
+                <input type="text" id="seg-subject" data-field="seg-subject" class="form-control" required
+                  placeholder="e.g. Congratulations on your acceptance!"/>
               </div>
 
               <!-- Preview text -->
               <div class="form-group" style="margin-bottom:1rem;">
                 <label class="form-label">
                   Preview Text
-                  <span style="font-size:0.7rem;font-weight:400;color:var(--color-text-muted);margin-left:4px;">(grey text shown in inbox before opening)</span>
+                  <span style="font-size:0.7rem;font-weight:400;color:var(--color-text-muted);margin-left:4px;">(shown in inbox before opening)</span>
                 </label>
-                <input type="text" id="seg-preview" data-field="seg-preview" class="form-control" placeholder="e.g. Scholarships are waiting — takes 5 minutes"/>
+                <input type="text" id="seg-preview" data-field="seg-preview" class="form-control"
+                  placeholder="e.g. Your child has been accepted — log in to view the offer letter"/>
               </div>
 
-              <!-- Editor toolbar -->
+              <!-- Toolbar + Editor -->
               <div class="form-group" style="margin-bottom:0;">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.375rem;">
                   <label class="form-label" style="margin:0;">Email Body <span class="required">*</span></label>
@@ -183,77 +189,62 @@
                   </button>
                 </div>
                 <div style="display:flex;flex-wrap:wrap;gap:0.25rem;padding:0.5rem;background:rgba(0,0,0,0.03);border:1.5px solid rgba(0,0,0,0.12);border-bottom:none;border-radius:8px 8px 0 0;">
-                  <button type="button" class="toolbar-btn" data-fmt="bold"                 data-prefix="seg" title="Bold"><b>B</b></button>
-                  <button type="button" class="toolbar-btn" data-fmt="italic"               data-prefix="seg" title="Italic"><i>I</i></button>
-                  <button type="button" class="toolbar-btn" data-fmt="underline"            data-prefix="seg" title="Underline"><u>U</u></button>
+                  <button type="button" class="toolbar-btn" data-fmt="bold"                 data-prefix="seg"><b>B</b></button>
+                  <button type="button" class="toolbar-btn" data-fmt="italic"               data-prefix="seg"><i>I</i></button>
+                  <button type="button" class="toolbar-btn" data-fmt="underline"            data-prefix="seg"><u>U</u></button>
                   <div style="width:1px;background:rgba(0,0,0,0.1);margin:2px 4px;"></div>
-                  <button type="button" class="toolbar-btn" data-fmt="heading2"             data-prefix="seg" title="Heading 2">H2</button>
-                  <button type="button" class="toolbar-btn" data-fmt="heading3"             data-prefix="seg" title="Heading 3">H3</button>
+                  <button type="button" class="toolbar-btn" data-fmt="heading2"             data-prefix="seg">H2</button>
+                  <button type="button" class="toolbar-btn" data-fmt="heading3"             data-prefix="seg">H3</button>
                   <div style="width:1px;background:rgba(0,0,0,0.1);margin:2px 4px;"></div>
-                  <button type="button" class="toolbar-btn" data-fmt="insertUnorderedList"  data-prefix="seg" title="Bullet list"><i class="fa-solid fa-list-ul"></i></button>
-                  <button type="button" class="toolbar-btn" data-fmt="insertOrderedList"    data-prefix="seg" title="Numbered list"><i class="fa-solid fa-list-ol"></i></button>
+                  <button type="button" class="toolbar-btn" data-fmt="insertUnorderedList"  data-prefix="seg"><i class="fa-solid fa-list-ul"></i></button>
+                  <button type="button" class="toolbar-btn" data-fmt="insertOrderedList"    data-prefix="seg"><i class="fa-solid fa-list-ol"></i></button>
                   <div style="width:1px;background:rgba(0,0,0,0.1);margin:2px 4px;"></div>
-                  <button type="button" class="toolbar-btn" data-fmt="link"                 data-prefix="seg" title="Insert link"><i class="fa-solid fa-link"></i></button>
+                  <button type="button" class="toolbar-btn" data-fmt="link"                 data-prefix="seg"><i class="fa-solid fa-link"></i></button>
                   <button type="button" class="toolbar-btn insert-tag-btn"                  data-prefix="seg"
-                    title="Insert {{firstName}} tag"
                     style="font-size:0.65rem;padding:0 8px;white-space:nowrap;background:#e8f0ff;color:#1a3a6a;border-color:#1a3a6a33;">
                     + {{firstName}}
                   </button>
                   <div style="width:1px;background:rgba(0,0,0,0.1);margin:2px 4px;"></div>
-                  <button type="button" class="toolbar-btn clear-editor-btn" data-prefix="seg" title="Clear body" style="color:var(--color-danger-light);">
+                  <button type="button" class="toolbar-btn clear-editor-btn" data-prefix="seg" style="color:var(--color-danger-light);">
                     <i class="fa-solid fa-trash-can"></i>
                   </button>
                 </div>
                 <div id="seg-body" data-field="seg-body" contenteditable="true" spellcheck="true" class="email-editor"></div>
               </div>
 
-              <!-- Live preview panel -->
+              <!-- Live preview -->
               <div id="seg-live-preview" style="display:none;margin-top:1.25rem;">
                 <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:0.5rem;">
-                  Live Preview — exactly what the parent will receive
+                  Live Preview — exactly what the parent receives
                 </div>
-                <div style="border:1.5px solid rgba(0,0,0,0.1);border-radius:10px;overflow:hidden;font-family:Georgia,serif;">
-                  <!-- Fake email client bar -->
-                  <div style="background:#f0f0f0;padding:0.5rem 1rem;border-bottom:1px solid rgba(0,0,0,0.1);display:flex;align-items:center;gap:0.5rem;">
+                <div style="border:1.5px solid rgba(0,0,0,0.1);border-radius:10px;overflow:hidden;">
+                  <div style="background:#f0f0f0;padding:0.5rem 1rem;display:flex;align-items:center;gap:0.5rem;">
                     <div style="width:10px;height:10px;border-radius:50%;background:#ff5f56;"></div>
                     <div style="width:10px;height:10px;border-radius:50%;background:#febc2e;"></div>
                     <div style="width:10px;height:10px;border-radius:50%;background:#27c93f;"></div>
                     <span style="font-size:0.7rem;color:#888;margin-left:0.5rem;font-family:'Jost',sans-serif;">Inbox Preview</span>
                   </div>
-                  <!-- Headers -->
                   <div style="background:#fafafa;padding:0.875rem 1rem;border-bottom:1px solid rgba(0,0,0,0.08);font-family:'Jost',sans-serif;">
-                    <div style="font-size:0.72rem;color:#888;margin-bottom:3px;"><strong style="color:#333;">From:</strong> ScholarsGate &lt;supports@schoolgatess.com&gt;</div>
-                    <div style="font-size:0.72rem;color:#888;margin-bottom:3px;"><strong style="color:#333;">To:</strong> <span id="seg-preview-to" style="color:#1a3a6a;">James Okafor &lt;james.okafor@email.com&gt;</span></div>
-                    <div style="font-size:0.875rem;font-weight:700;color:#1a1a2e;margin-bottom:2px;" id="seg-preview-subject">(subject will appear here)</div>
-                    <div style="font-size:0.72rem;color:#aaa;" id="seg-preview-previewtext">(preview text will appear here)</div>
+                    <div style="font-size:0.72rem;color:#888;margin-bottom:2px;"><strong style="color:#333;">From:</strong> ScholarsGate &lt;supports@schoolgatess.com&gt;</div>
+                    <div style="font-size:0.72rem;color:#888;margin-bottom:2px;"><strong style="color:#333;">To:</strong> <span id="seg-preview-to"></span></div>
+                    <div style="font-size:0.875rem;font-weight:700;color:#1a1a2e;margin-bottom:2px;" id="seg-preview-subject">(subject)</div>
+                    <div style="font-size:0.72rem;color:#aaa;" id="seg-preview-previewtext">(preview text)</div>
                   </div>
-                  <!-- Email body render -->
                   <div style="background:#f5f4f0;padding:1rem;">
-                    <div style="max-width:500px;margin:0 auto;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.08);">
+                    <div style="max-width:500px;margin:0 auto;background:#fff;border-radius:10px;overflow:hidden;">
                       <div style="background:linear-gradient(135deg,#0a0e1a,#141c35);padding:18px 24px 14px;">
                         <div style="font-family:Georgia,serif;font-size:18px;font-weight:700;color:#c9a84c;">ScholarsGate</div>
-                        <div style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#888;margin-top:3px;">Elite USA Admissions</div>
+                        <div style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#888;margin-top:2px;">Elite USA Admissions</div>
                       </div>
-                      <div style="height:2px;background:linear-gradient(90deg,#c9a84c,#e8c96a,#c9a84c);"></div>
-                      <!-- Auto greeting -->
-                      <div style="padding:18px 24px 0;">
-                        <p style="font-size:14px;color:#1a1a2e;margin:0 0 6px;">
-                          Dear <strong id="seg-preview-name" style="color:#c9a84c;">James</strong>,
-                        </p>
+                      <div id="seg-preview-accent" style="height:2px;background:linear-gradient(90deg,#c9a84c,#e8c96a,#c9a84c);"></div>
+                      <div style="padding:16px 24px 0;">
+                        <p style="font-size:14px;color:#1a1a2e;margin:0 0 6px;">Dear <strong id="seg-preview-name" style="color:#c9a84c;">James</strong>,</p>
                       </div>
-                      <!-- Body mirror -->
-                      <div id="seg-preview-body" style="padding:6px 24px 18px;font-size:13px;color:#4a4a6a;line-height:1.85;"></div>
-                      <!-- CTA button -->
-                      <div style="padding:0 24px 18px;text-align:center;">
-                        <div style="display:inline-block;background:linear-gradient(135deg,#c9a84c,#e8c96a);color:#0a0e1a;padding:10px 28px;border-radius:6px;font-weight:700;font-size:11px;letter-spacing:2px;text-transform:uppercase;font-family:'Jost',sans-serif;">
+                      <div id="seg-preview-body" style="padding:6px 24px 16px;font-size:13px;color:#4a4a6a;line-height:1.85;"></div>
+                      <div style="padding:0 24px 16px;text-align:center;">
+                        <div id="seg-preview-btn" style="display:inline-block;background:linear-gradient(135deg,#c9a84c,#e8c96a);color:#0a0e1a;padding:10px 28px;border-radius:6px;font-weight:700;font-size:11px;letter-spacing:2px;text-transform:uppercase;font-family:'Jost',sans-serif;">
                           Go to My Dashboard
                         </div>
-                      </div>
-                      <!-- Signature -->
-                      <div style="padding:0 24px 18px;border-top:1px solid #f0f0f0;padding-top:12px;margin-top:4px;">
-                        <p style="font-size:12px;color:#4a4a6a;margin:0 0 3px;">Warm regards,</p>
-                        <p style="font-size:12px;font-weight:700;color:#1a1a2e;margin:0;">The ScholarsGate Admissions Team</p>
-                        <p style="font-size:11px;color:#c9a84c;margin:3px 0 0;">supports@schoolgatess.com</p>
                       </div>
                       <div style="background:#0a0e1a;padding:12px 24px;text-align:center;">
                         <p style="font-size:10px;color:#444;margin:0;">© ScholarsGate — Elite USA Admissions</p>
@@ -261,7 +252,6 @@
                     </div>
                   </div>
                 </div>
-                <!-- Sample name switcher -->
                 <div style="margin-top:0.625rem;display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
                   <span style="font-size:0.72rem;color:var(--color-text-muted);">Preview as:</span>
                   <button type="button" class="sample-name-btn btn btn-ghost btn-sm" data-prefix="seg" data-first="James"  data-last="Okafor"    data-email="james.okafor@email.com"  style="font-size:0.72rem;padding:2px 10px;">James Okafor</button>
@@ -270,14 +260,12 @@
                 </div>
               </div>
 
-              <!-- Send button -->
-              <div style="display:flex;gap:0.875rem;margin-top:1.5rem;">
-                <button id="sendSegmentBtn" class="btn btn-gold btn-lg" style="flex:1;justify-content:center;">
-                  <i class="fa-solid fa-paper-plane"></i> Send Campaign
-                </button>
-              </div>
+              <!-- Send -->
+              <button id="sendSegmentBtn" class="btn btn-gold btn-lg" style="width:100%;justify-content:center;margin-top:1.5rem;">
+                <i class="fa-solid fa-paper-plane"></i> Send Campaign
+              </button>
               <p style="font-size:0.72rem;color:var(--color-text-muted);text-align:center;margin-top:0.625rem;">
-                A confirmation dialog appears before sending. Sent from <strong>supports@schoolgatess.com</strong>.
+                A confirmation dialog appears before sending.
               </p>
             </div>
           </div>
@@ -287,8 +275,6 @@
       <!-- ═══ TAB 2 — INDIVIDUAL ════════════════════════════════════════════ -->
       <div id="tab-individual" class="tab-panel" style="display:none;">
         <div style="display:grid;grid-template-columns:1fr 1.7fr;gap:1.75rem;align-items:start;">
-
-          <!-- Search panel -->
           <div class="data-table-wrap" style="padding:1.5rem;position:sticky;top:80px;">
             <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:1rem;">Find Parent</h3>
             <div style="position:relative;margin-bottom:1rem;">
@@ -298,7 +284,6 @@
             <div id="guardianResults" style="max-height:380px;overflow-y:auto;display:flex;flex-direction:column;gap:0.375rem;">
               <div style="padding:1.5rem;text-align:center;color:var(--color-text-muted);font-size:0.875rem;">Type at least 2 characters to search</div>
             </div>
-            <!-- Selected recipient chip -->
             <div id="selectedRecipient" style="display:none;margin-top:1rem;padding:1rem;background:rgba(201,168,76,0.06);border-radius:10px;border:1px solid rgba(201,168,76,0.2);">
               <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:0.5rem;">Selected Recipient</div>
               <div style="display:flex;align-items:center;gap:0.75rem;">
@@ -307,55 +292,35 @@
                   <div id="recipientName"  style="font-weight:700;font-size:0.875rem;color:var(--color-text-primary);"></div>
                   <div id="recipientEmail" style="font-size:0.775rem;color:var(--color-text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
                 </div>
-                <button id="clearRecipient" style="background:none;border:none;cursor:pointer;color:var(--color-text-muted);font-size:0.9rem;flex-shrink:0;padding:4px;">
+                <button id="clearRecipient" style="background:none;border:none;cursor:pointer;color:var(--color-text-muted);font-size:0.9rem;padding:4px;">
                   <i class="fa-solid fa-xmark"></i>
                 </button>
               </div>
             </div>
           </div>
-
-          <!-- Compose panel -->
           <div class="data-table-wrap" style="padding:1.75rem;">
             <div id="noRecipientPrompt" style="padding:2.5rem;text-align:center;background:rgba(0,0,0,0.02);border-radius:10px;border:var(--border-dark);margin-bottom:1rem;">
               <i class="fa-solid fa-arrow-left" style="font-size:1.5rem;color:var(--color-text-muted);opacity:0.3;margin-bottom:0.75rem;display:block;"></i>
-              <div style="font-size:0.875rem;color:var(--color-text-muted);">Search and select a parent on the left to compose an email.</div>
+              <div style="font-size:0.875rem;color:var(--color-text-muted);">Search and select a parent on the left.</div>
             </div>
-
             <div id="individualComposeForm" style="display:none;">
               <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:1.25rem;">Compose Email</div>
-              <input type="hidden" id="individualRecipientId"    value=""/>
+              <input type="hidden" id="individualRecipientId" value=""/>
               <input type="hidden" id="individualRecipientEmail" value=""/>
-
-              <!-- Same personalisation explanation -->
               <div style="padding:1rem;background:#e8f0ff;border-radius:8px;border:1px solid rgba(26,58,106,0.15);margin-bottom:1.25rem;">
-                <div style="font-size:0.75rem;font-weight:700;color:#1a3a6a;margin-bottom:0.5rem;">
-                  <i class="fa-solid fa-circle-info" style="margin-right:5px;"></i>How personalisation works
-                </div>
-                <div style="font-size:0.78rem;color:#4a4a6a;line-height:1.7;">
-                  The greeting <strong>"Dear [Name],"</strong> is added automatically. Use <code style="background:rgba(0,0,0,0.08);padding:1px 6px;border-radius:3px;">{{firstName}}</code> in your body to insert the parent's name anywhere.
-                </div>
+                <div style="font-size:0.75rem;font-weight:700;color:#1a3a6a;margin-bottom:0.4rem;"><i class="fa-solid fa-circle-info" style="margin-right:5px;"></i>How personalisation works</div>
+                <div style="font-size:0.78rem;color:#4a4a6a;line-height:1.7;">Greeting added automatically. Use <code style="background:rgba(0,0,0,0.08);padding:1px 6px;border-radius:3px;">{{firstName}}</code> in the body to insert the parent's name.</div>
               </div>
-
-              <!-- Subject -->
               <div class="form-group" style="margin-bottom:1rem;">
                 <label class="form-label">Subject Line <span class="required">*</span></label>
                 <input type="text" id="ind-subject" data-field="ind-subject" class="form-control" placeholder="Your subject..." required/>
               </div>
-
-              <!-- Preview text -->
               <div class="form-group" style="margin-bottom:1rem;">
                 <label class="form-label">Preview Text</label>
                 <input type="text" id="ind-preview" data-field="ind-preview" class="form-control" placeholder="Short preview shown in inbox..."/>
               </div>
-
-              <!-- Editor -->
               <div class="form-group" style="margin-bottom:0;">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.375rem;">
-                  <label class="form-label" style="margin:0;">Email Body <span class="required">*</span></label>
-                  <button type="button" class="btn btn-ghost btn-sm live-preview-toggle" data-prefix="ind" style="font-size:0.7rem;padding:3px 10px;">
-                    <i class="fa-solid fa-eye"></i> Live Preview
-                  </button>
-                </div>
+                <label class="form-label" style="margin-bottom:0.375rem;">Email Body <span class="required">*</span></label>
                 <div style="display:flex;flex-wrap:wrap;gap:0.25rem;padding:0.5rem;background:rgba(0,0,0,0.03);border:1.5px solid rgba(0,0,0,0.12);border-bottom:none;border-radius:8px 8px 0 0;">
                   <button type="button" class="toolbar-btn" data-fmt="bold"                data-prefix="ind"><b>B</b></button>
                   <button type="button" class="toolbar-btn" data-fmt="italic"              data-prefix="ind"><i>I</i></button>
@@ -369,44 +334,6 @@
                 </div>
                 <div id="ind-body" data-field="ind-body" contenteditable="true" spellcheck="true" class="email-editor"></div>
               </div>
-
-              <!-- Ind live preview panel (same structure as seg) -->
-              <div id="ind-live-preview" style="display:none;margin-top:1.25rem;">
-                <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:0.5rem;">Live Preview</div>
-                <div style="border:1.5px solid rgba(0,0,0,0.1);border-radius:10px;overflow:hidden;font-family:Georgia,serif;">
-                  <div style="background:#f0f0f0;padding:0.5rem 1rem;border-bottom:1px solid rgba(0,0,0,0.1);display:flex;gap:0.5rem;">
-                    <div style="width:10px;height:10px;border-radius:50%;background:#ff5f56;"></div>
-                    <div style="width:10px;height:10px;border-radius:50%;background:#febc2e;"></div>
-                    <div style="width:10px;height:10px;border-radius:50%;background:#27c93f;"></div>
-                    <span style="font-size:0.7rem;color:#888;margin-left:0.5rem;font-family:'Jost',sans-serif;">Inbox Preview</span>
-                  </div>
-                  <div style="background:#fafafa;padding:0.875rem 1rem;border-bottom:1px solid rgba(0,0,0,0.08);font-family:'Jost',sans-serif;">
-                    <div style="font-size:0.72rem;color:#888;margin-bottom:3px;"><strong style="color:#333;">From:</strong> ScholarsGate &lt;supports@schoolgatess.com&gt;</div>
-                    <div style="font-size:0.72rem;color:#888;margin-bottom:3px;"><strong style="color:#333;">To:</strong> <span id="ind-preview-to"></span></div>
-                    <div style="font-size:0.875rem;font-weight:700;color:#1a1a2e;margin-bottom:2px;" id="ind-preview-subject">(subject)</div>
-                    <div style="font-size:0.72rem;color:#aaa;" id="ind-preview-previewtext">(preview text)</div>
-                  </div>
-                  <div style="background:#f5f4f0;padding:1rem;">
-                    <div style="max-width:500px;margin:0 auto;background:#fff;border-radius:10px;overflow:hidden;">
-                      <div style="background:linear-gradient(135deg,#0a0e1a,#141c35);padding:18px 24px 14px;">
-                        <div style="font-family:Georgia,serif;font-size:18px;font-weight:700;color:#c9a84c;">ScholarsGate</div>
-                      </div>
-                      <div style="height:2px;background:linear-gradient(90deg,#c9a84c,#e8c96a,#c9a84c);"></div>
-                      <div style="padding:18px 24px 0;">
-                        <p style="font-size:14px;color:#1a1a2e;margin:0 0 6px;">Dear <strong id="ind-preview-name" style="color:#c9a84c;">Parent</strong>,</p>
-                      </div>
-                      <div id="ind-preview-body" style="padding:6px 24px 18px;font-size:13px;color:#4a4a6a;line-height:1.85;"></div>
-                      <div style="padding:0 24px 14px;text-align:center;">
-                        <div style="display:inline-block;background:linear-gradient(135deg,#c9a84c,#e8c96a);color:#0a0e1a;padding:10px 28px;border-radius:6px;font-weight:700;font-size:11px;letter-spacing:2px;text-transform:uppercase;font-family:'Jost',sans-serif;">Go to My Dashboard</div>
-                      </div>
-                      <div style="background:#0a0e1a;padding:12px 24px;text-align:center;">
-                        <p style="font-size:10px;color:#444;margin:0;">© ScholarsGate — Elite USA Admissions</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               <button id="sendIndividualBtn" class="btn btn-gold btn-lg" style="width:100%;justify-content:center;margin-top:1.5rem;">
                 <i class="fa-solid fa-paper-plane"></i> Send Email
               </button>
@@ -434,21 +361,12 @@
                     <%= new Date(h.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'}) %>
                   </td>
                   <td style="font-size:0.78rem;"><%= h.actorEmail || '—' %></td>
-                  <td>
-                    <span class="badge badge-<%= h.details?.type==='individual'?'info':'gold' %>" style="font-size:10px;">
-                      <%= h.details?.type || 'segment' %>
-                    </span>
-                  </td>
+                  <td><span class="badge badge-<%= h.details?.type==='individual'?'info':'gold' %>" style="font-size:10px;"><%= h.details?.type || 'segment' %></span></td>
                   <td style="font-size:0.78rem;">
-                    <% if (h.details?.type === 'individual') { %>
-                      <%= h.details?.recipientName || h.details?.recipientEmail || '—' %>
-                    <% } else { %>
-                      <%= (h.details?.segment || '—').replace(/_/g,' ') %>
-                    <% } %>
+                    <% if (h.details?.type === 'individual') { %><%= h.details?.recipientName || h.details?.recipientEmail || '—' %>
+                    <% } else { %><%= (h.details?.segment || '—').replace(/_/g,' ') %><% } %>
                   </td>
-                  <td style="font-size:0.8rem;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                    <%= h.details?.subject || '—' %>
-                  </td>
+                  <td style="font-size:0.8rem;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><%= h.details?.subject || '—' %></td>
                   <td style="font-weight:700;"><%= h.details?.totalRecipients || 1 %></td>
                   <td style="color:var(--color-success-light);font-weight:700;"><%= h.details?.sent || 0 %></td>
                   <td style="color:<%= (h.details?.failed||0)>0?'var(--color-danger-light)':'var(--color-text-muted)' %>;font-weight:700;"><%= h.details?.failed || 0 %></td>
@@ -509,6 +427,7 @@
 </div>
 
 <div id="toast-container"></div>
+
 <style>
 #toast-container{position:fixed;bottom:2rem;right:2rem;z-index:9999;display:flex;flex-direction:column;gap:.75rem;}
 .toast{display:flex;align-items:center;gap:.75rem;padding:.875rem 1.25rem;border-radius:10px;background:#fff;box-shadow:0 8px 32px rgba(0,0,0,.2);font-size:.875rem;font-weight:500;min-width:280px;max-width:400px;transform:translateX(120%);transition:transform .4s cubic-bezier(.34,1.56,.64,1),opacity .4s ease;opacity:0;color:#1a1a2e;}
@@ -516,8 +435,8 @@
 .tab-btn{padding:0.625rem 1.25rem;font-size:0.8rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;color:var(--color-text-muted);transition:all 0.2s;display:inline-flex;align-items:center;gap:0.5rem;}
 .tab-btn:hover{color:var(--color-text-secondary);}
 .tab-btn.active{color:var(--color-gold-dim);border-bottom-color:var(--color-gold);}
-.segment-card:hover{border-color:rgba(201,168,76,0.35)!important;box-shadow:var(--shadow-md)!important;transform:translateY(-2px);}
-.segment-card.selected{border-color:var(--color-gold)!important;background:rgba(201,168,76,0.03)!important;box-shadow:var(--shadow-gold-sm)!important;}
+.segment-card:hover{border-color:rgba(201,168,76,0.4)!important;box-shadow:var(--shadow-md)!important;transform:translateY(-1px);}
+.segment-card.selected{border-color:var(--color-gold)!important;background:rgba(201,168,76,0.03)!important;}
 .guardian-result-item{display:flex;align-items:center;gap:0.75rem;padding:0.75rem 0.875rem;border-radius:10px;cursor:pointer;transition:background 0.15s;border:1.5px solid transparent;}
 .guardian-result-item:hover{background:rgba(201,168,76,0.05);border-color:rgba(201,168,76,0.2);}
 .guardian-result-item.selected-item{background:rgba(201,168,76,0.08);border-color:var(--color-gold);}
@@ -527,32 +446,56 @@
 .email-editor:focus{border-color:var(--color-gold);box-shadow:0 0 0 3px rgba(201,168,76,0.12);}
 .email-editor p,.email-editor div{margin:0 0 10px;}
 .email-editor h2{font-size:1.2rem;font-weight:700;margin:14px 0 6px;}
-.email-editor h3{font-size:1rem;font-weight:700;margin:12px 0 5px;}
 .email-editor ul,.email-editor ol{padding-left:1.4rem;margin:0 0 10px;}
 </style>
+
 <script src="/js/main.js"></script>
 <script>
 (function(){
 'use strict';
 
+// ── Accent colours per segment (matches live preview) ─────────────────────────
+var ACCENT = {
+  no_children:    '#c9a84c',
+  no_application: '#c9a84c',
+  accepted:       '#1a6b2a',
+  offer_issued:   '#c9a84c',
+  offer_expired:  '#c0392b',
+  deposit_pending:'#1a3a6a',
+  all_guardians:  '#c9a84c',
+};
+
 // ── Templates ─────────────────────────────────────────────────────────────────
-// {{firstName}} in the body = replaced with each parent's real first name at send time.
-// The "Dear [Name]," greeting is added AUTOMATICALLY by the server — do not write it.
-const T = {
+var T = {
   no_children:{
     subject:"Complete your child's profile — exclusive USA scholarships are waiting!",
     preview:"Hundreds of fully-funded scholarships available. Takes less than 5 minutes.",
-    body:"<p>We noticed that you haven't yet added a student profile to your ScholarsGate account, {{firstName}}.</p><p>Adding your child's profile is the <strong>first step</strong> toward accessing fully-funded scholarships at elite USA boarding schools — and it takes less than 5 minutes to complete.</p><p><strong>Once the profile is complete, you unlock:</strong></p><ul><li>Hundreds of merit-based and fully-funded scholarships</li><li>Partner schools offering up to 100% tuition coverage</li><li>A simple, guided application process</li></ul><p>Don't let this opportunity pass. Log in now and add your child's profile to get started.</p><p>If you need any assistance, our admissions team is always happy to help at <a href='mailto:supports@schoolgatess.com'>supports@schoolgatess.com</a>.</p>"
+    body:"<p>We noticed that you haven't yet added a student profile to your ScholarsGate account, {{firstName}}.</p><p>Adding your child's profile is the <strong>first step</strong> toward accessing fully-funded scholarships at elite USA boarding schools — and it takes less than 5 minutes to complete.</p><p><strong>Once your child's profile is complete, you unlock:</strong></p><ul><li>Hundreds of merit-based and fully-funded scholarships</li><li>Partner schools offering up to 100% tuition coverage</li><li>A simple, guided application process</li></ul><p>Log in now and add your child's profile to get started. If you need any assistance, email us at <a href='mailto:supports@schoolgatess.com'>supports@schoolgatess.com</a>.</p>"
   },
   no_application:{
     subject:"Your child's profile is ready — apply for a scholarship today!",
     preview:"You are one step away — submit your application before deadlines close.",
-    body:"<p>Your child's profile on ScholarsGate is all set — great work getting this far, {{firstName}}!</p><p>However, we noticed that <strong>you haven't yet submitted a scholarship application</strong>. Scholarship slots are limited and some deadlines are approaching fast.</p><p><strong>Why you should apply right now:</strong></p><ul><li>Fully-funded scholarships covering tuition, boarding, meals and more</li><li>Your child's profile is already complete — the application takes just minutes</li><li>Some scholarships have only a few slots remaining</li></ul><p>Log in to your dashboard, browse the available scholarships, and submit your application today.</p><p>Questions? Our team is here at <a href='mailto:supports@schoolgatess.com'>supports@schoolgatess.com</a>.</p>"
+    body:"<p>Your child's profile on ScholarsGate is all set — great work getting this far, {{firstName}}!</p><p>However, we noticed that <strong>you have not yet submitted a scholarship application</strong>. Scholarship slots are limited and some deadlines are approaching fast.</p><p><strong>Why you should apply right now:</strong></p><ul><li>Fully-funded scholarships covering tuition, boarding, meals and more</li><li>Your child's profile is already complete — the application takes just minutes</li><li>Some scholarships have only a few slots remaining</li></ul><p>Log in to your dashboard, browse the available scholarships, and submit your application today. Questions? Our team is at <a href='mailto:supports@schoolgatess.com'>supports@schoolgatess.com</a>.</p>"
+  },
+  accepted:{
+    subject:"🎉 Congratulations — your child's application has been accepted!",
+    preview:"Wonderful news! Log in to view your official offer letter and next steps.",
+    body:"<p>We are absolutely delighted to share this wonderful news with you, {{firstName}}!</p><p>Your child's scholarship application has been <strong>accepted</strong>. This is a tremendous achievement and a testament to your child's hard work and potential.</p><p><strong>Your next steps:</strong></p><ul><li>Log in to your ScholarsGate dashboard to view your official offer letter</li><li>Review the scholarship details, coverage percentage, and enrollment terms carefully</li><li>Accept the offer before the expiry date shown on the letter</li><li>Submit the enrollment deposit to secure your child's place</li></ul><p>Please do not delay — offer letters have an expiry date, and your child's place can only be held once the deposit is received.</p><p>Congratulations once again. We are honoured to be part of this journey with your family. Reach out anytime at <a href='mailto:supports@schoolgatess.com'>supports@schoolgatess.com</a>.</p>"
+  },
+  offer_issued:{
+    subject:"Your offer letter is ready — please accept before it expires",
+    preview:"Your child's offer letter is waiting. Log in to accept and secure the place.",
+    body:"<p>This is a reminder that your child's official offer letter is ready and waiting for your response, {{firstName}}.</p><p>To secure your child's place, you need to <strong>accept the offer</strong> and submit the enrollment deposit before the expiry date shown on the letter.</p><p><strong>How to accept your offer:</strong></p><ul><li>Log in to your ScholarsGate parent dashboard</li><li>Go to <strong>Offer Letters</strong> in the menu</li><li>Click <strong>Accept Offer</strong> and review the scholarship details</li><li>Submit the enrollment deposit to confirm your child's enrollment</li></ul><p>Please note: if the offer is not accepted before the expiry date, it will be automatically cancelled and the place offered to another applicant.</p><p>If you have any questions about the offer or need assistance, please contact us immediately at <a href='mailto:supports@schoolgatess.com'>supports@schoolgatess.com</a>.</p>"
   },
   offer_expired:{
     subject:"Your offer letter has expired — new opportunities are still available",
     preview:"New scholarships are open. We are here to help you get back on track.",
-    body:"<p>We noticed that an offer letter we issued for your child has unfortunately expired without being accepted, {{firstName}}.</p><p>We understand that circumstances can change, and we want you to know that <strong>new scholarship opportunities are available</strong> on the platform right now.</p><p><strong>Here is what you can do today:</strong></p><ul><li>Browse new scholarships that are currently open for applications</li><li>Apply to multiple schools to maximise your child's chances</li><li>Contact our admissions team if you need guidance about a previous offer</li></ul><p>Your child's future is still bright — and we are here to help every step of the way.</p><p>Reach out anytime at <a href='mailto:supports@schoolgatess.com'>supports@schoolgatess.com</a>.</p>"
+    body:"<p>We noticed that an offer letter we issued for your child has unfortunately expired without being accepted, {{firstName}}.</p><p>We understand that circumstances can change, and we want you to know that <strong>new scholarship opportunities are available</strong> on the platform right now.</p><p><strong>Here is what you can do today:</strong></p><ul><li>Browse new scholarships that are currently open for applications</li><li>Apply to multiple schools to maximise your child's chances</li><li>Contact our admissions team if you need guidance about your previous offer</li></ul><p>Your child's future is still bright — and we are here to help every step of the way. Reach out at <a href='mailto:supports@schoolgatess.com'>supports@schoolgatess.com</a>.</p>"
+  },
+  deposit_pending:{
+    subject:"Reminder: Complete your enrollment deposit to secure your child's place",
+    preview:"Your child's place is not yet secured. Submit the deposit today.",
+    body:"<p>This is a friendly reminder that your child's enrollment place is not yet fully secured, {{firstName}}.</p><p>You have accepted your offer letter — which is a great step! However, the <strong>enrollment deposit has not yet been received</strong>. Your child's place can only be held once the deposit is confirmed.</p><p><strong>To complete your enrollment:</strong></p><ul><li>Log in to your ScholarsGate parent dashboard</li><li>Go to <strong>Offer Letters</strong> and click on your accepted offer</li><li>Transfer the enrollment deposit using the bank details or crypto payment options provided</li><li>Upload your payment proof — our team will verify within 24–48 hours</li></ul><p>Please do not delay — if the deposit is not received before the offer deadline, the place may be released to another applicant.</p><p>If you have already made the payment, please upload your proof of payment on the dashboard. For any questions or payment difficulties, contact us immediately at <a href='mailto:supports@schoolgatess.com'>supports@schoolgatess.com</a>.</p>"
   },
   all_guardians:{
     subject:"An important update from ScholarsGate",
@@ -583,9 +526,16 @@ document.querySelectorAll('.segment-card').forEach(function(card){
     card.classList.add('selected');
     activeSegment=card.dataset.id; activeCount=parseInt(card.dataset.count,10); activeLabel=card.dataset.label;
     g('audienceLabel').textContent=activeLabel; g('audienceCount').textContent=activeCount;
-    g('noSegmentPrompt').style.display='none'; g('audienceIndicator').style.display='block'; g('segmentComposeForm').style.display='block';
-    g('selectedSegment').value=activeSegment; g('sampleList').style.display='none';
+    g('noSegmentPrompt').style.display='none'; g('audienceIndicator').style.display='block';
+    g('segmentComposeForm').style.display='block'; g('selectedSegment').value=activeSegment;
+    g('sampleList').style.display='none';
     var tpl=T[activeSegment]; if(tpl) loadInto('seg',tpl);
+    // Update accent color in live preview
+    var accent=ACCENT[activeSegment]||'#c9a84c';
+    var accentEl=g('seg-preview-accent');
+    var btnEl=g('seg-preview-btn');
+    if(accentEl) accentEl.style.background='linear-gradient(90deg,'+accent+',#e8c96a,'+accent+')';
+    if(btnEl)    btnEl.style.background='linear-gradient(135deg,'+accent+',#e8c96a)';
   });
 });
 
@@ -600,15 +550,7 @@ function loadInto(p,tpl){
   refreshPreview(p);
 }
 
-// ── Quick template buttons ────────────────────────────────────────────────────
-document.querySelectorAll('.tpl-btn').forEach(function(btn){
-  btn.addEventListener('click',function(){
-    var tpl=T[btn.dataset.template];
-    if(tpl){loadInto(btn.dataset.prefix,tpl);showToast('Template loaded.','success');}
-  });
-});
-
-// ── Toolbar buttons ───────────────────────────────────────────────────────────
+// ── Toolbar ───────────────────────────────────────────────────────────────────
 document.querySelectorAll('[data-fmt]').forEach(function(btn){
   btn.addEventListener('click',function(){
     var p=btn.dataset.prefix;
@@ -622,7 +564,6 @@ document.querySelectorAll('[data-fmt]').forEach(function(btn){
     refreshPreview(p);
   });
 });
-
 document.querySelectorAll('.insert-tag-btn').forEach(function(btn){
   btn.addEventListener('click',function(){
     var p=btn.dataset.prefix;
@@ -632,7 +573,6 @@ document.querySelectorAll('.insert-tag-btn').forEach(function(btn){
     refreshPreview(p);
   });
 });
-
 document.querySelectorAll('.clear-editor-btn').forEach(function(btn){
   btn.addEventListener('click',function(){
     var p=btn.dataset.prefix;
@@ -641,8 +581,6 @@ document.querySelectorAll('.clear-editor-btn').forEach(function(btn){
     if(confirm('Clear the email body?')){editor.innerHTML='';refreshPreview(p);}
   });
 });
-
-// Auto-refresh preview on input
 document.addEventListener('input',function(e){
   var el=e.target;
   if(!el.dataset.field) return;
@@ -650,7 +588,21 @@ document.addEventListener('input',function(e){
   refreshPreview(p);
 });
 
-// ── Live preview toggle ───────────────────────────────────────────────────────
+// Paste sanitizer
+document.querySelectorAll('.email-editor').forEach(function(editor){
+  editor.addEventListener('paste',function(e){
+    e.preventDefault();
+    var html=(e.clipboardData||window.clipboardData).getData('text/html')||
+             (e.clipboardData||window.clipboardData).getData('text/plain')||'';
+    html=html.replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2">$1</a>');
+    html=html.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
+    document.execCommand('insertHTML',false,html);
+    var p=editor.dataset.field?editor.dataset.field.split('-')[0]:'seg';
+    refreshPreview(p);
+  });
+});
+
+// ── Live preview ──────────────────────────────────────────────────────────────
 document.querySelectorAll('.live-preview-toggle').forEach(function(btn){
   btn.addEventListener('click',function(){
     var p=btn.dataset.prefix;
@@ -662,8 +614,6 @@ document.querySelectorAll('.live-preview-toggle').forEach(function(btn){
     if(!showing) refreshPreview(p);
   });
 });
-
-// ── Sample name switcher ──────────────────────────────────────────────────────
 document.querySelectorAll('.sample-name-btn').forEach(function(btn){
   btn.addEventListener('click',function(){
     var p=btn.dataset.prefix;
@@ -675,32 +625,23 @@ document.querySelectorAll('.sample-name-btn').forEach(function(btn){
     refreshPreview(p);
   });
 });
-
-// ── Refresh live preview ──────────────────────────────────────────────────────
 function refreshPreview(p){
   var panel=g(p+'-live-preview');
   if(!panel||panel.style.display==='none') return;
-  var subEl=document.querySelector('[data-field="'+p+'-subject"]');
-  var preEl=document.querySelector('[data-field="'+p+'-preview"]');
+  var sub=(document.querySelector('[data-field="'+p+'-subject"]')||{}).value||'';
+  var pre=(document.querySelector('[data-field="'+p+'-preview"]')||{}).value||'';
   var bodEl=document.querySelector('[data-field="'+p+'-body"]');
-  var subj=subEl?subEl.value:'';
-  var prev=preEl?preEl.value:'';
   var body=bodEl?bodEl.innerHTML:'';
-  // Replace {{firstName}} with highlighted sample name for preview only
   var personalised=body
     .replace(/\{\{firstName\}\}/g,'<strong style="color:#c9a84c;">'+sample.first+'</strong>')
     .replace(/\{\{lastName\}\}/g,sample.last)
     .replace(/\{\{fullName\}\}/g,sample.first+' '+sample.last);
-  var subjEl=g(p+'-preview-subject');
-  var prevtEl=g(p+'-preview-previewtext');
-  var nameEl=g(p+'-preview-name');
-  var bodyEl=g(p+'-preview-body');
-  var toEl=g(p+'-preview-to');
-  if(subjEl) subjEl.textContent=subj||'(subject will appear here)';
-  if(prevtEl) prevtEl.textContent=prev||'(preview text will appear here)';
-  if(nameEl) nameEl.textContent=sample.first;
-  if(bodyEl) bodyEl.innerHTML=personalised||'<em style="color:#aaa;">Body will appear here...</em>';
-  if(toEl) toEl.textContent=sample.first+' '+sample.last+' <'+sample.email+'>';
+  var set=function(id,val,prop){var el=g(id);if(el){if(prop==='html')el.innerHTML=val;else el.textContent=val;}};
+  set(p+'-preview-subject',    sub||'(subject will appear here)','txt');
+  set(p+'-preview-previewtext',pre||'(preview text will appear here)','txt');
+  set(p+'-preview-name',       sample.first,'txt');
+  set(p+'-preview-body',       personalised||'<em style="color:#aaa;">Body will appear here...</em>','html');
+  set(p+'-preview-to',         sample.first+' '+sample.last+' <'+sample.email+'>','txt');
 }
 
 // ── Preview audience ──────────────────────────────────────────────────────────
@@ -722,7 +663,7 @@ g('previewBtn').addEventListener('click',async function(){
   finally{btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-eye"></i> Preview audience list';}
 });
 
-// ── Segment send button ───────────────────────────────────────────────────────
+// ── Segment send ──────────────────────────────────────────────────────────────
 g('sendSegmentBtn').addEventListener('click',function(){
   var subEl=document.querySelector('[data-field="seg-subject"]');
   var bodEl=document.querySelector('[data-field="seg-body"]');
@@ -739,32 +680,26 @@ g('sendSegmentBtn').addEventListener('click',function(){
   openModal('confirmModal');
 });
 
-// ── Guardian search ───────────────────────────────────────────────────────────
+// ── Individual search ─────────────────────────────────────────────────────────
 g('guardianSearch').addEventListener('input',function(){
   clearTimeout(searchTimer);
   var q=g('guardianSearch').value.trim();
-  if(q.length<2){
-    g('guardianResults').innerHTML='<div style="padding:1.5rem;text-align:center;color:var(--color-text-muted);font-size:0.875rem;">Type at least 2 characters to search</div>';
-    return;
-  }
+  if(q.length<2){g('guardianResults').innerHTML='<div style="padding:1.5rem;text-align:center;color:var(--color-text-muted);font-size:0.875rem;">Type at least 2 characters</div>';return;}
   searchTimer=setTimeout(function(){doSearch(q);},300);
 });
-
 async function doSearch(q){
   g('guardianResults').innerHTML='<div style="padding:1rem;text-align:center;"><span class="spinner"></span></div>';
   try{
     var res=await fetch('/admin/email-campaigns/search-guardians?q='+encodeURIComponent(q));
     var data=await res.json();
     if(!data.guardians||data.guardians.length===0){
-      g('guardianResults').innerHTML='<div style="padding:1.5rem;text-align:center;color:var(--color-text-muted);font-size:0.875rem;">No parents found.</div>';
-      return;
+      g('guardianResults').innerHTML='<div style="padding:1.5rem;text-align:center;color:var(--color-text-muted);font-size:0.875rem;">No parents found.</div>';return;
     }
     g('guardianResults').innerHTML=data.guardians.map(function(gu){
       return '<div class="guardian-result-item" data-id="'+gu._id+'" data-name="'+gu.firstName+' '+gu.lastName+'" data-email="'+gu.email+'" data-first="'+gu.firstName+'" data-last="'+gu.lastName+'">'+
         '<div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#c9a84c,#e8c96a);display:flex;align-items:center;justify-content:center;font-weight:700;color:#0a0e1a;font-size:0.875rem;flex-shrink:0;">'+(gu.firstName||'?')[0].toUpperCase()+'</div>'+
         '<div style="min-width:0;flex:1;"><div style="font-weight:600;font-size:0.875rem;color:var(--color-text-primary);">'+gu.firstName+' '+gu.lastName+'</div>'+
-        '<div style="font-size:0.775rem;color:var(--color-text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+gu.email+'</div>'+
-        (gu.country?'<div style="font-size:0.7rem;color:var(--color-text-muted);">'+gu.country+'</div>':'')+'</div>'+
+        '<div style="font-size:0.775rem;color:var(--color-text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+gu.email+'</div>'+(gu.country?'<div style="font-size:0.7rem;color:var(--color-text-muted);">'+gu.country+'</div>':'')+'</div>'+
         '<i class="fa-solid fa-chevron-right" style="color:var(--color-text-muted);font-size:0.75rem;flex-shrink:0;margin-left:auto;"></i></div>';
     }).join('');
     g('guardianResults').querySelectorAll('.guardian-result-item').forEach(function(item){
@@ -772,7 +707,6 @@ async function doSearch(q){
     });
   }catch(e){g('guardianResults').innerHTML='<div style="padding:1rem;text-align:center;color:var(--color-danger-light);">Search failed.</div>';}
 }
-
 function pickGuardian(item){
   g('guardianResults').querySelectorAll('.guardian-result-item').forEach(function(i){i.classList.remove('selected-item');});
   item.classList.add('selected-item');
@@ -780,28 +714,21 @@ function pickGuardian(item){
   g('recipientAvatar').textContent=selectedGuardian.name[0].toUpperCase();
   g('recipientName').textContent=selectedGuardian.name;
   g('recipientEmail').textContent=selectedGuardian.email;
-  g('selectedRecipient').style.display='block';
-  g('noRecipientPrompt').style.display='none';
+  g('selectedRecipient').style.display='block'; g('noRecipientPrompt').style.display='none';
   g('individualComposeForm').style.display='block';
   g('individualRecipientId').value=selectedGuardian.id;
   g('individualRecipientEmail').value=selectedGuardian.email;
-  // Update preview sample to match this specific parent
-  sample.first=selectedGuardian.first||'Parent';
-  sample.last=selectedGuardian.last||'';
-  sample.email=selectedGuardian.email;
-  // Load general template pre-filled
+  sample.first=selectedGuardian.first||'Parent'; sample.last=selectedGuardian.last||''; sample.email=selectedGuardian.email;
   loadInto('ind',T['all_guardians']);
 }
-
 g('clearRecipient').addEventListener('click',function(){
   selectedGuardian=null;
-  g('selectedRecipient').style.display='none';
-  g('noRecipientPrompt').style.display='block';
+  g('selectedRecipient').style.display='none'; g('noRecipientPrompt').style.display='block';
   g('individualComposeForm').style.display='none';
   g('guardianResults').querySelectorAll('.guardian-result-item').forEach(function(i){i.classList.remove('selected-item');});
 });
 
-// ── Individual send button ────────────────────────────────────────────────────
+// ── Individual send ───────────────────────────────────────────────────────────
 g('sendIndividualBtn').addEventListener('click',function(){
   if(!selectedGuardian){showToast('Select a recipient first.','error');return;}
   var subEl=document.querySelector('[data-field="ind-subject"]');
@@ -817,10 +744,9 @@ g('sendIndividualBtn').addEventListener('click',function(){
   openModal('confirmModal');
 });
 
-// ── Confirm modal ─────────────────────────────────────────────────────────────
+// ── Confirm & result modals ───────────────────────────────────────────────────
 g('closeConfirmBtn').addEventListener('click',function(){closeModal('confirmModal');});
 g('cancelConfirmBtn').addEventListener('click',function(){closeModal('confirmModal');});
-
 g('confirmSendBtn').addEventListener('click',async function(){
   var btn=g('confirmSendBtn'); btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Sending...';
   try{
@@ -831,31 +757,12 @@ g('confirmSendBtn').addEventListener('click',async function(){
     g('resultTitle').textContent=data.success?'Email Sent!':'Not Sent';
     g('resultMessage').textContent=data.message||'';
     if(data.sent!==undefined){g('statSent').textContent=data.sent;g('statFailed').textContent=data.failed||0;g('resultStats').style.display='flex';}
-    else{g('resultStats').style.display='none';}
+    else g('resultStats').style.display='none';
     openModal('resultModal');
   }catch(e){closeModal('confirmModal');showToast('Network error. Please try again.','error');}
   finally{btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-paper-plane"></i> Yes, Send Now';}
 });
-
 g('resultDoneBtn').addEventListener('click',function(){closeModal('resultModal');location.reload();});
-
-// ── Paste sanitizer — strips markdown when pasting into any editor ────────────
-// Prevents [text](url) markdown from appearing as literal text in emails
-document.querySelectorAll('.email-editor').forEach(function(editor){
-  editor.addEventListener('paste',function(e){
-    e.preventDefault();
-    var text = (e.clipboardData||window.clipboardData).getData('text/html')
-            || (e.clipboardData||window.clipboardData).getData('text/plain');
-    // Convert markdown links to HTML links
-    text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2">$1</a>');
-    // Convert markdown bold to HTML
-    text = text.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
-    document.execCommand('insertHTML',false,text);
-    // Refresh live preview
-    var p=editor.dataset.field?editor.dataset.field.split('-')[0]:'seg';
-    refreshPreview(p);
-  });
-});
 
 })();
 </script>
