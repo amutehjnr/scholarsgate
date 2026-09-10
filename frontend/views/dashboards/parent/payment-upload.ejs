@@ -48,7 +48,7 @@
               </button> -->
               <% if (bankDetails?.cryptoEnabled) { %>
               <button type="button" onclick="switchTab('crypto')" id="tab-crypto"
-                style="padding:0.625rem 1.25rem;font-size:0.8rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;color:var(--color-text-muted);">
+                style="padding:0.625rem 1.25rem;font-size:0.8rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;border:none;background:none;cursor:pointer;border-bottom:2px solid var(--color-gold);margin-bottom:-2px;color:var(--color-gold-dim);">
                 <i class="fa-solid fa-coins" style="margin-right:6px;"></i>Cryptocurrency
               </button>
               <% } %>
@@ -94,7 +94,7 @@
 
             <!-- ─── Crypto Tab ────────────────────────────────────────── -->
             <% if (bankDetails?.cryptoEnabled) { %>
-            <div id="panel-crypto" style="display:none;">
+            <div id="panel-crypto" style="display:block;">
 
               <!-- Crypto network selector -->
               <div style="margin-bottom:1.25rem;">
@@ -171,12 +171,12 @@
                 <select name="paymentMethod" class="form-control form-select" required id="paymentMethodSelect"
                   onchange="handleMethodChange(this.value)">
                   <option value="">Select method...</option>
-                  <optgroup label="Bank Transfer">
+                  <!-- <optgroup label="Bank Transfer">
                     <option value="wire_transfer"  <%= existingPayment?.paymentMethod === 'wire_transfer'  ? 'selected' : '' %>>Wire Transfer</option>
                     <option value="bank_transfer"  <%= existingPayment?.paymentMethod === 'bank_transfer'  ? 'selected' : '' %>>Bank Transfer</option>
                     <option value="western_union"  <%= existingPayment?.paymentMethod === 'western_union'  ? 'selected' : '' %>>Western Union</option>
                     <option value="paypal"         <%= existingPayment?.paymentMethod === 'paypal'         ? 'selected' : '' %>>PayPal</option>
-                  </optgroup>
+                  </optgroup> -->
                   <% if (bankDetails?.cryptoEnabled) { %>
                   <optgroup label="Cryptocurrency">
                     <option value="crypto_usdt" <%= existingPayment?.paymentMethod === 'crypto_usdt' ? 'selected' : '' %>>USDT (TRC20 / ERC20 / BEP20)</option>
@@ -270,7 +270,7 @@
             <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:1.25rem;">How It Works</h3>
             <div class="payment-steps">
               <% const steps = [
-                { n:1, title:'Make Payment', desc:'Transfer $' + ((offer.enrollmentDeposit||500).toLocaleString()) + ' via bank transfer or crypto.' },
+                { n:1, title:'Make Payment', desc:'Transfer $' + ((offer.enrollmentDeposit||500).toLocaleString()) + ' via cryptocurrency to the wallet address shown.' },
                 { n:2, title:'Save Receipt', desc:'Screenshot your transaction confirmation or download the receipt from your bank/wallet.' },
                 { n:3, title:'Upload Proof', desc:'Select method, enter reference/TX hash, and upload your screenshot.' },
                 { n:4, title:'Await Confirmation', desc:'Our team verifies within 24–48 hours and your enrollment will be confirmed.' },
@@ -417,6 +417,11 @@ function handleMethodChange(val) {
 (function() {
   const sel = document.getElementById('paymentMethodSelect');
   if (sel && sel.value) handleMethodChange(sel.value);
+})();
+
+// ── Default active tab (crypto is currently the only method offered) ───────
+(function() {
+  if (document.getElementById('tab-crypto')) switchTab('crypto');
 })();
 </script>
 </body>
