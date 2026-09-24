@@ -50,13 +50,15 @@ offerSchema.index({ offerNumber: 1 });
 // ─── Payment ─────────────────────────────────────────────────────────────────
 const paymentSchema = new mongoose.Schema({
   guardian: { type: mongoose.Schema.Types.ObjectId, ref: 'Guardian', required: true },
-  offer: { type: mongoose.Schema.Types.ObjectId, ref: 'Offer', required: true },
+  // Application-fee payments happen before an offer exists, so `offer` is only
+  // required for the offer-stage payment types (acceptance_fee / enrollment_deposit).
+  offer: { type: mongoose.Schema.Types.ObjectId, ref: 'Offer' },
   application: { type: mongoose.Schema.Types.ObjectId, ref: 'Application', required: true },
   amount: { type: Number, required: true },
   currency: { type: String, default: 'USD' },
   paymentType: {
     type: String,
-    enum: ['acceptance_fee', 'enrollment_deposit'],
+    enum: ['application_fee', 'acceptance_fee', 'enrollment_deposit'],
     default: 'enrollment_deposit',
   },
   paymentMethod: {

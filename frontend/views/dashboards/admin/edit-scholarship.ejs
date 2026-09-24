@@ -127,6 +127,16 @@
                 <p class="form-hint">Amount family must pay annually after scholarship</p>
               </div>
 
+              <div class="form-group">
+                <label class="form-label">Application Fee (USD)</label>
+                <div style="position:relative;">
+                  <span style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:var(--color-text-muted);font-weight:600;">$</span>
+                  <input type="number" name="applicationFee" class="form-control"
+                  value="<%= scholarship.applicationFee || 0 %>" style="padding-left:2rem;" min="0"/>
+                </div>
+                <p class="form-hint">Paid by parent when submitting the application. Set to 0 for free applications.</p>
+              </div>
+
               <div class="form-group" style="margin-bottom:0;">
                 <label class="form-label">
                   Enrollment Deposit (USD) <span class="required">*</span>
@@ -164,6 +174,10 @@
                 <div style="display:flex;justify-content:space-between;margin-bottom:0.5rem;">
                   <span style="font-size:0.8rem;color:var(--color-text-muted);">Total Value</span>
                   <span style="font-size:0.875rem;font-weight:700;color:var(--color-success-light);">$<%= (scholarship.totalValue||0).toLocaleString() %></span>
+                </div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:0.5rem;">
+                  <span style="font-size:0.8rem;color:var(--color-text-muted);">Application Fee</span>
+                  <span style="font-size:0.875rem;font-weight:700;color:var(--color-text-primary);">$<%= (scholarship.applicationFee||0).toLocaleString() %></span>
                 </div>
                 <div style="display:flex;justify-content:space-between;padding-top:0.5rem;border-top:1px solid rgba(0,0,0,0.06);">
                   <span style="font-size:0.8rem;color:var(--color-text-muted);">Enrollment Deposit</span>

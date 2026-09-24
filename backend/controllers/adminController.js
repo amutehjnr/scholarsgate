@@ -13,17 +13,22 @@ const AppError = require('../utils/AppError');
 exports.getDashboard = async (req, res) => {
   const [
     totalGuardians, totalStudents, totalApplications, totalSchools,
-    totalScholarships, pendingPayments, recentApplications, stats
+    totalScholarships, pendingPayments, awaitingApplicationFee, recentApplications, stats
   ] = await Promise.all([
     Guardian.countDocuments({ isActive: true }),
     Student.countDocuments({ isActive: true }),
-    Application.countDocuments(),
+    // "Applications" means real, submitted applications — drafts sitting on
+    // an unpaid application fee aren't applications yet from a review standpoint.
+    Application.countDocuments({ status: { $ne: 'draft' } }),
     School.countDocuments({ isActive: true }),
     Scholarship.countDocuments({ isActive: true }),
     Payment.countDocuments({ status: 'pending' }),
-    Application.find().populate('student', 'firstName lastName').populate('school', 'name')
+    Application.countDocuments({ status: 'draft', applicationFeeStatus: 'pending' }),
+    Application.find({ status: { $ne: 'draft' } })
+      .populate('student', 'firstName lastName').populate('school', 'name')
       .sort({ createdAt: -1 }).limit(10).lean(),
     Application.aggregate([
+      { $match: { status: { $ne: 'draft' } } },
       { $group: { _id: '$status', count: { $sum: 1 } } }
     ]),
   ]);
@@ -33,7 +38,10 @@ exports.getDashboard = async (req, res) => {
 
   res.render('dashboards/admin/dashboard', {
     title: 'Admin Dashboard',
-    analytics: { totalGuardians, totalStudents, totalApplications, totalSchools, totalScholarships, pendingPayments, statusMap },
+    analytics: {
+      totalGuardians, totalStudents, totalApplications, totalSchools,
+      totalScholarships, pendingPayments, awaitingApplicationFee, statusMap,
+    },
     recentApplications,
   });
 };
@@ -186,7 +194,8 @@ exports.updateScholarship = async (req, res, next) => {
   if (body.slotsTotal)         scholarship.slotsTotal         = Number(body.slotsTotal);
   if (body.remainingTuition !== undefined) scholarship.remainingTuition = Number(body.remainingTuition);
 
-  // FEES — enrollment deposit & remaining tuition
+  // FEES — application fee, enrollment deposit & remaining tuition
+  if (body.applicationFee !== undefined) scholarship.applicationFee = Number(body.applicationFee);
   if (body.enrollmentDeposit !== undefined) scholarship.enrollmentDeposit = Number(body.enrollmentDeposit);
   if (body.acceptanceFee !== undefined) scholarship.acceptanceFee = Number(body.acceptanceFee);
 
@@ -241,7 +250,10 @@ exports.getApplications = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = 20;
   const query = {};
+  // Drafts are applications still waiting on an unpaid application fee — keep
+  // them out of the review queue unless the admin explicitly filters for them.
   if (req.query.status) query.status = req.query.status;
+  else query.status = { $ne: 'draft' };
   if (req.query.school) query.school = req.query.school;
 
   const [applications, total, schools] = await Promise.all([
@@ -272,11 +284,65 @@ exports.getApplicationDetail = async (req, res, next) => {
 
   const offer = await Offer.findOne({ application: application._id }).lean();
   const payment = offer ? await Payment.findOne({ offer: offer._id }).lean() : null;
+  const applicationFeePayment = application.applicationFeeStatus !== 'not_required'
+    ? await Payment.findOne({ application: application._id, paymentType: 'application_fee' }).sort({ createdAt: -1 }).lean()
+    : null;
 
   res.render('dashboards/admin/application-detail', {
     title: `Application #${application.applicationNumber}`,
-    application, offer, payment,
+    application, offer, payment, applicationFeePayment,
   });
+};
+
+// Admin override for an individual application's fee — adjust the amount or
+// waive it outright (financial hardship, admin discretion, etc.), independent
+// of the scholarship's default applicationFee.
+exports.updateApplicationFee = async (req, res, next) => {
+  const application = await Application.findById(req.params.id);
+  if (!application) return next(new AppError('Application not found', 404));
+
+  const { action, amount } = req.body;
+
+  const releaseIfDraft = (note) => {
+    if (application.status === 'draft') {
+      application.status = 'submitted';
+      application.submittedAt = application.submittedAt || new Date();
+      application.timeline.push({
+        status: 'submitted', note, updatedBy: req.user._id, updatedByRole: 'admin',
+      });
+    }
+  };
+
+  if (action === 'waive') {
+    application.applicationFeeStatus = 'not_required';
+    releaseIfDraft('Application fee waived by admin — application submitted for review');
+    await application.save();
+
+    await Notification.create({
+      recipient: application.guardian,
+      recipientModel: 'Guardian',
+      type: 'payment_verified',
+      title: 'Application Fee Waived',
+      message: 'Your application fee has been waived. Your application is now submitted for review.',
+      link: `/parent/applications/${application._id}`,
+    });
+
+    req.session.flash = { success: 'Application fee waived — application submitted for review.' };
+  } else {
+    const newAmount = Number(amount);
+    if (Number.isNaN(newAmount) || newAmount < 0) return next(new AppError('Invalid fee amount', 400));
+
+    application.applicationFeeAmount = newAmount;
+    if (newAmount === 0) {
+      application.applicationFeeStatus = 'not_required';
+      releaseIfDraft('Application fee reduced to $0 by admin — application submitted for review');
+    }
+    await application.save();
+
+    req.session.flash = { success: `Application fee updated to $${newAmount.toLocaleString()}.` };
+  }
+
+  res.redirect(`/admin/applications/${application._id}`);
 };
 
 exports.updateApplicationStatus = async (req, res, next) => {
@@ -397,6 +463,9 @@ exports.getPayments = async (req, res) => {
   const payments = await Payment.find()
     .populate('guardian', 'firstName lastName email')
     .populate({ path: 'offer', populate: { path: 'school', select: 'name' } })
+    // application_fee payments have no offer yet, so fall back to the
+    // application's own school for display.
+    .populate({ path: 'application', select: 'school', populate: { path: 'school', select: 'name' } })
     .sort({ createdAt: -1 }).lean();
 
   res.render('dashboards/admin/payments', { title: 'Payment Verification', payments });
@@ -408,6 +477,58 @@ exports.verifyPayment = async (req, res, next) => {
 
   const { action, rejectionReason } = req.body;
 
+  // ── Application fee: no offer exists yet at this stage ───────────────────
+  if (payment.paymentType === 'application_fee') {
+    if (action === 'verify') {
+      payment.status = 'verified';
+      payment.verifiedAt = new Date();
+      payment.verifiedBy = req.user._id;
+
+      const application = await Application.findById(payment.application).populate('scholarship school');
+      if (application) {
+        application.applicationFeeStatus = 'paid';
+        application.status = 'submitted';
+        application.submittedAt = application.submittedAt || new Date();
+        application.timeline.push({
+          status: 'submitted',
+          note: 'Application fee verified — application submitted for review',
+          updatedBy: req.user._id,
+          updatedByRole: 'admin',
+        });
+        await application.save();
+
+        if (application.scholarship) {
+          await Scholarship.findByIdAndUpdate(application.scholarship._id, { $inc: { applicationCount: 1 } });
+        }
+      }
+
+      await Notification.create({
+        recipient: payment.guardian,
+        recipientModel: 'Guardian',
+        type: 'payment_verified',
+        title: '✅ Application Fee Verified!',
+        message: 'Your application fee has been verified and your application is now submitted for review.',
+        link: `/parent/applications/${payment.application}`,
+      });
+    } else {
+      payment.status = 'rejected';
+      payment.rejectionReason = rejectionReason;
+
+      await Notification.create({
+        recipient: payment.guardian,
+        recipientModel: 'Guardian',
+        type: 'payment_rejected',
+        title: 'Application Fee Rejected',
+        message: `Your application fee proof was rejected: ${rejectionReason}. Please resubmit.`,
+        link: `/parent/applications/${payment.application}/fee`,
+      });
+    }
+
+    await payment.save();
+    return res.json({ success: true, message: `Payment ${action === 'verify' ? 'verified' : 'rejected'}.` });
+  }
+
+  // ── Acceptance fee / enrollment deposit — tied to an offer ────────────────
   if (action === 'verify') {
     payment.status = 'verified';
     payment.verifiedAt = new Date();

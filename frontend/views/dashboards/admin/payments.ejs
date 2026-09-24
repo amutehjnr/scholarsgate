@@ -106,13 +106,15 @@
 
                 <!-- School -->
                 <td style="font-size:0.8rem;max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                  <%= payment.offer?.school?.name || '—' %>
+                  <%= payment.offer?.school?.name || payment.application?.school?.name || '—' %>
                 </td>
 
                 <!-- Payment type badge -->
                 <td>
-                  <span class="badge badge-<%= payment.paymentType === 'acceptance_fee' ? 'warning' : 'info' %>" style="font-size:10px;">
-                    <%= payment.paymentType === 'acceptance_fee' ? 'Acceptance Fee' : 'Enrollment Deposit' %>
+                  <% const typeLabel = { application_fee: 'Application Fee', acceptance_fee: 'Acceptance Fee', enrollment_deposit: 'Enrollment Deposit' }[payment.paymentType] || payment.paymentType; %>
+                  <% const typeBadge = { application_fee: 'gold', acceptance_fee: 'warning', enrollment_deposit: 'info' }[payment.paymentType] || 'info'; %>
+                  <span class="badge badge-<%= typeBadge %>" style="font-size:10px;">
+                    <%= typeLabel %>
                   </span>
                 </td>
 

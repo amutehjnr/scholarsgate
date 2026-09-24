@@ -106,6 +106,31 @@
         <!-- ── RIGHT ──────────────────────────────────────────────────────── -->
         <div style="display:flex;flex-direction:column;gap:1.5rem;">
 
+          <!-- Application fee status -->
+          <% if(application.applicationFeeStatus !== 'not_required'){ %>
+          <div class="data-table-wrap" style="padding:1.5rem;border:1px solid <%= application.applicationFeeStatus==='paid'?'rgba(26,107,42,0.3)':'rgba(201,168,76,0.25)' %>;">
+            <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-gold);margin-bottom:0.75rem;">Application Fee</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
+              <span style="font-size:1.25rem;font-weight:700;">$<%= (application.applicationFeeAmount||0).toLocaleString() %></span>
+              <span class="badge badge-<%= application.applicationFeeStatus==='paid'?'success':applicationFeePayment?.status==='rejected'?'danger':'gold' %>">
+                <%= application.applicationFeeStatus==='paid' ? 'Paid' : (applicationFeePayment?.status==='rejected' ? 'rejected' : applicationFeePayment?.status==='pending' ? 'under review' : 'unpaid') %>
+              </span>
+            </div>
+
+            <% if(application.applicationFeeStatus==='paid'){ %>
+            <div class="alert alert-success" style="font-size:0.8rem;"><i class="fa-solid fa-circle-check"></i><span>Fee verified — this application has been submitted for review.</span></div>
+            <% } else if(applicationFeePayment?.status==='rejected'){ %>
+            <div class="alert alert-danger" style="margin-bottom:0.875rem;font-size:0.8rem;"><i class="fa-solid fa-circle-xmark"></i><span><%= applicationFeePayment.rejectionReason || 'Payment rejected.' %></span></div>
+            <a href="/parent/applications/<%= application._id %>/fee" class="btn btn-gold w-full" style="justify-content:center;"><i class="fa-solid fa-rotate-right"></i> Resubmit Payment</a>
+            <% } else if(applicationFeePayment?.status==='pending' || applicationFeePayment?.status==='under_review'){ %>
+            <div class="alert alert-info" style="font-size:0.8rem;"><i class="fa-solid fa-clock"></i><span>Under review — 24–48 hours. This application will be submitted for review once verified.</span></div>
+            <% } else { %>
+            <p style="font-size:0.8rem;color:var(--color-text-muted);margin-bottom:0.875rem;">This application won't be reviewed until the fee is paid.</p>
+            <a href="/parent/applications/<%= application._id %>/fee" class="btn btn-gold w-full" style="justify-content:center;"><i class="fa-solid fa-upload"></i> Pay Application Fee</a>
+            <% } %>
+          </div>
+          <% } %>
+
           <!-- Offer card -->
           <% if(offer){
             const isConfirmed = offer.status === 'confirmed';

@@ -17,6 +17,8 @@ router.put('/students/:id', imageUpload.single('photo'), parentController.update
 router.post('/students/:studentId/documents/:docType', uploadLimiter, documentUpload.single('file'), parentController.uploadDocument);
 router.get('/applications', parentController.getApplications);
 router.get('/applications/:id', parentController.getApplicationDetail);
+router.get('/applications/:id/fee', parentController.getApplicationFeePage);
+router.post('/applications/:id/fee', uploadLimiter, documentUpload.single('proof'), parentController.submitApplicationFee);
 router.get('/offers', parentController.getOffers);
 router.post('/offers/:id/accept', parentController.acceptOffer);
 router.get('/offers/:id/payment', parentController.getPaymentPage);

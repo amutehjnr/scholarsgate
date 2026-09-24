@@ -137,6 +137,96 @@ exports.getApplications = async (req, res) => {
   res.render('dashboards/parent/applications', { title: 'Applications', applications });
 };
 
+// ─── Application Fee ────────────────────────────────────────
+exports.getApplicationFeePage = async (req, res, next) => {
+  const application = await Application.findOne({ _id: req.params.id, guardian: req.user._id })
+    .populate('school', 'name').populate('scholarship', 'name applicationFee').lean();
+
+  if (!application) return next(new AppError('Application not found', 404));
+
+  if (application.applicationFeeStatus === 'not_required') {
+    return res.redirect(`/parent/applications/${application._id}`);
+  }
+
+  if (application.applicationFeeStatus === 'paid') {
+    req.session.flash = { success: 'Application fee already verified.' };
+    return res.redirect(`/parent/applications/${application._id}`);
+  }
+
+  const [existingPayment, bankDetails] = await Promise.all([
+    Payment.findOne({ application: application._id, paymentType: 'application_fee' }).lean(),
+    BankDetails.findOne({ isActive: true }).lean(),
+  ]);
+
+  res.render('dashboards/parent/application-fee', {
+    title: 'Pay Application Fee',
+    application,
+    existingPayment,
+    bankDetails,
+  });
+};
+
+exports.submitApplicationFee = async (req, res, next) => {
+  const application = await Application.findOne({ _id: req.params.id, guardian: req.user._id });
+  if (!application) return next(new AppError('Application not found', 404));
+
+  if (application.applicationFeeStatus === 'not_required') {
+    return next(new AppError('This application does not require an application fee.', 400));
+  }
+  if (application.applicationFeeStatus === 'paid') {
+    return next(new AppError('Application fee already verified.', 400));
+  }
+  if (!req.file) return next(new AppError('Proof of payment is required', 400));
+
+  const existing = await Payment.findOne({
+    application: application._id,
+    paymentType: 'application_fee',
+  });
+
+  if (existing && existing.status === 'verified') {
+    return next(new AppError('Application fee already verified', 400));
+  }
+
+  const { url, publicId } = await uploadToCloudinary(req.file.buffer, 'payments');
+
+  const isCrypto = (req.body.paymentMethod || '').startsWith('crypto_');
+
+  const paymentData = {
+    guardian: req.user._id,
+    application: application._id,
+    amount: application.applicationFeeAmount,
+    paymentMethod: req.body.paymentMethod,
+    referenceNumber: req.body.referenceNumber || null,
+    proofOfPayment: { url, publicId },
+    paymentType: 'application_fee',
+    status: 'pending',
+    ...(isCrypto && {
+      cryptoTxHash:        req.body.cryptoTxHash        || null,
+      cryptoWalletAddress: req.body.cryptoWalletAddress || null,
+      cryptoNetwork:       req.body.cryptoNetwork       || null,
+    }),
+  };
+
+  if (existing) {
+    Object.assign(existing, paymentData);
+    await existing.save();
+  } else {
+    await Payment.create(paymentData);
+  }
+
+  await Notification.create({
+    recipient: req.user._id,
+    recipientModel: 'Guardian',
+    type: 'payment_submitted',
+    title: 'Application Fee Submitted',
+    message: `Your application fee proof has been submitted${isCrypto ? ' (crypto payment)' : ''} and is under review.`,
+    link: `/parent/applications/${application._id}/fee`,
+  });
+
+  req.session.flash = { success: 'Application fee proof submitted. Admin will verify within 24–48 hours.' };
+  res.redirect(`/parent/applications/${application._id}`);
+};
+
 exports.getApplicationDetail = async (req, res, next) => {
   const application = await Application.findOne({ _id: req.params.id, guardian: req.user._id })
     .populate('student').populate('school').populate('scholarship').lean();
@@ -145,12 +235,16 @@ exports.getApplicationDetail = async (req, res, next) => {
 
   const offer = await Offer.findOne({ application: application._id }).lean();
   const payment = offer ? await Payment.findOne({ offer: offer._id }).lean() : null;
+  const applicationFeePayment = application.applicationFeeStatus !== 'not_required'
+    ? await Payment.findOne({ application: application._id, paymentType: 'application_fee' }).lean()
+    : null;
 
   res.render('dashboards/parent/application-detail', {
     title: `Application #${application.applicationNumber}`,
     application,
     offer,
     payment,
+    applicationFeePayment,
   });
 };
 

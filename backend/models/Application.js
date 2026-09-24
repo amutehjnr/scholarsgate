@@ -13,6 +13,16 @@ const applicationSchema = new mongoose.Schema({
     default: 'draft',
   },
   submittedAt: Date,
+  // ── Application fee ─────────────────────────────────────────────────────
+  // Snapshot of the scholarship's applicationFee at the time this application
+  // was started, so a later change to the scholarship's fee doesn't retroactively
+  // change what this guardian owes/paid.
+  applicationFeeAmount: { type: Number, default: 0 },
+  applicationFeeStatus: {
+    type: String,
+    enum: ['not_required', 'pending', 'paid'],
+    default: 'not_required',
+  },
   personalStatement: { type: String, maxlength: 5000 },
   extracurriculars: String,
   financialNeed: String,
