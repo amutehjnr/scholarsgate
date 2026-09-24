@@ -162,7 +162,21 @@ exports.getOffers = async (req, res) => {
     .populate('student', 'firstName lastName avatar')
     .sort({ createdAt: -1 }).lean();
 
-  res.render('dashboards/parent/offers', { title: 'Offer Letters', offers });
+  // One query for every enrollment-deposit payment tied to these offers, so
+  // the view can render the correct locked state per card without an N+1.
+  const offerIds = offers.map(o => o._id);
+  const payments = await Payment.find({
+    offer: { $in: offerIds },
+    paymentType: 'enrollment_deposit',
+  }).sort({ createdAt: -1 }).lean();
+
+  const paymentsByOffer = {};
+  for (const p of payments) {
+    const key = p.offer.toString();
+    if (!paymentsByOffer[key]) paymentsByOffer[key] = p; // keep the most recent
+  }
+
+  res.render('dashboards/parent/offers', { title: 'Offer Letters', offers, paymentsByOffer });
 };
 
 // ─── Accept Offer ─────────────────────────────────────────
@@ -479,15 +493,36 @@ exports.downloadOfferPdf = async (req, res, next) => {
     });
 
     if (!verifiedPayment) {
-      // Distinguish between "no payment at all" and "payment pending review"
-      const pendingPayment = await Payment.findOne({
+      const latestPayment = await Payment.findOne({
         offer:       offer._id,
         paymentType: 'enrollment_deposit',
-      });
+      }).sort({ createdAt: -1 });
 
-      if (pendingPayment) {
+      // Expired offers are a dead end regardless of payment state
+      if (offer.status === 'expired') {
+        return next(new AppError(
+          'This offer has expired. Please contact admissions if you still wish to enroll.',
+          403
+        ));
+      }
+
+      if (latestPayment?.status === 'rejected') {
+        return next(new AppError(
+          `Your enrollment deposit was rejected${latestPayment.rejectionReason ? `: ${latestPayment.rejectionReason}` : '.'} Please resubmit your payment to unlock the offer letter.`,
+          403
+        ));
+      }
+
+      if (latestPayment && ['pending', 'under_review'].includes(latestPayment.status)) {
         return next(new AppError(
           'Your offer letter will be available for download once your enrollment deposit payment has been verified by our team.',
+          403
+        ));
+      }
+
+      if (offer.status === 'issued') {
+        return next(new AppError(
+          'Please accept this offer before your enrollment deposit and offer letter can be unlocked.',
           403
         ));
       }

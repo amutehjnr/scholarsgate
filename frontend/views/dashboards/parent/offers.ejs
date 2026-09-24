@@ -30,6 +30,8 @@
           const isAccepted  = offer.status === 'accepted';
           const isIssued    = offer.status === 'issued';
           const isExpired   = offer.status === 'expired';
+          const payment     = paymentsByOffer[offer._id.toString()];
+          const payStatus   = payment?.status; // pending | under_review | verified | rejected
         %>
         <div class="offer-card">
           <div class="offer-card-header">
@@ -38,7 +40,10 @@
               <%= offer.status %>
             </span>
           </div>
-          <div class="offer-card-body">
+
+        <div style="position:relative;">
+          <%# ── Card body: blurred + non-interactive until confirmed ──────── %>
+          <div class="offer-card-body" style="<%= !isConfirmed ? 'filter:blur(5px);user-select:none;pointer-events:none;' : '' %>">
             <div class="offer-school-name"><%= offer.school?.name %></div>
             <div class="offer-scholarship-name"><%= offer.scholarship?.name||'Scholarship Offer' %></div>
 
@@ -71,24 +76,7 @@
 
             <!-- ── Action buttons ─────────────────────────────────────── -->
             <div class="offer-actions">
-
-              <%# ── Issued: show Accept button ──────────────────────────── %>
-              <% if(isIssued){%>
-              <form action="/parent/offers/<%= offer._id %>/accept" method="POST" style="flex:1;">
-                <button type="submit" class="btn btn-gold w-full" style="justify-content:center;"
-                  onclick="return confirm('Accept this offer and proceed to payment?')">
-                  <i class="fa-solid fa-check"></i> Accept Offer
-                </button>
-              </form>
-
-              <%# ── Accepted: show deposit submission button ─────────────── %>
-              <%} else if(isAccepted){%>
-              <a href="/parent/offers/<%= offer._id %>/payment" class="btn btn-gold" style="flex:1;justify-content:center;">
-                <i class="fa-solid fa-upload"></i> Submit Deposit
-              </a>
-
-              <%# ── Confirmed: enrollment locked in ────────────────────── %>
-              <%} else if(isConfirmed){%>
+              <% if(isConfirmed){%>
               <div class="btn" style="flex:1;background:var(--color-success-bg);color:var(--color-success);border-color:transparent;justify-content:center;cursor:default;font-size:0.875rem;">
                 <i class="fa-solid fa-circle-check"></i> Enrollment Confirmed
               </div>
@@ -102,27 +90,54 @@
                 style="flex-shrink:0;">
                 <i class="fa-solid fa-file-pdf"></i>
               </a>
-              <% } else if(!isConfirmed && offer.pdfUrl) { %>
-              <%# Show a locked indicator so the parent knows a PDF exists but isn't ready yet %>
-              <div class="btn btn-ghost btn-sm" title="PDF available after enrollment is confirmed"
-                style="flex-shrink:0;opacity:0.4;cursor:not-allowed;">
-                <i class="fa-solid fa-lock"></i>
-              </div>
               <% } %>
-
             </div>
-
-            <%# ── Pending payment notice ──────────────────────────────── %>
-            <% if(isAccepted){ %>
-            <div style="margin-top:0.875rem;padding:0.75rem;background:rgba(201,168,76,0.06);border-radius:8px;border:1px solid rgba(201,168,76,0.2);">
-              <p style="font-size:0.75rem;color:var(--color-warning);line-height:1.6;margin:0;">
-                <i class="fa-solid fa-circle-info" style="margin-right:5px;"></i>
-                Your offer letter PDF will be available for download once your enrollment deposit is verified by our team.
-              </p>
-            </div>
-            <% } %>
-
           </div>
+
+          <%# ── Locked overlay: shown for every non-confirmed state ────────── %>
+          <% if(!isConfirmed){ %>
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:1.5rem;background:rgba(255,255,255,0.82);border-radius:inherit;">
+            <div style="font-size:1.75rem;color:var(--color-text-muted);margin-bottom:0.75rem;">
+              <i class="fa-solid fa-lock"></i>
+            </div>
+
+            <% if(isExpired){ %>
+              <p style="font-size:0.8rem;color:var(--color-text-muted);max-width:220px;margin-bottom:0.875rem;">This offer has expired. Contact admissions if you still wish to enroll.</p>
+              <a href="mailto:admissions@scholarsgate.com" class="btn btn-gold btn-sm">
+                <i class="fa-solid fa-envelope"></i> Contact Admissions
+              </a>
+
+            <% } else if(isIssued){ %>
+              <p style="font-size:0.8rem;color:var(--color-text-muted);max-width:220px;margin-bottom:0.875rem;">Accept this offer to begin enrollment.</p>
+              <form action="/parent/offers/<%= offer._id %>/accept" method="POST">
+                <button type="submit" class="btn btn-gold btn-sm"
+                  onclick="return confirm('Accept this offer and proceed to payment?')">
+                  <i class="fa-solid fa-check"></i> Accept Offer
+                </button>
+              </form>
+
+            <% } else if(isAccepted && payStatus==='rejected'){ %>
+              <p style="font-size:0.8rem;color:var(--color-danger);max-width:220px;margin-bottom:0.875rem;"><%= payment.rejectionReason || 'Your payment was rejected.' %> Resubmit to unlock.</p>
+              <a href="/parent/offers/<%= offer._id %>/payment" class="btn btn-gold btn-sm">
+                <i class="fa-solid fa-rotate-right"></i> Resubmit Payment
+              </a>
+
+            <% } else if(isAccepted && (payStatus==='pending' || payStatus==='under_review')){ %>
+              <p style="font-size:0.8rem;color:var(--color-text-muted);max-width:220px;">
+                <i class="fa-regular fa-clock" style="margin-right:4px;"></i>
+                Payment under review — 24–48 hrs
+              </p>
+
+            <% } else if(isAccepted){ %>
+              <p style="font-size:0.8rem;color:var(--color-text-muted);max-width:220px;margin-bottom:0.875rem;">Submit your enrollment deposit to unlock this offer.</p>
+              <a href="/parent/offers/<%= offer._id %>/payment" class="btn btn-gold btn-sm">
+                <i class="fa-solid fa-upload"></i> Submit Deposit
+              </a>
+            <% } %>
+          </div>
+          <% } %>
+        </div>
+
         </div>
         <%})%>
       </div>

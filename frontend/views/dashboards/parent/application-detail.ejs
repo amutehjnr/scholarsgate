@@ -111,65 +111,97 @@
             const isConfirmed = offer.status === 'confirmed';
             const isAccepted  = offer.status === 'accepted';
             const isIssued    = offer.status === 'issued';
+            const isExpired   = offer.status === 'expired';
+            const payStatus   = payment?.status; // pending | under_review | verified | rejected
           %>
-          <div class="data-table-wrap" style="padding:1.5rem;border:<%= isConfirmed?'1px solid rgba(26,107,42,0.3)':'1px solid rgba(201,168,76,0.25)' %>;">
+          <div class="data-table-wrap" style="padding:1.5rem;border:<%= isConfirmed?'1px solid rgba(26,107,42,0.3)':'1px solid rgba(201,168,76,0.25)' %>;overflow:hidden;position:relative;">
             <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-gold);margin-bottom:0.75rem;">Offer Letter</div>
             <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:0.25rem;">Offer #<%= offer.offerNumber %></h3>
-            <span class="badge badge-<%= isConfirmed?'success':isAccepted?'info':'gold' %>" style="margin-bottom:1rem;"><%= offer.status %></span>
+            <span class="badge badge-<%= isConfirmed?'success':isAccepted?'info':isExpired?'danger':'gold' %>" style="margin-bottom:1rem;"><%= offer.status %></span>
 
-            <div style="display:flex;justify-content:space-between;padding:0.875rem;background:rgba(201,168,76,0.05);border-radius:10px;border:1px solid rgba(201,168,76,0.12);margin-bottom:1rem;">
-              <div>
-                <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-muted);">Coverage</div>
-                <div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--color-gold-dim);"><%= offer.scholarshipDetails?.coveragePercentage||0 %>%</div>
+            <div style="position:relative;">
+            <div style="<%= !isConfirmed ? 'filter:blur(5px);user-select:none;pointer-events:none;' : '' %>">
+
+              <div style="display:flex;justify-content:space-between;padding:0.875rem;background:rgba(201,168,76,0.05);border-radius:10px;border:1px solid rgba(201,168,76,0.12);margin-bottom:1rem;">
+                <div>
+                  <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-muted);">Coverage</div>
+                  <div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--color-gold-dim);"><%= offer.scholarshipDetails?.coveragePercentage||0 %>%</div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-muted);">Deposit</div>
+                  <div style="font-size:1.25rem;font-weight:700;">$<%= (offer.enrollmentDeposit||500).toLocaleString() %></div>
+                </div>
               </div>
-              <div style="text-align:right;">
-                <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-muted);">Deposit</div>
-                <div style="font-size:1.25rem;font-weight:700;">$<%= (offer.enrollmentDeposit||500).toLocaleString() %></div>
+
+              <div style="font-size:0.8rem;color:var(--color-text-muted);margin-bottom:1rem;">
+                Expires: <%= new Date(offer.expiryDate).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) %>
+              </div>
+
+              <div style="display:flex;flex-direction:column;gap:0.625rem;">
+
+                <!-- Primary CTA based on status -->
+                <% if(isConfirmed){%>
+                <div class="btn" style="background:var(--color-success-bg);color:var(--color-success);justify-content:center;cursor:default;font-size:0.875rem;">
+                  <i class="fa-solid fa-circle-check"></i> Enrollment Confirmed!
+                </div>
+                <%}%>
+
+                <!-- PDF download — ONLY when confirmed -->
+                <% if(isConfirmed && offer.pdfUrl){ %>
+                <a href="/parent/offers/<%= offer._id %>/pdf"
+                  class="btn btn-ghost btn-sm w-full"
+                  style="justify-content:center;">
+                  <i class="fa-solid fa-file-pdf"></i> Download Offer Letter
+                </a>
+                <% } %>
+
               </div>
             </div>
 
-            <div style="font-size:0.8rem;color:var(--color-text-muted);margin-bottom:1rem;">
-              Expires: <%= new Date(offer.expiryDate).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) %>
-            </div>
-
-            <div style="display:flex;flex-direction:column;gap:0.625rem;">
-
-              <!-- Primary CTA based on status -->
-              <% if(isIssued){%>
-              <form action="/parent/offers/<%= offer._id %>/accept" method="POST">
-                <button type="submit" class="btn btn-gold w-full" style="justify-content:center;"
-                  onclick="return confirm('Accept this offer and proceed to payment?')">
-                  <i class="fa-solid fa-check"></i> Accept Offer
-                </button>
-              </form>
-              <%} else if(isAccepted){%>
-              <a href="/parent/offers/<%= offer._id %>/payment" class="btn btn-gold w-full" style="justify-content:center;">
-                <i class="fa-solid fa-upload"></i> Submit Enrollment Deposit
-              </a>
-              <%} else if(isConfirmed){%>
-              <div class="btn" style="background:var(--color-success-bg);color:var(--color-success);justify-content:center;cursor:default;font-size:0.875rem;">
-                <i class="fa-solid fa-circle-check"></i> Enrollment Confirmed!
+            <%# ── Locked overlay: shown for every non-confirmed state ──────── %>
+            <% if(!isConfirmed){ %>
+            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:1.25rem;background:rgba(255,255,255,0.85);border-radius:10px;">
+              <div style="font-size:1.5rem;color:var(--color-text-muted);margin-bottom:0.625rem;">
+                <i class="fa-solid fa-lock"></i>
               </div>
-              <%}%>
 
-              <!-- PDF download — ONLY when confirmed -->
-              <% if(isConfirmed && offer.pdfUrl){ %>
-              <a href="/parent/offers/<%= offer._id %>/pdf"
-                class="btn btn-ghost btn-sm w-full"
-                style="justify-content:center;">
-                <i class="fa-solid fa-file-pdf"></i> Download Offer Letter
-              </a>
-              <% } else if(!isConfirmed && offer.pdfUrl) { %>
-              <!-- Locked state — visible but not clickable, with tooltip -->
-              <div style="display:flex;align-items:center;gap:0.625rem;padding:0.625rem 1rem;border-radius:8px;background:rgba(0,0,0,0.04);border:var(--border-dark);">
-                <i class="fa-solid fa-lock" style="color:var(--color-text-muted);font-size:0.875rem;flex-shrink:0;"></i>
-                <span style="font-size:0.75rem;color:var(--color-text-muted);line-height:1.4;">
-                  Offer letter PDF unlocks after your enrollment deposit is verified.
-                </span>
-              </div>
+              <% if(isExpired){ %>
+                <p style="font-size:0.8rem;color:var(--color-text-muted);max-width:220px;margin-bottom:0.75rem;">This offer has expired. Contact admissions if you still wish to enroll.</p>
+                <a href="mailto:admissions@scholarsgate.com" class="btn btn-gold btn-sm">
+                  <i class="fa-solid fa-envelope"></i> Contact Admissions
+                </a>
+
+              <% } else if(isIssued){ %>
+                <p style="font-size:0.8rem;color:var(--color-text-muted);max-width:220px;margin-bottom:0.75rem;">Accept this offer to begin enrollment.</p>
+                <form action="/parent/offers/<%= offer._id %>/accept" method="POST">
+                  <button type="submit" class="btn btn-gold btn-sm"
+                    onclick="return confirm('Accept this offer and proceed to payment?')">
+                    <i class="fa-solid fa-check"></i> Accept Offer
+                  </button>
+                </form>
+
+              <% } else if(isAccepted && payStatus==='rejected'){ %>
+                <p style="font-size:0.8rem;color:var(--color-danger);max-width:220px;margin-bottom:0.75rem;"><%= payment.rejectionReason || 'Your payment was rejected.' %> Resubmit to unlock.</p>
+                <a href="/parent/offers/<%= offer._id %>/payment" class="btn btn-gold btn-sm">
+                  <i class="fa-solid fa-rotate-right"></i> Resubmit Payment
+                </a>
+
+              <% } else if(isAccepted && (payStatus==='pending' || payStatus==='under_review')){ %>
+                <p style="font-size:0.8rem;color:var(--color-text-muted);max-width:220px;">
+                  <i class="fa-regular fa-clock" style="margin-right:4px;"></i>
+                  Payment under review — 24–48 hrs
+                </p>
+
+              <% } else if(isAccepted){ %>
+                <p style="font-size:0.8rem;color:var(--color-text-muted);max-width:220px;margin-bottom:0.75rem;">Submit your enrollment deposit to unlock this offer.</p>
+                <a href="/parent/offers/<%= offer._id %>/payment" class="btn btn-gold btn-sm">
+                  <i class="fa-solid fa-upload"></i> Submit Deposit
+                </a>
               <% } %>
-
             </div>
+            <% } %>
+            </div>
+
           </div>
           <%}%>
 
