@@ -25,7 +25,7 @@
 
     <!-- Form -->
     <div style="background:rgba(255,255,255,0.04);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08);border-radius:24px;padding:2.5rem;box-shadow:0 32px 80px rgba(0,0,0,0.4);">
-      <form action="/applications/apply/<%= scholarship.slug %>" method="POST" data-validate class="form-dark">
+      <form action="/applications/apply/<%= scholarship.slug %>" method="POST" enctype="multipart/form-data" data-validate class="form-dark">
 
         <!-- Student Selection -->
         <div class="form-group">
@@ -71,8 +71,86 @@
             <div><div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.3);">Coverage</div><div style="font-size:0.875rem;font-weight:600;color:var(--color-gold);"><%= scholarship.coveragePercentage %>%</div></div>
             <div><div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.3);">Annual Value</div><div style="font-size:0.875rem;font-weight:600;color:var(--color-ivory);">$<%= (scholarship.annualValue||0).toLocaleString() %></div></div>
             <div><div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.3);">Deadline</div><div style="font-size:0.875rem;font-weight:600;color:var(--color-ivory);"><%= new Date(scholarship.applicationDeadline).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) %></div></div>
+            <div><div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.3);">Application Fee</div><div style="font-size:0.875rem;font-weight:600;color:var(--color-ivory);"><%= scholarship.applicationFee ? '$' + scholarship.applicationFee.toLocaleString() : 'Free' %></div></div>
+          </div>
+          <% if (scholarship.applicationFee) { %>
+          <p style="font-size:0.75rem;color:rgba(255,255,255,0.4);margin-top:0.875rem;margin-bottom:0;">
+            <i class="fa-solid fa-circle-info" style="margin-right:4px;"></i>
+            A $<%= scholarship.applicationFee.toLocaleString() %> application fee is required to submit this application. Pay it below — your application will be reviewed once the fee is verified.
+          </p>
+          <% } %>
+        </div>
+
+        <!-- Application Fee Payment — only when this scholarship charges one -->
+        <% if (scholarship.applicationFee) { %>
+        <div style="height:1px;background:rgba(255,255,255,0.06);margin:1.5rem 0;"></div>
+
+        <div style="margin-bottom:1.5rem;">
+          <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-gold);margin-bottom:1rem;">
+            Application Fee — $<%= scholarship.applicationFee.toLocaleString() %>
+          </div>
+
+          <% if (bankDetails) { %>
+          <div style="padding:1rem 1.25rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;margin-bottom:1.25rem;">
+            <div style="display:flex;flex-direction:column;gap:0.5rem;font-size:0.8rem;">
+              <% if (bankDetails.bankName) { %><div style="display:flex;justify-content:space-between;"><span style="color:rgba(255,255,255,0.4);">Bank Name</span><span style="color:var(--color-ivory);font-weight:600;"><%= bankDetails.bankName %></span></div><% } %>
+              <div style="display:flex;justify-content:space-between;"><span style="color:rgba(255,255,255,0.4);">Account Name</span><span style="color:var(--color-ivory);font-weight:600;"><%= bankDetails.accountName %></span></div>
+              <div style="display:flex;justify-content:space-between;"><span style="color:rgba(255,255,255,0.4);">Account Number</span><span style="color:var(--color-ivory);font-weight:600;"><%= bankDetails.accountNumber %></span></div>
+              <% if (bankDetails.routingNumber) { %><div style="display:flex;justify-content:space-between;"><span style="color:rgba(255,255,255,0.4);">Routing (ABA)</span><span style="color:var(--color-ivory);font-weight:600;"><%= bankDetails.routingNumber %></span></div><% } %>
+              <% if (bankDetails.swiftCode) { %><div style="display:flex;justify-content:space-between;"><span style="color:rgba(255,255,255,0.4);">SWIFT / BIC</span><span style="color:var(--color-ivory);font-weight:600;"><%= bankDetails.swiftCode %></span></div><% } %>
+              <% if (bankDetails.iban) { %><div style="display:flex;justify-content:space-between;"><span style="color:rgba(255,255,255,0.4);">IBAN</span><span style="color:var(--color-ivory);font-weight:600;"><%= bankDetails.iban %></span></div><% } %>
+            </div>
+            <% if (bankDetails.instructions) { %>
+            <p style="font-size:0.75rem;color:rgba(255,255,255,0.35);margin-top:0.75rem;margin-bottom:0;line-height:1.6;"><%= bankDetails.instructions %></p>
+            <% } %>
+          </div>
+          <% } else { %>
+          <div style="padding:1rem 1.25rem;background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.15);border-radius:14px;margin-bottom:1.25rem;font-size:0.8rem;color:rgba(255,255,255,0.5);">
+            <i class="fa-solid fa-triangle-exclamation" style="color:var(--color-warning);margin-right:6px;"></i>
+            Payment details aren't configured yet. Contact <a href="mailto:payments@scholarsgate.com" style="color:var(--color-gold);">payments@scholarsgate.com</a> before applying.
+          </div>
+          <% } %>
+
+          <div class="form-group">
+            <label class="form-label">Payment Method <span class="required">*</span></label>
+            <select name="paymentMethod" class="form-control form-select" required>
+              <option value="">Select method...</option>
+              <option value="wire_transfer">Wire Transfer</option>
+              <option value="bank_transfer">Bank Transfer</option>
+              <option value="western_union">Western Union</option>
+              <option value="paypal">PayPal</option>
+              <option value="crypto_usdt">USDT</option>
+              <option value="crypto_btc">Bitcoin</option>
+              <option value="crypto_eth">Ethereum</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Transaction Reference Number</label>
+            <input type="text" name="referenceNumber" class="form-control" placeholder="e.g. TXN-2024-XXXXXXXX"/>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Payment Proof <span class="required">*</span></label>
+            <div class="upload-zone" style="position:relative;">
+              <input type="file" name="proof" accept=".pdf,.jpg,.jpeg,.png" required
+                style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;"/>
+              <div class="upload-prompt">
+                <span class="upload-icon" style="font-size:2.5rem;">📎</span>
+                <div style="font-weight:600;color:var(--color-ivory);margin-bottom:0.25rem;">Click or drag file here</div>
+                <div style="font-size:0.8rem;color:rgba(255,255,255,0.35);">PDF, JPG, or PNG · Max 10MB</div>
+              </div>
+              <div class="upload-success" style="display:none;">
+                <span style="font-size:2rem;">✅</span>
+                <div style="font-weight:600;color:var(--color-success-light);">File selected</div>
+                <div class="upload-file-name" style="font-size:0.8rem;color:rgba(255,255,255,0.35);"></div>
+              </div>
+            </div>
+            <p class="form-hint" style="color:rgba(255,255,255,0.3);">Receipt or transfer confirmation for the application fee above.</p>
           </div>
         </div>
+        <% } %>
 
         <!-- Agreement -->
         <div style="margin-bottom:1.5rem;">
@@ -87,7 +165,7 @@
         <div style="display:flex;gap:1rem;">
           <a href="/scholarships/<%= scholarship.slug %>" class="btn btn-ghost" style="color:rgba(255,255,255,0.5);border-color:rgba(255,255,255,0.1);">Cancel</a>
           <button type="submit" class="btn btn-gold btn-lg" style="flex:1;justify-content:center;">
-            <i class="fa-solid fa-paper-plane"></i> Submit Application
+            <i class="fa-solid fa-paper-plane"></i> <%= scholarship.applicationFee ? 'Submit Application & Pay Fee' : 'Submit Application' %>
           </button>
         </div>
       </form>
