@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Pay Application Fee | ScholarsGate</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body data-authenticated>
+<div class="dashboard-layout">
+  <div class="sidebar-overlay"></div>
+  <%- include('../../partials/sidebar') %>
+  <div class="dashboard-main">
+    <div class="dashboard-topbar">
+      <div class="topbar-left">
+        <button class="sidebar-toggle" style="width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.04);border:none;cursor:pointer;"><i class="fa-solid fa-bars"></i></button>
+        <div>
+          <div class="page-title-bar">Pay Application Fee</div>
+          <div class="breadcrumb"><a href="/parent/applications">Applications</a><span class="breadcrumb-sep">/</span><span>Application Fee</span></div>
+        </div>
+      </div>
+    </div>
+    <%- include('../../partials/flash') %>
+
+    <div class="dashboard-content">
+      <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:2rem;max-width:1100px;">
+
+        <!-- ─── LEFT COLUMN ──────────────────────────────────────────── -->
+        <div style="display:flex;flex-direction:column;gap:1.5rem;">
+
+          <!-- Amount Display -->
+          <div class="deposit-amount-display">
+            <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:0.5rem;">Application Fee Required</div>
+            <div class="deposit-amount-value">$<%= (application.applicationFeeAmount || 0).toLocaleString() %></div>
+            <div style="font-size:0.8rem;color:var(--color-text-muted);margin-top:0.5rem;"><%= bankDetails?.currency || 'USD' %> — Required to submit this application for review</div>
+          </div>
+
+          <!-- Payment Method -->
+          <div class="data-table-wrap" style="padding:1.75rem;">
+            <h3 style="font-family:'Playfair Display',serif;font-size:1.2rem;margin-bottom:1.25rem;">Choose Payment Method</h3>
+
+            <!-- Tab selector — bank transfer disabled for now, crypto-only -->
+            <div style="display:flex;gap:0.5rem;margin-bottom:1.5rem;border-bottom:2px solid rgba(0,0,0,0.08);padding-bottom:0;">
+              <!-- <button type="button" onclick="switchTab('bank')" id="tab-bank" ...>Bank Transfer</button> -->
+              <% if (bankDetails?.cryptoEnabled) { %>
+              <button type="button" onclick="switchTab('crypto')" id="tab-crypto"
+                style="padding:0.625rem 1.25rem;font-size:0.8rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;border:none;background:none;cursor:pointer;border-bottom:2px solid var(--color-gold);margin-bottom:-2px;color:var(--color-gold-dim);">
+                <i class="fa-solid fa-coins" style="margin-right:6px;"></i>Cryptocurrency
+              </button>
+              <% } %>
+            </div>
+
+            <!-- Bank tab — disabled for now -->
+            <!--
+            <div id="panel-bank">
+              ... bank transfer details ...
+            </div>
+            -->
+
+            <!-- ─── Crypto Tab ────────────────────────────────────────── -->
+            <% if (bankDetails?.cryptoEnabled) { %>
+            <div id="panel-crypto" style="display:block;">
+
+              <div style="margin-bottom:1.25rem;">
+                <label class="form-label">Select Cryptocurrency & Network</label>
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:0.625rem;" id="cryptoNetworkGrid">
+                  <% const cryptoOptions = [
+                    { id:'usdt-trc20', label:'USDT', sub:'TRC20 (TRON)', address: bankDetails.cryptoAddresses?.usdtTrc20, icon:'💵', color:'#26a17b' },
+                    { id:'usdt-erc20', label:'USDT', sub:'ERC20 (Ethereum)', address: bankDetails.cryptoAddresses?.usdtErc20, icon:'💵', color:'#26a17b' },
+                    { id:'usdt-bep20', label:'USDT', sub:'BEP20 (BNB Chain)', address: bankDetails.cryptoAddresses?.usdtBep20, icon:'💵', color:'#F0B90B' },
+                    { id:'btc',        label:'Bitcoin', sub:'BTC Mainnet', address: bankDetails.cryptoAddresses?.bitcoin, icon:'₿', color:'#f7931a' },
+                    { id:'eth',        label:'Ethereum', sub:'ETH Mainnet', address: bankDetails.cryptoAddresses?.ethereum, icon:'Ξ', color:'#627eea' },
+                  ]; %>
+                  <% cryptoOptions.forEach(opt => { if (opt.address) { %>
+                  <label style="display:flex;flex-direction:column;align-items:center;gap:0.375rem;padding:1rem 0.75rem;border-radius:10px;border:2px solid rgba(0,0,0,0.08);cursor:pointer;text-align:center;transition:all 0.2s;"
+                    class="crypto-option-label" data-address="<%= opt.address %>" data-id="<%= opt.id %>"
+                    onclick="selectCrypto(this,'<%= opt.address %>','<%= opt.id %>')">
+                    <input type="radio" name="_cryptoChoice" value="<%= opt.id %>" style="display:none;"/>
+                    <span style="font-size:1.4rem;"><%= opt.icon %></span>
+                    <span style="font-size:0.875rem;font-weight:700;color:var(--color-text-primary);"><%= opt.label %></span>
+                    <span style="font-size:0.65rem;color:var(--color-text-muted);"><%= opt.sub %></span>
+                  </label>
+                  <% } }); %>
+                </div>
+              </div>
+
+              <!-- Wallet address display (shown after selection) -->
+              <div id="cryptoAddressDisplay" style="display:none;background:linear-gradient(135deg,#0f1524,#1a2240);border-radius:14px;padding:1.5rem;border:1px solid rgba(201,168,76,0.25);margin-bottom:1.25rem;">
+                <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:0.75rem;">Send Payment To This Wallet</div>
+                <div style="display:flex;align-items:center;gap:0.75rem;">
+                  <div id="cryptoAddressText" style="font-family:monospace;font-size:0.875rem;color:var(--color-gold);word-break:break-all;flex:1;background:rgba(201,168,76,0.08);padding:0.875rem;border-radius:8px;border:1px solid rgba(201,168,76,0.2);"></div>
+                  <button type="button" onclick="copyWallet()" title="Copy address"
+                    style="width:40px;height:40px;border-radius:8px;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.3);color:var(--color-gold);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+                    <i class="fa-regular fa-copy"></i>
+                  </button>
+                </div>
+                <div style="margin-top:0.875rem;padding:0.75rem;background:rgba(255,165,0,0.08);border-radius:8px;border:1px solid rgba(255,165,0,0.2);">
+                  <p style="font-size:0.75rem;color:rgba(255,200,100,0.8);line-height:1.7;margin:0;">
+                    <i class="fa-solid fa-triangle-exclamation" style="margin-right:6px;"></i>
+                    Send <strong style="color:var(--color-gold);">exactly $<%= (application.applicationFeeAmount || 0).toLocaleString() %> USD</strong> equivalent. Double-check the network before sending — wrong network = lost funds.
+                  </p>
+                </div>
+                <% if (bankDetails.cryptoInstructions) { %>
+                <p style="font-size:0.75rem;color:rgba(255,255,255,0.4);line-height:1.7;margin-top:0.75rem;"><%= bankDetails.cryptoInstructions %></p>
+                <% } %>
+              </div>
+            </div>
+            <% } else { %>
+            <div style="padding:2rem;text-align:center;background:var(--gradient-navy);border-radius:16px;border:1px solid rgba(201,168,76,0.2);">
+              <i class="fa-solid fa-triangle-exclamation" style="font-size:2.5rem;color:var(--color-warning);margin-bottom:1rem;display:block;"></i>
+              <p style="font-size:0.875rem;color:rgba(255,255,255,0.5);">Payment isn't configured yet. Contact <a href="mailto:payments@scholarsgate.com" style="color:var(--color-gold);">payments@scholarsgate.com</a></p>
+            </div>
+            <% } %>
+          </div>
+
+          <!-- ─── Upload Form ──────────────────────────────────────────── -->
+          <div class="data-table-wrap" style="padding:1.75rem;">
+            <h3 style="font-family:'Playfair Display',serif;font-size:1.25rem;margin-bottom:0.5rem;">Upload Payment Proof</h3>
+            <p style="font-size:0.875rem;color:var(--color-text-muted);margin-bottom:1.5rem;">Upload your payment receipt or screenshot as proof of transfer.</p>
+
+            <% if (existingPayment && existingPayment.status === 'verified') { %>
+            <div class="alert alert-success">
+              <i class="fa-solid fa-circle-check"></i>
+              <span>Application fee verified! Your application has been submitted for review.</span>
+            </div>
+            <a href="/parent/applications/<%= application._id %>" class="btn btn-gold w-full btn-lg" style="margin-top:1rem;justify-content:center;">
+              <i class="fa-solid fa-arrow-right"></i> View Application
+            </a>
+            <% } else { %>
+
+            <form action="/parent/applications/<%= application._id %>/fee" method="POST" enctype="multipart/form-data" data-validate>
+
+              <!-- Hidden crypto fields (populated by JS) -->
+              <input type="hidden" name="cryptoTxHash" id="hiddenTxHash"/>
+              <input type="hidden" name="cryptoWalletAddress" id="hiddenWalletAddress"/>
+              <input type="hidden" name="cryptoNetwork" id="hiddenNetwork"/>
+
+              <div class="form-group">
+                <label class="form-label">Payment Method <span class="required">*</span></label>
+                <select name="paymentMethod" class="form-control form-select" required id="paymentMethodSelect"
+                  onchange="handleMethodChange(this.value)">
+                  <option value="">Select method...</option>
+                  <% if (bankDetails?.cryptoEnabled) { %>
+                  <optgroup label="Cryptocurrency">
+                    <option value="crypto_usdt" <%= existingPayment?.paymentMethod === 'crypto_usdt' ? 'selected' : '' %>>USDT (TRC20 / ERC20 / BEP20)</option>
+                    <option value="crypto_btc"  <%= existingPayment?.paymentMethod === 'crypto_btc'  ? 'selected' : '' %>>Bitcoin (BTC)</option>
+                    <option value="crypto_eth"  <%= existingPayment?.paymentMethod === 'crypto_eth'  ? 'selected' : '' %>>Ethereum (ETH)</option>
+                  </optgroup>
+                  <% } %>
+                  <option value="other" <%= existingPayment?.paymentMethod === 'other' ? 'selected' : '' %>>Other</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Transaction Reference Number</label>
+                <input type="text" name="referenceNumber" class="form-control"
+                  placeholder="e.g. TXN-2024-XXXXXXXX"
+                  value="<%= existingPayment?.referenceNumber || '' %>"/>
+              </div>
+
+              <!-- Crypto-specific fields -->
+              <div id="cryptoExtraFields" style="display:none;">
+                <div class="form-group">
+                  <label class="form-label">Transaction Hash (TX ID) <span class="required">*</span></label>
+                  <input type="text" id="txHashInput" class="form-control" style="font-family:monospace;font-size:0.85rem;"
+                    placeholder="0x... or full transaction hash from your wallet"
+                    value="<%= existingPayment?.cryptoTxHash || '' %>"
+                    oninput="document.getElementById('hiddenTxHash').value=this.value"/>
+                  <p class="form-hint">Find this in your wallet app under transaction history. It proves the payment was sent on-chain.</p>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Your Sending Wallet Address</label>
+                  <input type="text" id="senderWalletInput" class="form-control" style="font-family:monospace;font-size:0.85rem;"
+                    placeholder="Your wallet address (optional but helps verification)"
+                    value="<%= existingPayment?.cryptoWalletAddress || '' %>"
+                    oninput="document.getElementById('hiddenWalletAddress').value=this.value"/>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Payment Proof (Screenshot / Receipt) <span class="required">*</span></label>
+                <div class="upload-zone" style="position:relative;">
+                  <input type="file" name="proof" accept=".pdf,.jpg,.jpeg,.png" required
+                    style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;"/>
+                  <div class="upload-prompt">
+                    <span class="upload-icon" style="font-size:2.5rem;">📎</span>
+                    <div style="font-weight:600;color:var(--color-text-primary);margin-bottom:0.25rem;">Click or drag file here</div>
+                    <div style="font-size:0.8rem;color:var(--color-text-muted);">PDF, JPG, or PNG · Max 10MB</div>
+                  </div>
+                  <div class="upload-success" style="display:none;">
+                    <span style="font-size:2rem;">✅</span>
+                    <div style="font-weight:600;color:var(--color-success-light);">File selected</div>
+                    <div class="upload-file-name" style="font-size:0.8rem;color:var(--color-text-muted);"></div>
+                  </div>
+                </div>
+                <% if (existingPayment?.proofOfPayment?.url) { %>
+                <div style="margin-top:0.75rem;padding:0.75rem;background:var(--color-info-bg);border-radius:8px;border:1px solid rgba(26,58,106,0.1);display:flex;align-items:center;justify-content:space-between;">
+                  <span style="font-size:0.8rem;color:var(--color-info);"><i class="fa-solid fa-file-image" style="margin-right:6px;"></i>Previous upload on file.</span>
+                  <a href="<%= existingPayment.proofOfPayment.url %>" target="_blank" style="font-size:0.75rem;font-weight:600;color:var(--color-info);text-decoration:none;">View ↗</a>
+                </div>
+                <% } %>
+              </div>
+
+              <% if (existingPayment && existingPayment.status === 'pending') { %>
+              <div class="alert alert-warning" style="margin-bottom:1rem;">
+                <i class="fa-solid fa-clock"></i>
+                <span>Application fee under review (24–48 hours).</span>
+              </div>
+              <% } else if (existingPayment && existingPayment.status === 'rejected') { %>
+              <div class="alert alert-danger" style="margin-bottom:1rem;">
+                <i class="fa-solid fa-circle-xmark"></i>
+                <span><%= existingPayment.rejectionReason || 'Payment rejected.' %> Please resubmit.</span>
+              </div>
+              <% } %>
+
+              <button type="submit" class="btn btn-gold btn-lg w-full" style="justify-content:center;">
+                <i class="fa-solid fa-upload"></i> Submit Application Fee Proof
+              </button>
+            </form>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- ─── RIGHT COLUMN ───────────────────────────────────────────── -->
+        <div style="display:flex;flex-direction:column;gap:1.5rem;">
+
+          <!-- Application Summary -->
+          <div class="data-table-wrap" style="padding:1.5rem;">
+            <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:1rem;">Application Summary</div>
+            <div style="display:flex;align-items:center;gap:0.875rem;margin-bottom:1.25rem;padding-bottom:1.25rem;border-bottom:var(--border-dark);">
+              <div style="width:44px;height:44px;border-radius:10px;background:var(--gradient-navy);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--color-gold);font-size:1.1rem;flex-shrink:0;">
+                <%= (application.school?.name || 'S')[0] %>
+              </div>
+              <div>
+                <div style="font-weight:700;font-size:0.95rem;"><%= application.school?.name %></div>
+                <div style="font-size:0.8rem;color:var(--color-text-muted);"><%= application.scholarship?.name || 'Scholarship Application' %></div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.5rem;">
+              <div style="display:flex;justify-content:space-between;font-size:0.8rem;">
+                <span style="color:var(--color-text-muted);">Application #</span>
+                <span style="font-weight:600;font-family:monospace;"><%= application.applicationNumber %></span>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:0.8rem;">
+                <span style="color:var(--color-text-muted);">Status</span>
+                <span class="badge badge-gold" style="font-size:10px;">Draft — awaiting fee</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment status -->
+          <% if (existingPayment) { %>
+          <div class="data-table-wrap" style="padding:1.5rem;">
+            <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:0.75rem;">Payment Status</div>
+            <div style="display:flex;align-items:center;gap:0.75rem;">
+              <div style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;background:<%= existingPayment.status==='verified'?'var(--color-success-bg)':existingPayment.status==='rejected'?'var(--color-danger-bg)':'var(--color-warning-bg)' %>;">
+                <%- existingPayment.status==='verified'?'✅':existingPayment.status==='rejected'?'❌':'⏳' %>
+              </div>
+              <div>
+                <div style="font-weight:700;font-size:0.875rem;text-transform:capitalize;"><%= existingPayment.status.replace('_',' ') %></div>
+                <div style="font-size:0.75rem;color:var(--color-text-muted);">Submitted <%= new Date(existingPayment.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) %></div>
+              </div>
+            </div>
+            <% if (existingPayment.cryptoTxHash) { %>
+            <div style="margin-top:0.875rem;padding:0.75rem;background:rgba(0,0,0,0.03);border-radius:8px;border:var(--border-dark);">
+              <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:4px;">TX Hash</div>
+              <div style="font-family:monospace;font-size:0.75rem;color:var(--color-text-secondary);word-break:break-all;"><%= existingPayment.cryptoTxHash %></div>
+            </div>
+            <% } %>
+          </div>
+          <% } %>
+
+          <!-- Help -->
+          <div style="padding:1.25rem;background:var(--color-info-bg);border-radius:12px;border:1px solid rgba(26,58,106,0.12);">
+            <div style="font-weight:600;font-size:0.875rem;color:var(--color-info);margin-bottom:0.5rem;"><i class="fa-solid fa-headset" style="margin-right:6px;"></i>Need Help?</div>
+            <p style="font-size:0.8rem;color:var(--color-text-secondary);line-height:1.7;margin-bottom:0.5rem;">Questions about the application fee?</p>
+            <a href="mailto:payments@scholarsgate.com" style="font-size:0.8rem;font-weight:600;color:var(--color-info);text-decoration:none;">payments@scholarsgate.com ↗</a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<style>
+  #toast-container{position:fixed;bottom:2rem;right:2rem;z-index:9999;display:flex;flex-direction:column;gap:.75rem;}
+  .toast{display:flex;align-items:center;gap:.75rem;padding:.875rem 1.25rem;border-radius:10px;background:#fff;box-shadow:0 8px 32px rgba(0,0,0,.2);font-size:.875rem;font-weight:500;min-width:280px;max-width:400px;transform:translateX(120%);transition:transform .4s cubic-bezier(.34,1.56,.64,1),opacity .4s ease;opacity:0;color:#1a1a2e;}
+  .toast.show{transform:translateX(0);opacity:1;}
+  .crypto-option-label { transition: all 0.2s; }
+  .crypto-option-label.selected { border-color: var(--color-gold) !important; background: rgba(201,168,76,0.06); }
+  @media(max-width:768px){ .dashboard-content > div { grid-template-columns: 1fr !important; } }
+</style>
+<script src="/js/main.js"></script>
+<script>
+function switchTab(tab) {
+  const tabs = ['bank', 'crypto'];
+  tabs.forEach(t => {
+    const btn   = document.getElementById('tab-' + t);
+    const panel = document.getElementById('panel-' + t);
+    if (!btn || !panel) return;
+    if (t === tab) {
+      btn.style.borderBottomColor = 'var(--color-gold)';
+      btn.style.color = 'var(--color-gold-dim)';
+      panel.style.display = 'block';
+    } else {
+      btn.style.borderBottomColor = 'transparent';
+      btn.style.color = 'var(--color-text-muted)';
+      panel.style.display = 'none';
+    }
+  });
+}
+
+function selectCrypto(el, address, networkId) {
+  document.querySelectorAll('.crypto-option-label').forEach(l => l.classList.remove('selected'));
+  el.classList.add('selected');
+  el.querySelector('input[type=radio]').checked = true;
+
+  const display = document.getElementById('cryptoAddressDisplay');
+  document.getElementById('cryptoAddressText').textContent = address;
+  document.getElementById('hiddenWalletAddress').value = address;
+  document.getElementById('hiddenNetwork').value = networkId;
+  display.style.display = 'block';
+}
+
+function copyWallet() {
+  const addr = document.getElementById('cryptoAddressText').textContent;
+  navigator.clipboard.writeText(addr).then(() => showToast('Wallet address copied!', 'success'));
+}
+
+function handleMethodChange(val) {
+  const isCrypto = val.startsWith('crypto_');
+  document.getElementById('cryptoExtraFields').style.display = isCrypto ? 'block' : 'none';
+  const txInput = document.getElementById('txHashInput');
+  if (txInput) txInput.required = isCrypto;
+}
+
+(function() {
+  const sel = document.getElementById('paymentMethodSelect');
+  if (sel && sel.value) handleMethodChange(sel.value);
+})();
+
+(function() {
+  if (document.getElementById('tab-crypto')) switchTab('crypto');
+})();
+</script>
+</body>
+</html>
